@@ -3,18 +3,19 @@ Custom logging for the OffWorld Gym client.
 Perform terminal logging, file logging and network streaming of logs by default
 To change the default behavion, edits the settings.yaml file
 """
+from offworld_gym import version
 
 __author__      = "Ashish Kumar"
 __copyright__   = "Copyright offworld.ai 2019"
 __license__     = "None"
-__version__     = "0.0.1"
+__version__     = version.__version__
 __maintainer__  = "Ashish Kumar"
 __email__       = "ashish.kumar@offworld.ai"
 __status__      = "Development"
 
 import os
 import socket
-import logging 
+import logging, logging.handlers
 import time
 from offworld_gym.config import settings
 

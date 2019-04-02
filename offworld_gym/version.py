@@ -1,3 +1,3 @@
 # Copyright offworld.ai 2019
 
-VERSION = '0.0.1'
+__version__ = '0.0.1'

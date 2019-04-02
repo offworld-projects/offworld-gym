@@ -1,12 +1,12 @@
 # Copyright offworld.ai 2019
 import gym
 
-from real_gym import logger
-from real_gym.core import controller
+from offworld_gym import logger
+from offworld_gym.core.controller import GymController
 
 class RealEnv(gym.Env):
     def __init__(self):
-        pass
+        self.request_controller = GymController()
 
     def step(self, action):        
         raise NotImplementedError
