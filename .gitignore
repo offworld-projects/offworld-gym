@@ -1,4 +1,5 @@
 *.pyc
 logs/
+tests/
 *.egg-info/
 *.html
