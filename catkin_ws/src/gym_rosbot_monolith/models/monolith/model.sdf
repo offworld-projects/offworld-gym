@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="monolith">
+  <pose>0 0 0.455 0 0 0</pose>
+  <static>true</static>
+    <link name="link">
+      <inertial>
+        <mass>1.0</mass>
+        <inertia> 
+          <ixx>0.354918</ixx>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyy>0.281021373</iyy>
+          <iyz>0.0</iyz>
+          <izz>0.080750806</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.1016 0.4826 0.9144</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <box>
+            <size>0.1016 0.4826 0.9144</size>
+          </box>
+        </geometry>
+        <material> 
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.2 1</diffuse>
+          <specular>0 0 0 0</specular>
+          <emissive>0 0 0 1</emissive>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

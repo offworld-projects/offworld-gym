@@ -3,3 +3,6 @@ logs/
 tests/
 *.egg-info/
 *.html
+catkin_ws/build
+catkin_ws/devel
+catkin_ws/install

@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="lunar_surface">
+    <static>1</static>
+    <link name="link">
+      <inertial>
+        <pose>-30.421967 -17.519714 0.811065 0 0 0</pose>
+        <mass>1.0</mass>
+        <inertia>     
+          <ixx>3115559.750000</ixx>
+          <ixy>-83257.507812</ixy>
+          <ixz>-4498.861328</ixz>
+          <iyy>5997571.500000</iyy>
+          <iyz>-43741.187500</iyz> 
+          <izz>9093018.000000</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://lunar_surface/meshes/model.dae</uri>
+            <scale>0.1 0.1 0.1</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.6</mu>
+              <mu2>0.6</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://lunar_surface/meshes/model.dae</uri>
+            <scale>0.1 0.1 0.1</scale>
+          </mesh>
+        </geometry>
+      </visual> 
+    </link>
+  </model>
+</sdf>
