@@ -2,12 +2,6 @@
 
 echo "export GAZEBO_MODEL_PATH=`pwd`/../models:"'$GAZEBO_MODEL_PATH' >> ~/.bashrc
 
-declare -a sub_folders=("decoration" "electronics" "food" "furniture" "kitchen" "miscellaneous" "shapes" "stationery" "tools")
-for i in "${sub_folders[@]}"
-do
-    echo "export GAZEBO_MODEL_PATH="'$GAZEBO_MODEL_PATH'":`pwd`/../models/3DGEMS/$i" >> ~/.bashrc
-done
-
 cd ../..
 git clone https://github.com/husarion/rosbot_description.git -b devel
 sudo apt install ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers -y
