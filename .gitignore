@@ -1,6 +1,6 @@
 *.pyc
 logs/
-tests/
+.vscode
 *.egg-info/
 *.html
 catkin_ws/build

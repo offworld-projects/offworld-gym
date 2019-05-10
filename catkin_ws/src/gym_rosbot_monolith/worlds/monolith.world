@@ -86,10 +86,10 @@
       <pose frame=''>-1.18612 -3.2877 0 0 -0 0</pose>
     </model>
     <state world_name='default'>
-      <sim_time>7553 195000000</sim_time>
-      <real_time>61 757451102</real_time>
-      <wall_time>1557171144 20080065</wall_time>
-      <iterations>61626</iterations>
+      <sim_time>7673 582000000</sim_time>
+      <real_time>72 235068041</real_time>
+      <wall_time>1557356668 138350120</wall_time>
+      <iterations>71967</iterations>
       <model name='lunar_surface'>
         <pose frame=''>13.5964 8.66373 -0.402736 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -101,10 +101,10 @@
         </link>
       </model>
       <model name='monolith'>
-        <pose frame=''>-1.75026 -3.11746 1.52383 0 -0 0</pose>
+        <pose frame=''>-1.75026 -3.11746 1.08255 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose frame=''>-1.75026 -3.11746 1.52383 0 -0 0</pose>
+          <pose frame=''>-1.75026 -3.11746 1.08255 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -116,7 +116,7 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>-8.9314 -6.6353 2.21207 0 0.177796 0.385</pose>
+        <pose frame=''>11.2927 -13.3891 10.442 0 0.613796 2.521</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
