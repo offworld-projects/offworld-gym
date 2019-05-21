@@ -55,3 +55,5 @@ git clone https://github.com/ros/geometry.git -b indigo-devel
 git clone https://github.com/ros/geometry2.git -b indigo-devel
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
 git clone https://github.com/ros-controls/ros_control.git -b kinetic-devel
+
+./install_environment.sh
