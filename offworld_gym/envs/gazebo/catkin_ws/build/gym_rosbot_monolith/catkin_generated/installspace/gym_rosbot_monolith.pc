@@ -1,0 +1,8 @@
+prefix=/home/ashish/offworld/Code/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/install
+
+Name: gym_rosbot_monolith
+Description: Description of gym_rosbot_monolith
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/ashish/offworld/Code/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/install/lib 
+Requires: 

@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ashish/offworld/Code/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/install/setup.sh
