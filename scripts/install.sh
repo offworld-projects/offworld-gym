@@ -8,7 +8,6 @@ cd Python-3.6.3
 sudo ./configure
 sudo make 
 sudo make install 
-curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
 
 # Create virtual env
 sudo pip3.6 install virtualenv
