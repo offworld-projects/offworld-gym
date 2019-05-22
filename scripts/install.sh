@@ -1,19 +1,18 @@
 #!/usr/bin/env bash
 
 # Install python3.6
-sudo su
 cd /opt
-wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
-tar -xvf Python-3.6.3.tgz
+sudo wget https://www.python.org/ftp/python/3.6.3/Python-3.6.3.tgz
+sudo tar -xvf Python-3.6.3.tgz
 cd Python-3.6.3
-./configure
-make 
-make install 
+sudo ./configure
+sudo make 
+sudo make install 
 curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
 
 # Create virtual env
 sudo pip3.6 install virtualenv
-virtualenv -p `python3.6` ~/ve/py36
+virtualenv -p python3.6 ~/ve/py36
 echo "source ~/ve/py36/bin/activate" >> ~/.bashrc
 source ~/.bashrc
 
