@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-echo "export GAZEBO_MODEL_PATH=`pwd`/../models:"'$GAZEBO_MODEL_PATH' >> ~/.bashrc
+echo "export GAZEBO_MODEL_PATH=`pwd`/../offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:"'$GAZEBO_MODEL_PATH' >> ~/.bashrc
 
 cd ../..
 git clone https://github.com/husarion/rosbot_description.git -b devel
