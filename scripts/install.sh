@@ -41,7 +41,7 @@ mkdir $OFFWORLD_GYM_ROOT/assets
 cd $OFFWORLD_GYM_ROOT/assets
 git clone https://github.com/ros/catkin.git -b kinetic-devel
 cd $OFFWORLD_GYM_ROOT/assets/catkin
-mkdir build && cmake .. && make
+mkdir build && cd build && cmake .. && make
 
 # build ROS workspace
 cd $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
