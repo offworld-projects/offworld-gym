@@ -3,7 +3,7 @@
 # this assumes the script is executed from under `scripts` directory
 # (should we move `install.sh` to the repository root? will be cleaner)
 cd ..
-$OFFWORLD_GYM_ROOT = `pwd`
+export OFFWORLD_GYM_ROOT=`pwd`
 
 # make sure we have Python 3.5
 sudo apt install python3.5 python3.5-dev

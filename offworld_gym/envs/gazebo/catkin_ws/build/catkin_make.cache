@@ -1,2 +1,0 @@
-gym_rosbot_monolith
--DCATKIN_DEVEL_PREFIX=/home/ashish/offworld/Code/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/ashish/offworld/Code/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/install -G Unix Makefiles
