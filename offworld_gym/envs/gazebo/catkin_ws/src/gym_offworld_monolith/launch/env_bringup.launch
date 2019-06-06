@@ -8,7 +8,7 @@
   <arg name="debug" default="false"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find gym_offworld_monolith)/worlds/monolith.world"/>
+    <arg name="world_name" value="$(find gym_offworld_monolith)/worlds/gymbox.world"/>
     <arg name="paused" value="$(arg paused)"/>
     <arg name="use_sim_time" value="$(arg use_sim_time)"/>
     <arg name="gui" value="$(arg gui)"/>
@@ -17,8 +17,8 @@
   </include>
 
   <include file="$(find gym_offworld_monolith)/launch/rosbot.launch">
-    <arg name="pos_x" value="0"/>
-    <arg name="pos_y" value="0"/>
+    <arg name="pos_x" value="0.9"/>
+    <arg name="pos_y" value="0.9"/>
     <arg name="pos_z" value="0.21"/>
   </include>
 </launch>

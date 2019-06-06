@@ -1,38 +1,39 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
-  <model name="monolith">
-  <pose>0 0 0.455 0 0 0</pose>
+  <model name="sidewall">
+  <pose>0 0 1.143 0 0 0</pose>
   <static>true</static>
     <link name="link">
       <inertial>
-        <mass>2.0</mass>
-        <inertia> 
-          <ixx>0.0424</ixx>
+        <mass>10.0</mass>
+        <inertia>
+          <ixx>17.61741068</ixx>
           <ixy>0.0</ixy>
           <ixz>0.0</ixz>
-          <iyy>0.0348</iyy>
+          <iyy>4.3459784048</iyy>
           <iyz>0.0</iyz>
-          <izz>0.007841</izz>
+          <izz>13.2885677248</izz>
         </inertia>
       </inertial>
       <collision name="collision">
         <geometry>
           <box>
-            <size>0.0254 0.2159 0.4572</size>
+            <size>0.1016 4.0 2.286</size>
           </box>
         </geometry>
       </collision>
       <visual name="visual">
         <geometry>
           <box>
-            <size>0.0254 0.2159 0.4572</size>
+            <size>0.1016 4.0 2.286</size>
           </box>
         </geometry>
         <material> 
-          <ambient>0.1 0.1 0.1 1</ambient>
-          <diffuse>0.1 0.1 0.2 1</diffuse>
-          <specular>0 0 0 0</specular>
-          <emissive>0 0 0 1</emissive>
+            <script>
+                <uri>model://sidewall/materials/scripts</uri>
+                <uri>model://sidewall/materials/textures</uri>
+                <name>sidewall/wall</name>
+            </script>
         </material>
       </visual>
     </link>
