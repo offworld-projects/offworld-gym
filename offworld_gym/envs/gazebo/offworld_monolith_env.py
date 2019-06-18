@@ -19,7 +19,6 @@ from scipy.spatial import distance
 #gym
 import gym
 from gym import utils, spaces
-from offworld_gym import version
 from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
 from gym.utils import seeding
 from offworld_gym.envs.common.offworld_gym_utils import ImageUtils
@@ -66,6 +65,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         self.seed()
         self.channel_type = channel_type
         self.random_init = random_init
+        self.step_count = 0
 
         self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
         self.action_space = spaces.Discrete(4)
@@ -208,8 +208,11 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             reward = 1.0
             done = True
         else:
-            reward = -0.01
+            reward = 0.0 #-0.01 No step cost as of now
             done = False
+        
+        if self.step_count == 200:
+            done = True
         return reward, done
 
     def step(self, action):
@@ -226,6 +229,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         """
         # unpause physics before interaction with the environment
         GazeboUtils.unpause_physics()
+        self.step_count += 1
 
         assert action is not None, "Action cannot be None."
         assert isinstance(action, FourDiscreteMotionActions) or isinstance(action, int), "Action type is not recognized."
@@ -237,9 +241,12 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         self._send_action_commands(action)
 
         state = self._get_state()
-
+    
         reward, done = self._calculate_reward()
-
+        
+        if done:
+            self.step_count = 0
+            
         # pause physics now, speeds up simulation
         GazeboUtils.pause_physics()
         

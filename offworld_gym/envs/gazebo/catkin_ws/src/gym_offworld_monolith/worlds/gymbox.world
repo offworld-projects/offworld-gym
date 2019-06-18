@@ -56,8 +56,17 @@
       <real_time_update_rate>1000</real_time_update_rate>
     </physics>
     <scene>
-      <ambient>0.4 0.4 0.4 1</ambient>
-      <background>0.7 0.7 0.7 1</background>
+      <ambient>0 0 0 1</ambient>
+      <background>0 0 0 1</background>
+      <grid>0</grid>
+      <sky>
+        <time>13</time>
+        <sunrise>12</sunrise>
+        <sunset>12</sunset>
+        <clouds>
+          <humidity>0</humidity>
+        </clouds>
+      </sky>
       <shadows>1</shadows>
     </scene>
     <spherical_coordinates>
@@ -68,10 +77,10 @@
       <heading_deg>0</heading_deg>
     </spherical_coordinates>
     <state world_name='default'>
-      <sim_time>1752 697000000</sim_time>
-      <real_time>223 901563908</real_time>
-      <wall_time>1559856633 784710234</wall_time>
-      <iterations>117719</iterations>
+      <sim_time>1796 706000000</sim_time>
+      <real_time>44 214739745</real_time>
+      <wall_time>1559942715 925433953</wall_time>
+      <iterations>44009</iterations>
       <model name='backwall'>
         <pose frame=''>-1.98385 -0.26563 1.143 0 -0 0</pose>
         <scale>1 1 1</scale>
@@ -148,7 +157,7 @@
     </state>
     <gui fullscreen='0'>
       <camera name='user_camera'>
-        <pose frame=''>-3.69402 2.50405 6.78827 0 1.0258 -0.559711</pose>
+        <pose frame=''>-8.81603 4.26233 15.1659 0 0.9538 -0.671717</pose>
         <view_controller>orbit</view_controller>
         <projection_type>perspective</projection_type>
       </camera>
