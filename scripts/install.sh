@@ -70,8 +70,6 @@ git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
 git clone https://github.com/ros-controls/ros_control.git -b kinetic-devel
 git clone https://github.com/ros/dynamic_reconfigure.git -b master
 git clone https://github.com/offworld-projects/offworld_rosbot_description.git -b kinetic-devel
-git clone https://github.com/ros/rospack.git -b kinetic-devel
-git clone https://github.com/ros/cmake_modules.git -b 0.4-devel
 
 cd ..
 $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
@@ -79,12 +77,13 @@ $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
 echo "ROS dependencies build complete."
 
 # integrate the new environment into the system
-echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> ~/.bashrc
-echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> ~/.bashrc
-unset PYTHONPATH
-export PYTHONPATH=~/ve/py35gym/lib/python3.5/site-packages:$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/kinetic/lib/python2.7/dist-packages
-source ~/.bashrc
-source ~/ve/py35gym/bin/activate
+#echo "source ~/ve/py35gym/bin/activate" >> ~/.bashrc
+#echo "unset PYTHONPATH" >> ~/.bashrc
+#echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
+#echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> ~/.bashrc
+#echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> ~/.bashrc
+#echo "export PYTHONPATH=~/ve/py35gym/lib/python3.5/site-packages:$PYTHONPATH" >> ~/.bashrc
 
-echo "Installation complete!"
-echo "To test it run 'roslaunch gym_offworld_monolith env_bringup.launch'."
+printf "Installation complete.\n\n"
+printf "To test Real environment:\n\t(add instructions here)\n\n"
+printf "To test Sim environment open two terminals and run:\n\t1. $OFFWORLD_GYM_ROOT/scripts/start_sim.sh\n\t2. $OFFWORLD_GYM_ROOT/scripts/start_gzclient.sh\n\n"
