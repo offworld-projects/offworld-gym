@@ -33,10 +33,14 @@ pip install matplotlib
 pip install netifaces
 pip install regex
 pip install psutil
+pip install gym
+pip install python-socketio
+cd $OFFWORLD_GYM_ROOT
+pip install -e .
 echo "Python packages installed."
 
 # install additional ROS packages
-sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers ros-kinetic-rospack libignition-math2-dev
+sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers ros-kinetic-rospack libignition-math2-dev python3-tk
 
 # build Python 3.5 version of catkin *without* installing it system-wide
 mkdir $OFFWORLD_GYM_ROOT/assets
@@ -46,6 +50,10 @@ git clone https://github.com/ros/catkin.git -b kinetic-devel
 cd $OFFWORLD_GYM_ROOT/assets/catkin
 mkdir build && cd build && cmake .. && make
 echo "Catkin build for Python 3.5 complete."
+
+# prepare for building the workspace
+cd /usr/lib/x86_64-linux-gnu
+sudo ln -s libboost_python-py35.so libboost_python3.so
 
 # build ROS workspace
 cd $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
@@ -70,6 +78,7 @@ git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
 git clone https://github.com/ros-controls/ros_control.git -b kinetic-devel
 git clone https://github.com/ros/dynamic_reconfigure.git -b master
 git clone https://github.com/offworld-projects/offworld_rosbot_description.git -b kinetic-devel
+git clone https://github.com/ros-perception/vision_opencv.git -b kinetic
 
 cd ..
 $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
@@ -83,6 +92,15 @@ echo "ROS dependencies build complete."
 #echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> ~/.bashrc
 #echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> ~/.bashrc
 #echo "export PYTHONPATH=~/ve/py35gym/lib/python3.5/site-packages:$PYTHONPATH" >> ~/.bashrc
+
+# update to gazebo 7.13
+# http://answers.gazebosim.org/question/18934/kinect-in-gazebo-not-publishing-topics/
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+sudo apt install wget
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install gazebo7
+sudo apt-get install libgazebo7-dev
 
 printf "Installation complete.\n\n"
 printf "To test Real environment:\n\t(add instructions here)\n\n"
