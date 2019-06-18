@@ -6,10 +6,10 @@ cd ..
 export OFFWORLD_GYM_ROOT=`pwd`
 
 # make sure we have Python 3.5
-sudo apt install python3.5 python3.5-dev
+sudo apt install -y python3.5 python3.5-dev
 
 # create virtual environment
-sudo apt install virtualenv
+sudo apt install -y virtualenv
 mkdir ~/ve
 virtualenv -p python3.5 ~/ve/py35gym
 source ~/ve/py35gym/bin/activate
@@ -36,7 +36,7 @@ pip install psutil
 echo "Python packages installed."
 
 # install additional ROS packages
-sudo apt install ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers -y
+sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers ros-kinetic-rospack libignition-math2-dev
 
 # build Python 3.5 version of catkin *without* installing it system-wide
 mkdir $OFFWORLD_GYM_ROOT/assets
@@ -54,6 +54,7 @@ $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_init_workspace
 git clone https://github.com/ros/xacro.git -b kinetic-devel
 git clone https://github.com/ros/ros.git -b kinetic-devel
 git clone https://github.com/ros/ros_comm.git -b kinetic-devel
+git clone https://github.com/ros/common_msgs.git -b indigo-devel
 git clone https://github.com/ros/catkin.git -b kinetic-devel
 git clone https://github.com/ros/ros_comm_msgs.git -b indigo-devel
 git clone https://github.com/ros/gencpp.git -b indigo-devel
@@ -68,7 +69,9 @@ git clone https://github.com/ros/geometry2.git -b indigo-devel
 git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
 git clone https://github.com/ros-controls/ros_control.git -b kinetic-devel
 git clone https://github.com/ros/dynamic_reconfigure.git -b master
-git clone https://github.com/husarion/rosbot_description.git -b devel
+git clone https://github.com/offworld-projects/offworld_rosbot_description.git -b kinetic-devel
+git clone https://github.com/ros/rospack.git -b kinetic-devel
+git clone https://github.com/ros/cmake_modules.git -b 0.4-devel
 
 cd ..
 $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
@@ -78,9 +81,10 @@ echo "ROS dependencies build complete."
 # integrate the new environment into the system
 echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> ~/.bashrc
 echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> ~/.bashrc
-export 
 unset PYTHONPATH
+export PYTHONPATH=~/ve/py35gym/lib/python3.5/site-packages:$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/kinetic/lib/python2.7/dist-packages
 source ~/.bashrc
+source ~/ve/py35gym/bin/activate
 
 echo "Installation complete!"
 echo "To test it run 'roslaunch gym_offworld_monolith env_bringup.launch'."
