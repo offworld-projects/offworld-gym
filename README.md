@@ -1,9 +1,9 @@
 # OffWorld Gym
-### Open access physical robotics environment for real-world reinforcement learning research
+### Real-world robotics environment for Reinforcement Learning research
 
-Just by running `pip install offworld-gym` and changing your `gym.make('CartPole-v0')` to `gym.make('OffWorldMonolith-v0')` you can now run your RL algorithm on a **real robot** for free!
+Install the library, change your `gym.make('CartPole-v0')` to `gym.make('OffWorldMonolith-v0')` and you are all set to run your RL algorithm on a **real robot**, for free!
 
-![OffWorld Monolith environment](doc/env1-offworld-monolith.jpg) <!-- .element height="300px" -->
+![OffWorld Monolith environment](doc/env1-offworld-monolith.jpg)  
 Environment 1: OffWorld Monolith
 
 
