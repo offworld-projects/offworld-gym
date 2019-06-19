@@ -102,6 +102,8 @@ sudo apt-get update
 sudo apt-get install gazebo7
 sudo apt-get install libgazebo7-dev
 
-printf "Installation complete.\n\n"
+printf "\n\nInstallation complete\n---------------------\n\n"
+printf "To setup a shell for OffWorld Gym run\n\n\tsource $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\n\nin each new terminal to activate Gym Shell.\n"
+printf "Or add to your ~/.bashrc by running\n\n\techo \"source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\" >> ~/.bashrc\n\n---------------------\n\n"
 printf "To test Real environment:\n\t(add instructions here)\n\n"
-printf "To test Sim environment open two terminals and run:\n\t1. $OFFWORLD_GYM_ROOT/scripts/start_sim.sh\n\t2. $OFFWORLD_GYM_ROOT/scripts/start_gzclient.sh\n\n"
+printf "To test Sim environment: open two terminals, activate Gym Shell, and run:\n\t1. roslaunch gym_offworld_monolith env_bringup.launch\n\t2. gzclient\n\n"

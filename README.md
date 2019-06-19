@@ -19,9 +19,8 @@ You will be able to use Python 3 with this environemt.
 Please install the following components using the corresponding installation instructions.
 
   * [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
-  * 
   
-For GPU support add
+For GPU support also install
   * [CUDA 10.0 Library](https://developer.nvidia.com/cuda-10.0-download-archive)
   * [cuDNN 7.0 Library](https://developer.nvidia.com/cudnn)
 
@@ -31,6 +30,30 @@ git clone git@github.com:offworld-projects/offworld-gym.git
 cd offworld-gym/scripts
 ./install.sh
 ```
+
+To prepare a terminal for running OffWorld Gym use
+```
+source /home/ilya/offworld/Code/offworld-gym/scripts/gymshell.sh
+```
+in each new terminal to activate Gym Shell.
+Or add it  your ~/.bashrc by running
+```
+echo "source /home/ilya/offworld/Code/offworld-gym/scripts/gymshell.sh" >> ~/.bashrc
+```
+
+To test Real environment:
+	
+	(add instructions here)
+
+To test Sim environment open two terminals, activate Gym Shell, and run:
+	
+	1. roslaunch gym_offworld_monolith env_bringup.launch
+	2. gzclient
+
+
+
+
+
 
 ### Examples
 *(have one real and one simulated example)*
