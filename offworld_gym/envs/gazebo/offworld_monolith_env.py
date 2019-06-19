@@ -235,7 +235,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         assert action is not None, "Action cannot be None."
         assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
-        if isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)):
+        if isinstance(action, (int, np.int32, np.int64)):
             assert action >= 0 and action < 4, "Unrecognized value for the action"
             action = FourDiscreteMotionActions(action)
 
