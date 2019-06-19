@@ -97,8 +97,8 @@ class OffWorldMonolithEnv(GazeboGymEnv):
                 rgb_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
                 img = ImageUtils.process_img_msg(rgb_data)
             except:
-                rospy.logerr("Error: '/camera/rgb/image_raw'timeout.")
-        
+                rospy.logerr("Error: '/camera/rgb/image_raw' timeout.")
+        assert(img is not None)
         depth_data = None
         depth_img = None
         while depth_data is None:
@@ -106,7 +106,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
                 depth_data = rospy.wait_for_message('/camera/depth/image_raw', Image, timeout=5)
                 depth_img = ImageUtils.process_depth_msg(depth_data)
             except:
-                rospy.logerr("Error: '/camera/depth/image_raw'timeout.")
+                rospy.logerr("Error: '/camera/depth/image_raw' timeout.")
         
         if self.channel_type == Channels.DEPTH_ONLY:
             state = depth_img
@@ -117,7 +117,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.loginfo("State of the environment captured.")
         return state
 
-    def _move_rosbot(self, lin_x_speed, ang_z_speed, sleep_time=5):
+    def _move_rosbot(self, lin_x_speed, ang_z_speed, sleep_time=2):
         """Moves the ROSBot 
 
         Accepts linear x speed and angular z speed and moves the
@@ -144,9 +144,9 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             action_type: FourDiscreteMotionActions instance 
         """
         if action_type == FourDiscreteMotionActions.LEFT:
-            self._move_rosbot(0.07, -1.25, 5) 
+            self._move_rosbot(0.07, 1.25, 4) 
         elif action_type == FourDiscreteMotionActions.RIGHT:
-            self._move_rosbot(0.007, 1.25, 5) 
+            self._move_rosbot(0.07, -1.25, 4) 
         elif action_type == FourDiscreteMotionActions.FORWARD:
             self._move_rosbot(0.1, 0.0)
         elif action_type == FourDiscreteMotionActions.BACKWARD:
