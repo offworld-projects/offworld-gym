@@ -205,6 +205,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rosbot_state = self._get_state_vector('rosbot')
         dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
 
+        # check distance to the monolith
         if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
             reward = 1.0
             done = True
@@ -212,7 +213,12 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             reward = 0.0 #-0.01 No step cost as of now
             done = False
         
-        if self.step_count == 200:
+        # check boundaries
+        if rosbot_state[0] < -1.65 or rosbot_state[0] > 1.80 or rosbot_state[1] < -1.50 or rosbot_state[1] > 1.00:
+            reward = 0.0
+            done = True
+
+        if self.step_count == 100:
             done = True
         return reward, done
 

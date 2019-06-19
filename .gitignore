@@ -9,3 +9,4 @@ catkin_ws/install
 assets/catkin
 offworld_gym/envs/gazebo/catkin_ws
 scripts/gymshell.sh
+models/
