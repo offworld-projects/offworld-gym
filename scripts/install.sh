@@ -85,13 +85,15 @@ $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
 
 echo "ROS dependencies build complete."
 
-# integrate the new environment into the system
-#echo "source ~/ve/py35gym/bin/activate" >> ~/.bashrc
-#echo "unset PYTHONPATH" >> ~/.bashrc
-#echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-#echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> ~/.bashrc
-#echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> ~/.bashrc
-#echo "export PYTHONPATH=~/ve/py35gym/lib/python3.5/site-packages:$PYTHONPATH" >> ~/.bashrc
+# build the Gym Shell script
+echo "#!/usr/bin/env bash" > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "source ~/ve/py35gym/bin/activate" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "unset PYTHONPATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "source /opt/ros/kinetic/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "export PYTHONPATH=~/ve/py35gym/lib/python3.5/site-packages:$PYTHONPATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 
 # update to gazebo 7.13
 # http://answers.gazebosim.org/question/18934/kinect-in-gazebo-not-publishing-topics/
