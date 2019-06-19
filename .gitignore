@@ -6,3 +6,5 @@ logs/
 catkin_ws/build
 catkin_ws/devel
 catkin_ws/install
+assets/catkin
+offworld_gym/envs/gazebo/catkin_ws
