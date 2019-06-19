@@ -1,10 +1,36 @@
-## OffWorld Gym Library
+# OffWorld Gym
+### Real-world robotics environment for Reinforcement Learning research
 
-A suite of real and simuated robotic environments for research in the field of reinforcement learning. OffWorld Gym's environments follow the OpenAI Gym environment's contract.
+Install the library, change your `gym.make('CartPole-v0')` to `gym.make('OffWorldMonolith-v0')` and you are all set to run your RL algorithm on a **real robot**, for free!
 
-### Requirements
-1. [CUDA 10.0 Library](https://developer.nvidia.com/cuda-10.0-download-archive)
-2. [cuDNN 7.0 Library](https://developer.nvidia.com/cudnn)
-3. Tensorflow GPU version
-4. Open AI Gym library
+![OffWorld Monolith environment](doc/env1-offworld-monolith.jpg)  
+Environment 1: OffWorld Monolith
 
+
+### Getting access to the OffWorld Real
+*(section about registration and resource manager)*
+
+### Installation
+The installation was tested on: Ubuntu 16.04.6  
+Following these steps will prepare you for running both the Real and the Sim versions of the OffWorld Gym.  
+You will be able to use Python 3 with this environemt.
+
+#### Pre-requisites
+Please install the following components using the corresponding installation instructions.
+
+  * [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
+  * 
+  
+For GPU support add
+  * [CUDA 10.0 Library](https://developer.nvidia.com/cuda-10.0-download-archive)
+  * [cuDNN 7.0 Library](https://developer.nvidia.com/cudnn)
+
+#### Setup
+```
+git clone git@github.com:offworld-projects/offworld-gym.git
+cd offworld-gym/scripts
+./install.sh
+```
+
+### Examples
+*(have one real and one simulated example)*
