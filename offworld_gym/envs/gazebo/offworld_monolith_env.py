@@ -15,6 +15,7 @@ from math import pi
 import time
 import numpy as np
 from scipy.spatial import distance
+import pdb
 
 #gym
 import gym
@@ -48,7 +49,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
     """
     _PROXIMITY_THRESHOLD = 0.20
 
-    def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=False):
+    def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
         super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
 
         assert isinstance(channel_type, Channels), "Channel type is not of Channels."
@@ -116,7 +117,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.loginfo("State of the environment captured.")
         return state
 
-    def _move_rosbot(self, lin_x_speed, ang_z_speed, sleep_time=2):
+    def _move_rosbot(self, lin_x_speed, ang_z_speed, sleep_time=5):
         """Moves the ROSBot 
 
         Accepts linear x speed and angular z speed and moves the
@@ -143,13 +144,13 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             action_type: FourDiscreteMotionActions instance 
         """
         if action_type == FourDiscreteMotionActions.LEFT:
-            self._move_rosbot(0.0, -0.25) 
+            self._move_rosbot(0.07, -1.25, 5) 
         elif action_type == FourDiscreteMotionActions.RIGHT:
-            self._move_rosbot(0.0, 0.25) 
+            self._move_rosbot(0.007, 1.25, 5) 
         elif action_type == FourDiscreteMotionActions.FORWARD:
-            self._move_rosbot(0.15, 0.0)
+            self._move_rosbot(0.1, 0.0)
         elif action_type == FourDiscreteMotionActions.BACKWARD:
-            self._move_rosbot(-0.15, 0.0)
+            self._move_rosbot(-0.1, 0.0)
             
     def _get_model_state(self, name):
         """Get model state object
@@ -232,12 +233,14 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
-        assert isinstance(action, FourDiscreteMotionActions) or isinstance(action, int), "Action type is not recognized."
+        assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
-        if isinstance(action, int):
+        if isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)):
             assert action >= 0 and action < 4, "Unrecognized value for the action"
             action = FourDiscreteMotionActions(action)
 
+        rospy.loginfo("Step: %d" % self.step_count)
+        rospy.loginfo(action)
         self._send_action_commands(action)
 
         state = self._get_state()
@@ -264,8 +267,15 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             assert model_name is not None or model_name != ''
             goal_state = ModelState()
             goal_state.model_name = model_name
-            goal_state.pose.position.x, goal_state.pose.position.y = np.random.uniform(-2.0, 2.0, size=(2,))
-            goal_state.pose.position.z = -0.1
+
+            # random spawn location exlucing no-spawn 30cm radius around the monolith
+            goal_state.pose.position.x = self._monolith_space[0]
+            goal_state.pose.position.y = self._monolith_space[1]
+            while distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), self._monolith_space[0:2]) < 0.50:
+                goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
+                goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
+            rospy.loginfo("Spawning at (%.2f, %.2f)" % (goal_state.pose.position.x, goal_state.pose.position.y))
+            goal_state.pose.position.z = 0.20
                 
             if orient:
                 goal_state.pose.orientation.z, goal_state.pose.orientation.w = np.random.uniform(-3.14, 3.14, size=(2,))
@@ -289,7 +299,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             goal_state.model_name = model_name
             goal_state.pose.position.x = 0.0
             goal_state.pose.position.y = 0.0
-            goal_state.pose.position.z = -0.1
+            goal_state.pose.position.z = 0.20
 
             GazeboUtils.move_to_position(goal_state)
         except:
