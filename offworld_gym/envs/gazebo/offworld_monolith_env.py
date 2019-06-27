@@ -47,7 +47,9 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGB_ONLY)
         env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGBD)
     """
-    _PROXIMITY_THRESHOLD = 0.20
+    _PROXIMITY_THRESHOLD = 0.40
+    _EPISODE_LENGTH = 100
+    _TIME_DILATION = 3.0 # Has to match Gazebo sim speed up
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
         super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
@@ -132,7 +134,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         vel_cmd.angular.z = ang_z_speed
         self.vel_pub.publish(vel_cmd)
         
-        time.sleep(sleep_time)
+        time.sleep(sleep_time/OffWorldMonolithEnv._TIME_DILATION)
         vel_cmd = Twist()
         vel_cmd.linear.x = 0.0
         vel_cmd.angular.z = 0.0
@@ -204,7 +206,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         """
         rosbot_state = self._get_state_vector('rosbot')
         dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
-
+        rospy.logdebug("Distance between the rosbot and the monolith is : {}".format(str(dst)))
         # check distance to the monolith
         if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
             reward = 1.0
@@ -218,7 +220,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             reward = 0.0
             done = True
 
-        if self.step_count == 100:
+        if self.step_count == OffWorldMonolithEnv._EPISODE_LENGTH:
             done = True
         return reward, done
 
@@ -248,7 +250,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.loginfo("Step: %d" % self.step_count)
         rospy.loginfo(action)
         self._send_action_commands(action)
-
+        
         state = self._get_state()
     
         reward, done = self._calculate_reward()
