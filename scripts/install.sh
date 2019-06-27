@@ -35,12 +35,14 @@ pip install regex
 pip install psutil
 pip install gym
 pip install python-socketio
+pip install scikit-image
 cd $OFFWORLD_GYM_ROOT
 pip install -e .
 echo "Python packages installed."
 
 # install additional ROS packages
-sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers ros-kinetic-rospack libignition-math2-dev python3-tk
+sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers \
+                    ros-kinetic-rospack libignition-math2-dev python3-tk libeigen3-dev
 
 # build Python 3.5 version of catkin *without* installing it system-wide
 mkdir $OFFWORLD_GYM_ROOT/assets
