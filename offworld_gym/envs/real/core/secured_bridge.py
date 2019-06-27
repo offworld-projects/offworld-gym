@@ -19,6 +19,7 @@ from tlslite import HTTPTLSConnection
 import socketio
 import time
 from datetime import datetime
+import numpy as np
 
 # offworld gym
 from offworld_gym.envs.real.config import settings
@@ -138,7 +139,9 @@ class SecuredBridge(metaclass=Singleton):
 
         state = self._last_done_value
         logger.info("Telemetry recieved.")
-        return self._last_next_state_value, self._last_reward_value, self._last_done_value
+        next_state = np.asarray(self._last_next_state_value)
+        next_state = np.reshape(next_state, (1, next_state.shape[0], next_state.shape[1], next_state.shape[2]))
+        return next_state, self._last_reward_value, self._last_done_value
     
     def perform_reset(self):
         """Requests server to reset the environment
