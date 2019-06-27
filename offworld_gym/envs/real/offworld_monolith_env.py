@@ -25,6 +25,7 @@ from offworld_gym.envs.real.real_env import RealEnv
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
+from offworld_gym.envs.common.offworld_gym_utils import ImageUtils
 
 class OffWorldMonolithEnv(RealEnv):
     """Real Gym environment with a rosbot and a monolith on an uneven terrain

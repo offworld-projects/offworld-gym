@@ -31,8 +31,8 @@ from utils import TB_RL, GetLogPath
 
 # paths
 OFFWORLD_GYM_ROOT = os.environ['OFFWORLD_GYM_ROOT']
-LOG_PATH = '%s/logs' % OFFWORLD_GYM_ROOT
-MODEL_PATH = '%s/models' % OFFWORLD_GYM_ROOT
+LOG_PATH = '%s/logs/sim' % OFFWORLD_GYM_ROOT
+MODEL_PATH = '%s/models/sim' % OFFWORLD_GYM_ROOT
 if not os.path.exists(LOG_PATH):
     os.makedirs(LOG_PATH)
 if not os.path.exists(MODEL_PATH):

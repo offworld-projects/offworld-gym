@@ -6,7 +6,6 @@ __status__      = "Development"
 import random
 import numpy as np
 import cv2
-import rosbag
 import tf
 import rospy
 import math, time, os, sys, csv, errno, re
