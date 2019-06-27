@@ -20,6 +20,8 @@ from gazebo_msgs.srv import GetModelState, SetModelState
 from gazebo_msgs.msg import ModelState
 
 class ImageUtils(object):
+    """Image utility functions used by the OffWorld Gym environments
+    """
     IMG_H = 240
     IMG_W = 320
     IMG_C = 3
@@ -28,7 +30,6 @@ class ImageUtils(object):
     def process_img_msg(img_msg, resized_width=IMG_W, resized_height=IMG_H):
         """Converts ROS image to cv2, then to numpy
         """
-
         img = CvBridge().imgmsg_to_cv2(img_msg, "bgr8")
         img = np.asarray(img)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -50,6 +51,8 @@ class ImageUtils(object):
         return img
 
 class GazeboUtils:
+    """Gazebo utility functions used by the OffWorld Gym environments
+    """
 
     unpause = rospy.ServiceProxy('/gazebo/unpause_physics', Empty_srv)
     pause = rospy.ServiceProxy('/gazebo/pause_physics', Empty_srv)

@@ -4,5 +4,10 @@ from offworld_gym.envs.common.channels import Channels
 
 mc = SecuredBridge()
 mc.initiate()
-#mc.get_heart_beat()
-mc.perform_action(FourDiscreteMotionActions(2), Channels(1))
+import time
+while mc.get_last_heartbeat() is None:
+    time.sleep(1)
+print("Connection established.")
+state,reward,done = mc.perform_action(FourDiscreteMotionActions.FORWARD, Channels.DEPTH_ONLY)
+
+mc.perform_reset()

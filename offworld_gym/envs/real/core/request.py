@@ -13,35 +13,18 @@ __status__      = "Development"
 from enum import Enum
 import json
 
-from offworld_gym.envs.common.actions import FourDiscreteMotionActions
-from offworld_gym.envs.common.channels import Channels
+class OperationRequest:
+    START_MISSION_OP = 'START_MISSION'
+    SET_ARG_OP_MISSION_OP = 'SET_ARG_OP_MISSION'
+    RUN_OP_MISSION = 'RUN_OP_MISSION'
 
-class MissionRequest:
-    ENV_EXECUTE_RESULT = 'OPS:RESULT:ENV_EXECUTE'
-    
-    def __init__(self, op_name='START_MISSION', telemetry_name=ENV_EXECUTE_RESULT, *args, **kwargs):
-        self.mission = ActionRequest(op_name, args, kwargs)
-        self.telemetry_name = telemetry_name
-
-    def add_action_channel(self, action_type, channel_type):
-        self.mission.add_action_channel(action_type, channel_type)
-    
-    def to_json(self):
-        json_dict = {}
-        json_dict['mission'] = self.mission.__dict__
-        json_dict['telemetry_name'] = self.telemetry_name
-        return json.dumps(json_dict)
-
-class ActionRequest:
-    def __init__(self, op_name='START_MISSION', *args, **kwargs):
+    def __init__(self, op_name=START_MISSION_OP, *args, **kwargs):
         self.op_name = op_name
         self.args = args
         self.kwargs = kwargs
     
-    def add_action_channel(self, action_type, channel_type):
-        assert isinstance(action_type, FourDiscreteMotionActions), "Action can only be of type: ActionType."
-        assert isinstance(channel_type, Channels), "Channel can only be of type: Channels."
-        self.kwargs = {'action_type': action_type.value, 'channel_type': channel_type.value}
+    def to_json(self):
+        return json.dumps(self.__dict__)
     
 class TelemetryRequest:
     ROSBOT_HEARTBEAT = "TM:S:ROSBOT_HEARTBEAT"

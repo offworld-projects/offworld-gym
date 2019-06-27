@@ -9,6 +9,3 @@ application:
     gym_server:
       server_ip: "192.168.1.151"
       secured_port: 5000
-    user:
-      username: "gymuser1"
-      password: "yYs9kHDHE9wb3WUJXgKebKMDmCJyZFR3"
