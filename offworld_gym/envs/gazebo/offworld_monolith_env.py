@@ -47,7 +47,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGB_ONLY)
         env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGBD)
     """
-    _PROXIMITY_THRESHOLD = 0.40
+    _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
     _TIME_DILATION = 3.0 # Has to match Gazebo sim speed up
 
@@ -98,7 +98,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             try:
                 rgb_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
                 img = ImageUtils.process_img_msg(rgb_data)
-            except:
+            except rospy.ROSException:
                 rospy.logerr("Error: '/camera/rgb/image_raw' timeout.")
         assert(img is not None)
         depth_data = None
@@ -107,7 +107,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             try:
                 depth_data = rospy.wait_for_message('/camera/depth/image_raw', Image, timeout=5)
                 depth_img = ImageUtils.process_depth_msg(depth_data)
-            except:
+            except rospy.ROSException:
                 rospy.logerr("Error: '/camera/depth/image_raw' timeout.")
         
         if self.channel_type == Channels.DEPTH_ONLY:
@@ -167,7 +167,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             rospy.wait_for_service("/gazebo/get_model_state")
             state = g_getStateVector(model_name=name)
             return state
-        except:
+        except rospy.ServiceException:
             rospy.logerr("An error occured while invoking the get_model_state service.")
             return None
 
@@ -194,7 +194,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
                 return state
             else:
                 return None
-        except:
+        except rospy.ServiceException:
             rospy.logerr("An error occured while creating the state vector.")
             return None
 
@@ -212,7 +212,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             reward = 1.0
             done = True
         else:
-            reward = 0.0 #-0.01 No step cost as of now
+            reward = 0.0
             done = False
         
         # check boundaries
@@ -288,7 +288,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             if orient:
                 goal_state.pose.orientation.z, goal_state.pose.orientation.w = np.random.uniform(-3.14, 3.14, size=(2,))
             GazeboUtils.move_to_position(goal_state)
-        except:
+        except rospy.ROSException:
             rospy.logerr("An error occured while resetting the environment.")
             raise GymException("An error occured while resetting the environment.")
     
@@ -310,7 +310,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             goal_state.pose.position.z = 0.20
 
             GazeboUtils.move_to_position(goal_state)
-        except:
+        except rospy.ServiceException:
             rospy.logerr("An error occured while resetting the environment.")
             raise GymException("An error occured while resetting the environment.")
 

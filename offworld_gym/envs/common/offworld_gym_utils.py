@@ -64,7 +64,7 @@ class GazeboUtils:
         rospy.wait_for_service('/gazebo/unpause_physics')
         try:
             GazeboUtils.unpause()
-        except:
+        except rospy.ServiceException:
             rospy.logerr("/gazebo/pause_physics service call failed")
 
     @staticmethod
@@ -74,7 +74,7 @@ class GazeboUtils:
         rospy.wait_for_service('/gazebo/pause_physics')
         try:
             GazeboUtils.pause()
-        except:
+        except rospy.ServiceException:
             rospy.logerr("/gazebo/unpause_physics service call failed")
     
     @staticmethod
@@ -91,6 +91,6 @@ class GazeboUtils:
             rospy.wait_for_service('/gazebo/set_model_state')
             set_model_state = rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)
             set_model_state(model_state)
-        except Exception as e:
+        except rospy.ServiceException as e:
             rospy.logerr('The robot cannot be reset.')
             raise e
