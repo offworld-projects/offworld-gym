@@ -14,6 +14,7 @@ mkdir ~/ve
 virtualenv -p python3.5 ~/ve/py35gym
 source ~/ve/py35gym/bin/activate
 pip install --upgrade pip
+source /opt/ros/kinetic/setup.bash
 
 echo "Virtual environment set up done."
 # (we will drop this)
@@ -24,6 +25,7 @@ echo "Virtual environment set up done."
 pip install numpy
 pip install tensorflow-gpu
 pip install keras
+pip install keras-rl
 pip install opencv-python
 pip install catkin_pkg
 pip install empy
@@ -41,8 +43,10 @@ pip install -e .
 echo "Python packages installed."
 
 # install additional ROS packages
-sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration ros-kinetic-ros-controllers \
-                    ros-kinetic-rospack libignition-math2-dev python3-tk libeigen3-dev
+sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration \
+                    ros-kinetic-ros-controllers ros-kinetic-rospack \
+                    libignition-math2-dev python3-tk libeigen3-dev \
+                    ros-kinetic-roslint
 
 # build Python 3.5 version of catkin *without* installing it system-wide
 mkdir $OFFWORLD_GYM_ROOT/assets
@@ -88,7 +92,7 @@ $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
 echo "ROS dependencies build complete."
 
 # build the Gym Shell script
-echo "#!/usr/bin/env bash" > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo '#!/usr/bin/env bash' > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "source ~/ve/py35gym/bin/activate" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "unset PYTHONPATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "source /opt/ros/kinetic/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
