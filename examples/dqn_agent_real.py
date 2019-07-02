@@ -4,6 +4,7 @@ os.environ['CUDA_VISIBLE_DEVICES']='0'
 import sys, pdb
 import numpy as np
 from datetime import datetime
+import dill
 
 # configure tensorflow and keras
 import tensorflow as tf
@@ -25,7 +26,7 @@ from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.processors import Processor
-from rl.callbacks import ModelIntervalCheckpoint
+from rl.callbacks import ModelIntervalCheckpoint, Callback
 
 from utils import TB_RL, GetLogPath
 
@@ -121,7 +122,19 @@ class RosbotProcessor(Processor):
         configs_batch = np.concatenate(configs_batch, 0)
         return [imgs_batch, configs_batch]
 
+class TerminateOnInterrupt(Callback):
+
+    def __init__(self, agent):
+        self.agent = agent
+
+    def on_action_begin(self, action, logs):
+        if os.path.exists('/tmp/killrl'):
+            print("STOPPING THE LEARNING PROCESS")
+            self.agent.interrupt = True
+
 def train():
+    resume_training = False
+
     memory_size = 50000
     window_length = 1
     total_nb_steps = 1000000
@@ -140,17 +153,25 @@ def train():
     memory = SequentialMemory(limit=memory_size, window_length=window_length)
     policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), 'eps', max_eps, min_eps, 0.0, exploration_anneal_nb_steps)
     processor = RosbotProcessor()
-    dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
-                   target_model_update=target_model_update, policy=policy)
+
+    # DQN agent
+    if resume_training:
+        dqn = dill.load(open("running_agent.dill", "rb"))
+        dqn.load_weights("dqn_running_weights.h5f")
+    else:
+        dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
+                       target_model_update=target_model_update, policy=policy)
     dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
 
-    if load_weights:
-        dqn.load_weights('dqn_{}_weights.h5f'.format(NAME))
-        
     # model snapshot and tensorboard callbacks
-    loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
-    cbs = [ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1),
-           TB_RL(None, loggerpath)]
+    if resume_training:
+        callback_tb = dill.load(open("running_callback_tb.dill", "rb"))
+    else:
+        loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
+        callback_tb = TB_RL(None, loggerpath)
+        dill.dump(callback_tb, open("running_callback_tb.dill", "wb"))
+    callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
+    cbs = [callback_modelinterval, callback_tb, TerminateOnInterrupt(dqn)]
 
     # with shovelbot gym-gazebo, it's important to do some action repetition 
     # because otherwise the wrong observation may be taken for an action
@@ -158,9 +179,15 @@ def train():
     dqn.fit(env, callbacks=cbs, action_repetition=action_repetition, nb_steps=total_nb_steps, visualize=False, 
             verbose=verbose_level, log_interval=log_interval)
 
+    print("\nSaving training state")
+    dqn.save_weights("dqn_running_weights.h5f", overwrite=True)
+    dqn.trainable_model = None
+    dill.dump(dqn, open("running_agent.dill", "wb"))
+    print("Training state saved\n")
+
     # After training is done, we save the final weights.
-    dqn.save_weights('dqn_{}_final_weights.h5f'.format(NAME), overwrite=True)
-    pdb.set_trace()
+    #dqn.save_weights('dqn_{}_final_weights.h5f'.format(NAME), overwrite=True)
+    #pdb.set_trace()
         
     # Finally, evaluate our algorithm for 5 episodes.
     #dqn.test(env, nb_episodes=5, visualize=True)
