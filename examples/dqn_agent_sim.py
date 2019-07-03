@@ -4,6 +4,7 @@ os.environ['CUDA_VISIBLE_DEVICES']='0'
 import sys, pdb
 import numpy as np
 from datetime import datetime
+import dill
 
 # configure tensorflow and keras
 import tensorflow as tf
@@ -15,17 +16,18 @@ set_session(tf.Session(config=config))
 
 import gym
 import offworld_gym
+from offworld_gym.envs.common.channels import Channels
 
 import keras
 from keras.models import Model
-from keras.layers import Dense, Activation, Flatten, Conv2D, Input, MaxPooling2D, LeakyReLU, BatchNormalization
+from keras.layers import Dense, Activation, Flatten, Conv2D, Input, MaxPooling2D, LeakyReLU, BatchNormalization, Permute
 from keras.optimizers import Adam
 
 from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.processors import Processor
-from rl.callbacks import ModelIntervalCheckpoint
+from rl.callbacks import ModelIntervalCheckpoint, Callback
 
 from utils import TB_RL, GetLogPath
 
@@ -40,7 +42,7 @@ if not os.path.exists(MODEL_PATH):
 NAME = 'dqn_offworld_monolith-{}'.format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
 
 # Get the environment and extract the number of actions.
-env = gym.make('OffWorldMonolithSimEnv-v0')
+env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.DEPTH_ONLY)
 env.seed(123)
 nb_actions = env.action_space.n
 
@@ -68,10 +70,13 @@ def convBNRELU(input1, filters=8, kernel_size = 5, strides = 1, id1=0, use_batch
 def create_network():
     input_image_size = env.observation_space.shape[1:]
         
-    img_input = Input(shape=input_image_size, name='img_input')
-    config_input = Input(shape=(1,), name='config_input')
+    #img_input = Input(shape=input_image_size, name='img_input')
+    #config_input = Input(shape=(1,), name='config_input')
+    img_input = Input(shape=(240, 320, 4), name='img_input')
+    #config_input = Input(shape=(1, ), name='config_input')
         
     x = img_input
+    #x = Permute((2, 3, 1))(x)
     for i in range(2):
         x = convBNRELU(x, filters=4, kernel_size=5, strides=2, id1=i, use_batch_norm=USE_BN, use_leaky_relu=USE_LEAKY_RELU)
         x = MaxPooling2D((2, 2))(x)
@@ -79,7 +84,7 @@ def create_network():
     x = convBNRELU(x, filters=1, kernel_size=5, strides=1, id1=9, use_batch_norm=USE_BN, use_leaky_relu=USE_LEAKY_RELU)
     x = Flatten()(x)
         
-    x = keras.layers.concatenate([x, config_input])
+    #x = keras.layers.concatenate([x, config_input])
 
     x = Dense(16)(x)
     x = Activation('relu')(x)
@@ -88,7 +93,8 @@ def create_network():
         
     output = Dense(nb_actions)(x)
 
-    model = Model(inputs=[img_input, config_input], outputs=output)
+    #model = Model(inputs=[img_input, config_input], outputs=output)
+    model = Model(inputs=[img_input], outputs=output)
     print(model.summary())
         
     return model
@@ -119,11 +125,25 @@ class RosbotProcessor(Processor):
             configs_batch.append(np.concatenate(configs, 0))
         imgs_batch = np.concatenate(imgs_batch, 0)
         configs_batch = np.concatenate(configs_batch, 0)
-        return [imgs_batch, configs_batch]
+        #return [imgs_batch, configs_batch]
+        return imgs_batch
+
+class TerminateOnInterrupt(Callback):
+
+    def __init__(self, agent):
+        self.agent = agent
+
+    def on_action_begin(self, action, logs):
+        if os.path.exists('/tmp/killrl'):
+            print("STOPPING THE LEARNING PROCESS")
+            self.agent.interrupt = True
+    
 
 def train():
+    resume_training = True
+
     memory_size = 50000
-    window_length = 1
+    window_length = 4
     total_nb_steps = 1000000
     exploration_anneal_nb_steps = 40000
     max_eps = 0.8
@@ -140,27 +160,45 @@ def train():
     memory = SequentialMemory(limit=memory_size, window_length=window_length)
     policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), 'eps', max_eps, min_eps, 0.0, exploration_anneal_nb_steps)
     processor = RosbotProcessor()
-    dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
-                   target_model_update=target_model_update, policy=policy)
-    dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
+    
+    if resume_training:
+        dqn = dill.load(open("running_agent.dill", "rb"))
+        dqn.load_weights("dqn_running_weights.h5f")
+    else:
+        dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
+                       target_model_update=target_model_update, policy=policy)
 
-    if load_weights:
-        dqn.load_weights('dqn_{}_weights.h5f'.format(NAME))
-        
+    dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
+    
+
     # model snapshot and tensorboard callbacks
-    loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
-    cbs = [ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1),
-           TB_RL(None, loggerpath)]
+    if resume_training:
+        callback_tb = dill.load(open("running_callback_tb.dill", "rb"))
+    else:
+        loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
+        callback_tb = TB_RL(None, loggerpath)
+        dill.dump(callback_tb, open("running_callback_tb.dill", "wb"))
+
+    callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
+    
+    cbs = [callback_modelinterval, callback_tb, TerminateOnInterrupt(dqn)]
+
 
     # with shovelbot gym-gazebo, it's important to do some action repetition 
     # because otherwise the wrong observation may be taken for an action
     action_repetition = 1
     dqn.fit(env, callbacks=cbs, action_repetition=action_repetition, nb_steps=total_nb_steps, visualize=False, 
-            verbose=verbose_level, log_interval=log_interval)
+                verbose=verbose_level, log_interval=log_interval)
+
+    print("\nSaving training state")
+    dqn.save_weights("dqn_running_weights.h5f", overwrite=True)
+    dqn.trainable_model = None
+    dill.dump(dqn, open("running_agent.dill", "wb"))
+    print("Training state saved\n")
 
     # After training is done, we save the final weights.
-    dqn.save_weights('dqn_{}_final_weights.h5f'.format(NAME), overwrite=True)
-    pdb.set_trace()
+    #dqn.save_weights('dqn_{}_final_weights.h5f'.format(NAME), overwrite=True)
+    #pdb.set_trace()
         
     # Finally, evaluate our algorithm for 5 episodes.
     #dqn.test(env, nb_episodes=5, visualize=True)
