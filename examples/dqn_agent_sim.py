@@ -4,7 +4,7 @@ os.environ['CUDA_VISIBLE_DEVICES']='0'
 import sys, pdb
 import numpy as np
 from datetime import datetime
-import dill
+import pickle
 
 # configure tensorflow and keras
 import tensorflow as tf
@@ -134,15 +134,15 @@ class TerminateOnInterrupt(Callback):
         self.agent = agent
 
     def on_action_begin(self, action, logs):
-        if os.path.exists('/tmp/killrl'):
+        if os.path.exists('/tmp/killrlsim'):
             print("STOPPING THE LEARNING PROCESS")
             self.agent.interrupt = True
     
 
 def train():
-    resume_training = True
+    resume_training = False
 
-    memory_size = 50000
+    memory_size = 25000
     window_length = 4
     total_nb_steps = 1000000
     exploration_anneal_nb_steps = 40000
@@ -157,44 +157,65 @@ def train():
     log_interval = 200
 
     model = create_network()
-    memory = SequentialMemory(limit=memory_size, window_length=window_length)
     policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), 'eps', max_eps, min_eps, 0.0, exploration_anneal_nb_steps)
     processor = RosbotProcessor()
     
+    # create or load memory
     if resume_training:
-        dqn = dill.load(open("running_agent.dill", "rb"))
-        dqn.load_weights("dqn_running_weights.h5f")
+        (memory, memory.actions, memory.rewards, memory.terminals, memory.observations) = pickle.load(open("running_sim_dqn_memory.pkl", "rb"))
     else:
-        dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
-                       target_model_update=target_model_update, policy=policy)
+        memory = SequentialMemory(limit=memory_size, window_length=window_length)
 
+    # create the agent
+    dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
+                   target_model_update=target_model_update, policy=policy)
     dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
-    
+
+    # load weights
+    if resume_training:
+        dqn.load_weights("running_sim_dqn_weights.h5f")
+        episode_nr = pickle.load(open("running_sim_episode_nr.pkl", "rb"))
+    else:
+        episode_nr = 0
 
     # model snapshot and tensorboard callbacks
     if resume_training:
-        callback_tb = dill.load(open("running_callback_tb.dill", "rb"))
-    else:
+        callback_tb = pickle.load(open("running_sim_tb_callback.pkl", "rb"))
+    else:    
         loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
         callback_tb = TB_RL(None, loggerpath)
-        dill.dump(callback_tb, open("running_callback_tb.dill", "wb"))
-
-    callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
+        tbfile = open("running_sim_tb_callback.pkl", "wb")
+        pickle.dump(callback_tb, tbfile)
+        tbfile.close()
     
+    callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
     cbs = [callback_modelinterval, callback_tb, TerminateOnInterrupt(dqn)]
-
 
     # with shovelbot gym-gazebo, it's important to do some action repetition 
     # because otherwise the wrong observation may be taken for an action
     action_repetition = 1
     dqn.fit(env, callbacks=cbs, action_repetition=action_repetition, nb_steps=total_nb_steps, visualize=False, 
-                verbose=verbose_level, log_interval=log_interval)
+                verbose=verbose_level, log_interval=log_interval, resume_episode_nr=episode_nr)
 
-    print("\nSaving training state")
-    dqn.save_weights("dqn_running_weights.h5f", overwrite=True)
-    dqn.trainable_model = None
-    dill.dump(dqn, open("running_agent.dill", "wb"))
-    print("Training state saved\n")
+    pdb.set_trace()
+
+    # Save agent state to be able to resume later
+    print("Saving the state of the agent... please wait")
+    
+    memdump = (memory, memory.actions, memory.rewards, memory.terminals, memory.observations)
+    memfile = open("running_sim_dqn_memory.pkl", "wb")
+    pickle.dump(memdump, memfile)
+    memfile.close()
+
+    dqn.save_weights("running_sim_dqn_weights.h5f", overwrite=True)
+    
+    episode_nr = dqn.episodes_completed
+    episodefile = open("running_sim_episode_nr.pkl", "wb")
+    pickle.dump(episode_nr, episodefile)
+    episodefile.close()
+    
+    print("State of the agent is saved.")
+
 
     # After training is done, we save the final weights.
     #dqn.save_weights('dqn_{}_final_weights.h5f'.format(NAME), overwrite=True)
