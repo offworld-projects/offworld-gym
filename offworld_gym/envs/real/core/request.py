@@ -10,35 +10,46 @@ __maintainer__  = "Ashish Kumar"
 __email__       = "ashish.kumar@offworld.ai"
 __status__      = "Development"
 
-from enum import Enum
 import json
+from offworld_gym.envs.common.channels import Channels
+from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 
-class OperationRequest:
-    START_MISSION_OP = 'START_MISSION'
-    SET_ARG_OP_MISSION_OP = 'SET_ARG_OP_MISSION'
-    RUN_OP_MISSION = 'RUN_OP_MISSION'
+class Request:
 
-    def __init__(self, op_name=START_MISSION_OP, *args, **kwargs):
-        self.op_name = op_name
-        self.args = args
-        self.kwargs = kwargs
-    
-    def to_json(self):
-        return json.dumps(self.__dict__)
-    
-class TelemetryRequest:
-    ROSBOT_HEARTBEAT = "TM:S:ROSBOT_HEARTBEAT"
-    ENV_STATE_DEPTH = "TM:S:ENV_STATE_DEPTH"
-    ENV_STATE_RGB = "TM:S:ENV_STATE_RGB"
-    ENV_STATE_RGBD = "TM:S:ENV_STATE_RGBD"
-
-    def __init__(self, telemetry_name=ROSBOT_HEARTBEAT):
-        self.telemetry_name = telemetry_name
-
-    def set_telemetry_name(self, telemetry_name):
-        assert telemetry_name is not None, "Telemetry name cannot be None."
-        assert telemetry_name != '', "Telemetry name cannot be empty."
-        self.telemetry_name = telemetry_name
+    def __init__(self, username=None, password=None):
+        self.username = username
+        self.password = password
 
     def to_json(self):
         return json.dumps(self.__dict__)
+    
+    def to_dict(self):
+        return self.__dict__
+        
+
+class ActionRequest(Request):
+
+    URI = "action"
+
+    def __init__(self, username=None, password=None, action_type=FourDiscreteMotionActions.FORWARD, channel_type=Channels.DEPTH_ONLY):
+        Request.__init__(self, username, password)
+        self.action_type = action_type.value if isinstance(action_type, FourDiscreteMotionActions) else action_type
+        self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
+
+
+class ResetRequest(Request):
+    
+    URI = "reset"
+
+    def __init__(self, username=None, password=None, channel_type=Channels.DEPTH_ONLY):
+        Request.__init__(self, username, password)
+        self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
+
+
+class HeartBeatRequest(Request):
+    
+    URI = "heartbeat"
+    
+    def __init__(self, username=None, password=None):
+        Request.__init__(self, username, password)
+

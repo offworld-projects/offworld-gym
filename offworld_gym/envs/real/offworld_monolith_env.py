@@ -55,14 +55,15 @@ class OffWorldMonolithEnv(RealEnv):
         logger.info("Environment has been started.")
 
     def initiate(self):
-        self.secured_bridge.initiate()
         logger.info("Waiting to connect to the environment server.")
         wait_start = time.time()
         while True:
-            if "STATUS_RUNNING" in self.secured_bridge.get_last_heartbeat():
+            if self.secured_bridge.get_last_heartbeat() is None:
+                continue
+            elif self.secured_bridge.get_last_heartbeat() == "STATUS_RUNNING":
                 break
             else:
-                continue
+                raise GymException("Gym server is not ready.")
             if time.time() - wait_start > 60:
                 raise GymException("Connect to the environment server timed out.")
         
@@ -80,20 +81,21 @@ class OffWorldMonolithEnv(RealEnv):
             done: A flag which is true when an episode is complete
             info: No info given for fair learning :)
         """
+        self.step_count += 1
+        logger.info("Step count: {}".format(str(self.step_count)))
         
         assert action is not None, "Action cannot be None."
-        assert isinstance(action, FourDiscreteMotionActions) or isinstance(action, int), "Action type is not recognized."
-        self.step_count += 1
+        assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
-        if isinstance(action, int):
+        if isinstance(action, (int, np.int32, np.int64)):
             assert action >= 0 and action < 4, "Unrecognized value for the action"
             action = FourDiscreteMotionActions(action)
         
         state, reward, done = self.secured_bridge.perform_action(action, self._channel_type)
-        if self.step_count == 200:
+        if self.step_count == OffWorldMonolithEnv._EPISODE_LENGTH:
             done = True
             self.step_count = 0
-            
+        logger.info('Environment step is complete.')
         return state, reward, done, {}
 
     def reset(self, random_step_count=10):
@@ -102,8 +104,9 @@ class OffWorldMonolithEnv(RealEnv):
             A numpy array with rgb/depth/rgbd encoding of the state as seen by
             the robot
         """
-        self.secured_bridge.perform_reset()
+        state = self.secured_bridge.perform_reset(self._channel_type)
         logger.info("Environment reset complete")
+        return state
     
     def render(self, mode='human'):
         """
