@@ -28,6 +28,7 @@ pip install keras==2.2.4
 pip install opencv-python
 pip install catkin_pkg
 pip install empy
+pip install requests
 pip install defusedxml
 pip install rospkg
 pip install matplotlib
