@@ -25,7 +25,6 @@ echo "Virtual environment set up done."
 pip install numpy
 pip install tensorflow-gpu
 pip install keras==2.2.4
-pip install keras-rl
 pip install opencv-python
 pip install catkin_pkg
 pip install empy
