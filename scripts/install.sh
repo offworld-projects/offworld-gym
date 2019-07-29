@@ -24,8 +24,7 @@ echo "Virtual environment set up done."
 # intall Python packages
 pip install numpy
 pip install tensorflow-gpu
-pip install keras
-pip install keras-rl
+pip install keras==2.2.4
 pip install opencv-python
 pip install catkin_pkg
 pip install empy
@@ -40,6 +39,14 @@ pip install python-socketio
 pip install scikit-image
 cd $OFFWORLD_GYM_ROOT
 pip install -e .
+
+# install customized version of keras-rl
+mkdir $OFFWORLD_GYM_ROOT/assets
+cd $OFFWORLD_GYM_ROOT/assets
+git clone https://github.com/offworld-projects/keras-rl.git -b offworld-gym
+cd keras-rl
+pip install -e .
+
 echo "Python packages installed."
 
 # install additional ROS packages
@@ -49,7 +56,6 @@ sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration \
                     ros-kinetic-roslint
 
 # build Python 3.5 version of catkin *without* installing it system-wide
-mkdir $OFFWORLD_GYM_ROOT/assets
 cd $OFFWORLD_GYM_ROOT/assets
 echo "Building catkin here: `pwd`."
 git clone https://github.com/ros/catkin.git -b kinetic-devel
