@@ -8,4 +8,4 @@ application:
       log_server_ip: "offworldgymserver.com"
     gym_server:
       server_ip: "offworldgymserver.com"
-      secured_port: 5000
+      secured_port: 8443
