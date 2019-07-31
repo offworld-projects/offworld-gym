@@ -32,7 +32,7 @@ from utils import TB_RL, GetLogPath
 
 
 # define paths
-NAME              = 'dqn_offworld_monolith-{}'.format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+NAME              = 'sim_offworld_monolith-{}'.format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
 OFFWORLD_GYM_ROOT = os.environ['OFFWORLD_GYM_ROOT']
 LOG_PATH          = '%s/logs/sim' % OFFWORLD_GYM_ROOT
 MODEL_PATH        = '%s/models/sim' % OFFWORLD_GYM_ROOT
@@ -150,7 +150,7 @@ def train():
 
     # callback parameters
     model_checkpoint_interval = 5000 # steps
-    verbose_level = 2
+    verbose_level = 2  # 1 == step interval, 2 == episode interval
     log_interval = 200 # steps
     save_state_interval = 100 # episodes
 
@@ -186,7 +186,7 @@ def train():
     # other callbacks
     callback_poisonpill = TerminateTrainingOnFileExists(dqn, '/tmp/killrlsim')
     callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
-    callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, memory, dqn)
+    callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, 'running_sim', memory, dqn)
     cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill]
 
     # train the agent

@@ -1,24 +1,24 @@
 import os
 os.environ['CUDA_DEVICE_ORDER']='PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES']='0'
-import sys, pdb
+import sys, pdb, time
 import numpy as np
 from datetime import datetime
-import dill
+import pickle
 
 # configure tensorflow and keras
 import tensorflow as tf
 from keras.backend.tensorflow_backend import set_session
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-#config.gpu_options.per_process_gpu_memory_fraction = 0.25
 set_session(tf.Session(config=config))
 
 import gym
 import offworld_gym
+from offworld_gym.envs.common.channels import Channels
 
 import keras
-from keras.models import Model
+from keras.models import Model, load_model
 from keras.layers import Dense, Activation, Flatten, Conv2D, Input, MaxPooling2D, LeakyReLU, BatchNormalization
 from keras.optimizers import Adam
 
@@ -26,29 +26,30 @@ from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.processors import Processor
-from rl.callbacks import ModelIntervalCheckpoint, Callback
+from rl.callbacks import ModelIntervalCheckpoint, TerminateTrainingOnFileExists, SaveDQNTrainingState
 
 from utils import TB_RL, GetLogPath
 
-# paths
-OFFWORLD_GYM_ROOT = os.environ['OFFWORLD_GYM_ROOT']
-LOG_PATH = '%s/logs/real' % OFFWORLD_GYM_ROOT
-MODEL_PATH = '%s/models/real' % OFFWORLD_GYM_ROOT
-if not os.path.exists(LOG_PATH):
-    os.makedirs(LOG_PATH)
-if not os.path.exists(MODEL_PATH):
-    os.makedirs(MODEL_PATH)
-NAME = 'real_offworld_monolith-{}'.format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
 
-# Get the environment and extract the number of actions.
-env = gym.make('OffWorldMonolithRealEnv-v0')
+# define paths
+NAME              = 'real_offworld_monolith-{}'.format(datetime.now().strftime("%Y-%m-%d-%H-%M-%S"))
+OFFWORLD_GYM_ROOT = os.environ['OFFWORLD_GYM_ROOT']
+LOG_PATH          = '%s/logs/real' % OFFWORLD_GYM_ROOT
+MODEL_PATH        = '%s/models/real' % OFFWORLD_GYM_ROOT
+STATE_PATH        = './real_agent_state'
+
+if not os.path.exists(LOG_PATH): os.makedirs(LOG_PATH)
+if not os.path.exists(MODEL_PATH):os.makedirs(MODEL_PATH)
+if not os.path.exists(STATE_PATH):os.makedirs(STATE_PATH)
+
+
+# create the envronment
+env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.DEPTH_ONLY)
 env.seed(123)
 nb_actions = env.action_space.n
 
 
-USE_BN = False
-USE_LEAKY_RELU = True
-
+# define network architecture
 def convBNRELU(input1, filters=8, kernel_size = 5, strides = 1, id1=0, use_batch_norm=False, use_leaky_relu=False, leaky_epsilon=0.1):
     cname = 'conv%dx%d_%d' % (kernel_size, kernel_size, id1)
     bname = 'batch%d' % (id1 + 1) # hard-coded + 1 because the first layer takes batch0
@@ -74,10 +75,10 @@ def create_network():
         
     x = img_input
     for i in range(2):
-        x = convBNRELU(x, filters=4, kernel_size=5, strides=2, id1=i, use_batch_norm=USE_BN, use_leaky_relu=USE_LEAKY_RELU)
+        x = convBNRELU(x, filters=4, kernel_size=5, strides=2, id1=i, use_batch_norm=False, use_leaky_relu=True)
         x = MaxPooling2D((2, 2))(x)
 
-    x = convBNRELU(x, filters=1, kernel_size=5, strides=1, id1=9, use_batch_norm=USE_BN, use_leaky_relu=USE_LEAKY_RELU)
+    x = convBNRELU(x, filters=1, kernel_size=5, strides=1, id1=9, use_batch_norm=False, use_leaky_relu=True)
     x = Flatten()(x)
         
     x = keras.layers.concatenate([x, config_input])
@@ -122,20 +123,37 @@ class RosbotProcessor(Processor):
         configs_batch = np.concatenate(configs_batch, 0)
         return [imgs_batch, configs_batch]
 
-class TerminateOnInterrupt(Callback):
-
-    def __init__(self, agent):
-        self.agent = agent
-
-    def on_action_begin(self, action, logs):
-        if os.path.exists('/tmp/killrl'):
-            print("STOPPING THE LEARNING PROCESS")
-            self.agent.interrupt = True
 
 def train():
-    resume_training = False
+    
+    # waiting for the ROS messages to clear
+    time.sleep(5)
 
-    memory_size = 50000
+    # check whether to resume training
+    print("\n====================================================")
+
+    if os.path.exists("%s/running_sim_dqn_model.h5" % STATE_PATH):
+        print("State from the previous run detected. Do you wish to resume learning? (y/n)")
+        while True:
+            choice = input().lower()
+            if choice == 'y':
+                print("Resuming training from %s" % STATE_PATH) 
+                resume_training = True
+                break
+            elif choice == 'n':
+                print("Please remove or move %s and restart this script." % STATE_PATH)
+                exit()
+            else:
+                print("Please answer 'y' or 'n'")
+
+    else:
+        print("Nothing to resume. Training a new agent.")
+        resume_training = False
+
+    print("====================================================\n")
+
+    # agent parameters
+    memory_size = 25000
     window_length = 1
     total_nb_steps = 1000000
     exploration_anneal_nb_steps = 40000
@@ -144,72 +162,52 @@ def train():
     learning_warmup_nb_steps = 50
     target_model_update = 1e-2
     learning_rate = 1e-3
-    load_weights = False
-    model_checkpoint_interval = 5000
-    verbose_level = 2 # 1 == step interval, 2 == episode interval
-    log_interval = 200
 
-    model = create_network()
-    memory = SequentialMemory(limit=memory_size, window_length=window_length)
-    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), 'eps', max_eps, min_eps, 0.0, exploration_anneal_nb_steps)
+    # callback parameters
+    model_checkpoint_interval = 5000 # steps
+    verbose_level = 2  # 1 == step interval, 2 == episode interval
+    log_interval = 200 # steps
+    save_state_interval = 3 # episodes
+
     processor = RosbotProcessor()
+    policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), 'eps', max_eps, min_eps, 0.0, exploration_anneal_nb_steps)
 
-    # DQN agent
+    # create or load model and memory
     if resume_training:
-        dqn = dill.load(open("running_agent.dill", "rb"))
-        dqn.load_weights("dqn_running_weights.h5f")
+        model = load_model("%s/running_real_dqn_model.h5" % STATE_PATH)
+        (memory, memory.actions, memory.rewards, memory.terminals, memory.observations) = pickle.load(open("%s/running_real_dqn_memory.pkl" % STATE_PATH, "rb"))
     else:
-        dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
-                       target_model_update=target_model_update, policy=policy)
+        model = create_network()
+        memory = SequentialMemory(limit=memory_size, window_length=window_length)    
+
+    # create the agent
+    dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
+                   target_model_update=target_model_update, policy=policy)
     dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
 
     # model snapshot and tensorboard callbacks
     if resume_training:
-        callback_tb = dill.load(open("running_callback_tb.dill", "rb"))
-    else:
+        callback_tb = pickle.load(open("%s/running_real_tb_callback.pkl" % STATE_PATH, "rb"))
+        (episode_nr, step_nr) = pickle.load(open("%s/running_real_parameters.pkl" % STATE_PATH, "rb"))
+    else:    
         loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
         callback_tb = TB_RL(None, loggerpath)
-        dill.dump(callback_tb, open("running_callback_tb.dill", "wb"))
+        tbfile = open("%s/running_real_tb_callback.pkl" % STATE_PATH, "wb")
+        pickle.dump(callback_tb, tbfile)
+        tbfile.close()
+        episode_nr = 0
+        step_nr = 0
+
+    # other callbacks
+    callback_poisonpill = TerminateTrainingOnFileExists(dqn, '/tmp/killrlreal')
     callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
-    cbs = [callback_modelinterval, callback_tb, TerminateOnInterrupt(dqn)]
+    callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, 'running_real', memory, dqn)
+    cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill]
 
-    # with shovelbot gym-gazebo, it's important to do some action repetition 
-    # because otherwise the wrong observation may be taken for an action
-    action_repetition = 1
-    dqn.fit(env, callbacks=cbs, action_repetition=action_repetition, nb_steps=total_nb_steps, visualize=False, 
-            verbose=verbose_level, log_interval=log_interval)
-
-    print("\nSaving training state")
-    dqn.save_weights("dqn_running_weights.h5f", overwrite=True)
-    dqn.trainable_model = None
-    dill.dump(dqn, open("running_agent.dill", "wb"))
-    print("Training state saved\n")
-
-    # After training is done, we save the final weights.
-    #dqn.save_weights('dqn_{}_final_weights.h5f'.format(NAME), overwrite=True)
-    #pdb.set_trace()
-        
-    # Finally, evaluate our algorithm for 5 episodes.
-    #dqn.test(env, nb_episodes=5, visualize=True)
-
-
-def test():
-    model = create_network()
-    memory = SequentialMemory(limit=50000, window_length=1)
-    processor = ShovelbotProcessor()
-        
-    dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, policy=None)
-    dqn.compile(Adam(lr=1e-3), metrics=['mae'])
-
-    dqn.load_weights('dqn_{}_final_weights.h5f'.format(NAME))
-
-    # with shovelbot gym-gazebo, it's important to do some action repetition 
-    # because otherwise the wrong observation may be taken for an action
-    action_repetition = 1
-    dqn.test(env, callbacks=[], nb_episodes=50, action_repetition=action_repetition, visualize=True)
+    # train the agent
+    dqn.fit(env, callbacks=cbs, action_repetition=1, nb_steps=total_nb_steps, visualize=False, 
+                verbose=verbose_level, log_interval=log_interval, resume_episode_nr=episode_nr, resume_step_nr = step_nr)
 
 
 if __name__ == "__main__":        
     train()
-    #test()
-
