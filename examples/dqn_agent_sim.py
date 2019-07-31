@@ -1,7 +1,7 @@
 import os
 os.environ['CUDA_DEVICE_ORDER']='PCI_BUS_ID'
 os.environ['CUDA_VISIBLE_DEVICES']='0'
-import sys, pdb, time
+import sys, pdb, time, glob
 import numpy as np
 from datetime import datetime
 import pickle
@@ -39,8 +39,7 @@ MODEL_PATH        = '%s/models/sim' % OFFWORLD_GYM_ROOT
 STATE_PATH        = './sim_agent_state'
 
 if not os.path.exists(LOG_PATH): os.makedirs(LOG_PATH)
-if not os.path.exists(MODEL_PATH):os.makedirs(MODEL_PATH)
-if not os.path.exists(STATE_PATH):os.makedirs(STATE_PATH)
+if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
@@ -117,12 +116,14 @@ def train():
     # check whether to resume training
     print("\n====================================================")
 
-    if os.path.exists("%s/running_sim_dqn_model.h5" % STATE_PATH):
-        print("State from the previous run detected. Do you wish to resume learning? (y/n)")
+    if os.path.exists("%s" % STATE_PATH):
+        print("State from the previous run detected. Do you wish to resume learning from the latest available snapshot? (y/n)")
         while True:
             choice = input().lower()
             if choice == 'y':
-                print("Resuming training from %s" % STATE_PATH) 
+                last_episode = np.max([int(os.path.basename(s).replace("episode-", "")) for s in glob.glob("%s/episode-*" % STATE_PATH)])
+                LAST_STATE_PATH = "%s/episode-%d" % (STATE_PATH, last_episode)
+                print("Resuming training from %s" % LAST_STATE_PATH) 
                 resume_training = True
                 break
             elif choice == 'n':
@@ -133,6 +134,7 @@ def train():
 
     else:
         print("Nothing to resume. Training a new agent.")
+        os.makedirs(STATE_PATH)
         resume_training = False
 
     print("====================================================\n")
@@ -150,17 +152,17 @@ def train():
 
     # callback parameters
     model_checkpoint_interval = 5000 # steps
-    verbose_level = 2  # 1 == step interval, 2 == episode interval
-    log_interval = 200 # steps
-    save_state_interval = 100 # episodes
+    verbose_level = 2                # 1 for step interval, 2 for episode interval
+    log_interval = 200               # steps
+    save_state_interval = 100        # episodes
 
     processor = RosbotProcessor()
     policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), 'eps', max_eps, min_eps, 0.0, exploration_anneal_nb_steps)
 
     # create or load model and memory
     if resume_training:
-        model = load_model("%s/running_sim_dqn_model.h5" % STATE_PATH)
-        (memory, memory.actions, memory.rewards, memory.terminals, memory.observations) = pickle.load(open("%s/running_sim_dqn_memory.pkl" % STATE_PATH, "rb"))
+        model = load_model("%s/model.h5" % LAST_STATE_PATH)
+        (memory, memory.actions, memory.rewards, memory.terminals, memory.observations) = pickle.load(open("%s/memory.pkl" % LAST_STATE_PATH, "rb"))
     else:
         model = create_network()
         memory = SequentialMemory(limit=memory_size, window_length=window_length)
@@ -172,12 +174,12 @@ def train():
 
     # model snapshot and tensorboard callbacks
     if resume_training:
-        callback_tb = pickle.load(open("%s/running_sim_tb_callback.pkl" % STATE_PATH, "rb"))
-        (episode_nr, step_nr) = pickle.load(open("%s/running_sim_parameters.pkl" % STATE_PATH, "rb"))
+        callback_tb = pickle.load(open("%s/tb_callback.pkl" % STATE_PATH, "rb"))
+        (episode_nr, step_nr) = pickle.load(open("%s/parameters.pkl" % LAST_STATE_PATH, "rb"))
     else:    
         loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
         callback_tb = TB_RL(None, loggerpath)
-        tbfile = open("%s/running_sim_tb_callback.pkl" % STATE_PATH, "wb")
+        tbfile = open("%s/tb_callback.pkl" % STATE_PATH, "wb")
         pickle.dump(callback_tb, tbfile)
         tbfile.close()
         episode_nr = 0
@@ -186,12 +188,12 @@ def train():
     # other callbacks
     callback_poisonpill = TerminateTrainingOnFileExists(dqn, '/tmp/killrlsim')
     callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
-    callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, 'running_sim', memory, dqn)
+    callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, memory, dqn, snapshot_limit=3)
     cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill]
 
     # train the agent
     dqn.fit(env, callbacks=cbs, action_repetition=1, nb_steps=total_nb_steps, visualize=False, 
-                verbose=verbose_level, log_interval=log_interval, resume_episode_nr=episode_nr, resume_step_nr = step_nr)
+                verbose=verbose_level, log_interval=log_interval, resume_episode_nr=episode_nr, resume_step_nr=step_nr)
 
 
 if __name__ == "__main__":        
