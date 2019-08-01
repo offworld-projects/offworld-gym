@@ -38,20 +38,28 @@ from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
 
 class OffWorldMonolithEnv(GazeboGymEnv):
-    """Simulated Gym environment with a offworld and a monolith on an uneven terrain
 
-    A RL agent learns to reach the goal(monolith) in shortest time
+    """
+    Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.  
 
-    Usage:
-        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.DEPTHONLY)
-        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGB_ONLY)
-        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGBD)
+    Agent received RGB or Depth camera feed as input and needs to learn to approch visual
+    beacon in the center of the environment. Agent receives a sparse reward of +1 upon
+    approaching the monolith within `_PROXIMITY_THRESHOLD` radius.
+    
+    # Usage
+    ```
+    env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.DEPTHONLY)
+    env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGB_ONLY)
+    env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGBD)
+    ```
     """
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
-    _TIME_DILATION = 3.0 # Has to match Gazebo sim speed up
+    _TIME_DILATION = 10.0 # Has to match Gazebo sim speed up
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
+
+        
         super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
 
         assert isinstance(channel_type, Channels), "Channel type is not of Channels."
@@ -81,7 +89,8 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.loginfo("Environment has been started.")
 
     def seed(self, seed=None):
-        """Seed the environment
+        """
+
         """
         self.np_random, seed = seeding.np_random(seed)
         return [seed]

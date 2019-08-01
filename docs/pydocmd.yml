@@ -1,0 +1,58 @@
+site_name: "OffWorld Gym"
+repo_url: https://github.com/offworld-projects/offworld-gym
+
+# This tells pydocmd which pages to generate from which Python modules,
+# functions and classes. At the first level is the page name, below that
+# is a tree of Python member names (modules, classes, etc.) that should be
+# documented. Higher indentation leads to smaller header size.
+# (++ to include members, and their members)
+generate:
+- environments-gazebo.md:
+  - offworld_gym.envs.gazebo++:
+    - offworld_gym.envs.gazebo.offworld_monolith_env++
+    - offworld_gym.envs.gazebo.gazebo_env++
+- environments-real.md:
+  - offworld_gym.envs.real++:
+    - offworld_gym.envs.real.offworld_monolith_env++
+- environments-common.md:
+#  - offworld_gym.envs.common.actions++
+#  - offworld_gym.envs.common.channels++
+  - offworld_gym.envs.common.data_structures++
+  - offworld_gym.envs.common.offworld_gym_utils++
+  - offworld_gym.envs.common.oops++
+- custom-keras-callbacks.md:
+  - rl.callbacks.TerminateTrainingOnFileExists++
+  - rl.callbacks.SaveDQNTrainingState++
+- core-communication.md:
+  - offworld_gym.envs.real.core.request++
+  - offworld_gym.envs.real.core.secured_bridge++
+
+# MkDocs pages configuration. The `<<` operator is sugar added by pydocmd
+# that allows you to use an external Markdown file (eg. your project's README)
+# in the documentation. The path must be relative to current working directory.
+pages:
+- Home: index.md << ../README.md
+- Custom page: custom-page.md
+- Environments:
+  - Gazebo: environments-gazebo.md
+  - Real: environments-real.md
+- Library API:
+  - Common environment elements: environments-common.md
+  - Communication with the server: core-communication.md
+  - Custom Keras callbacks: custom-keras-callbacks.md
+
+# These options all show off their default values. You don't have to add
+# them to your configuration if you're fine with the default.
+docs_dir: pages
+gens_dir: _build/pydocmd     # This will end up as the MkDocs 'docs_dir'
+site_dir: _build/site
+theme:    readthedocs
+loader:   pydocmd.loader.PythonLoader
+preprocessor: pydocmd.preprocessor.Preprocessor
+
+# Additional search path for your Python module. If you use Pydocmd from a
+# subdirectory of your project (eg. docs/), you may want to add the parent
+# directory here.
+additional_search_paths:
+- ..
+
