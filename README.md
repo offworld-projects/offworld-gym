@@ -11,7 +11,7 @@ When you will be testing your next RL algorithm on Atari, why not also gauge it'
 
 Install the library, change your `gym.make('CartPole-v0')` to `gym.make('OffWorldMonolith-v0')` and you are all set to run your RL algorithm on a **real robot**, for free!
 
-![OffWorld Monolith environment](https://github.com/offworld-projects/offworld-gym/docs/images/offworld-gym-monolith-v1.png)  
+![OffWorld Monolith environment](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/offworld-gym-monolith-v1.png)  
 Environment 1: OffWorld Monolith
 
 
