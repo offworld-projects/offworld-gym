@@ -5,7 +5,7 @@ We have created OffWorld Gym - a collection of real-world environments for reinf
 
 With this release we introduce our first prototype navigation task, where the robot has to reach the visual beacon on an uneven terrain using only the camera input.
 
-When you will be testing your next RL algorithm on Atari, why not also gauge it's applicability to the real world!
+When you will be testing your next RL algorithm on Atari, why not also gauge its applicability to the real world!
 
 
 
@@ -59,10 +59,10 @@ To test Real environment:
 	(add instructions here)
 
 To test Sim environment open two terminals, `source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh` in each of them, and run:  
-
-	terminal one: roslaunch gym_offworld_monolith env_bringup.launch  
-	terminal two: gzclient  
-
+```
+terminal one: roslaunch gym_offworld_monolith env_bringup.launch  
+terminal two: gzclient  
+```
 
 
 ### Examples
