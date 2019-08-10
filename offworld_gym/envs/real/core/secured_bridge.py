@@ -36,24 +36,36 @@ class SecuredBridge(metaclass=Singleton):
         self.secured_port = self.settings_dict["gym_server"]["secured_port"]
         self._action_counter = 0
         self._certificate = False #os.path.join(os.path.dirname(os.path.realpath(__file__)), "../certs/gym_monolith/certificate.pem") #TODO find out why doesn't the certificate work, unverified certs can cause mitm attack
+        self._web_token = self.initiate_communication()
+
+    def initiate_communication(self):
+        """Uses the api token of an user to get the web token for next request
+        """
+        token_request = TokenRequest(self.settings_dict["user"]["api_token"])
+        api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, TokenRequest.URI)
+        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
+        response_json = json.loads(response.text)
+        if DEBUG: logger.debug("Web Token  : {}".format(response_json['web_token']))
+        return response_json['web_token']
 
     def get_last_heartbeat(self):
         """Return the last heartbeat value
         """
-        req = HeartBeatRequest()
+        req = HeartBeatRequest(self.web_token)
         api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, HeartBeatRequest.URI)
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
         response_json = json.loads(response.text)
-        if not DEBUG: logger.debug("Heartbeat  : {}".format(response_json['heartbeat']))
+        if DEBUG: logger.debug("Heartbeat  : {}".format(response_json['heartbeat']))
+        self.web_token = response_json['web_token']
         return response_json['heartbeat']
         
     def perform_action(self, action_type, channel_type):
         """Perform an action on the robot
         """
         self._action_counter += 1
-        if not DEBUG: logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
+        if DEBUG: logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
         
-        req = ActionRequest(action_type=action_type, channel_type=channel_type)
+        req = ActionRequest(self.web_token, action_type=action_type, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, ActionRequest.URI)
 
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
@@ -66,8 +78,10 @@ class SecuredBridge(metaclass=Singleton):
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
 
-        if not DEBUG: logger.debug("Reward  : {}".format(str(reward)))
-        if not DEBUG: logger.debug("Is done : {}".format(str(done)))
+        if DEBUG: logger.debug("Reward  : {}".format(str(reward)))
+        if DEBUG: logger.debug("Is done : {}".format(str(done)))
+
+        self.web_token = response_json['web_token']
         logger.info("Action execution complete. Telemetry recieved.")
         
         return state, reward, done
@@ -77,7 +91,7 @@ class SecuredBridge(metaclass=Singleton):
         """
         if DEBUG: logger.debug("Waiting for reset done from the server.")       
         
-        req = ResetRequest(channel_type=channel_type)
+        req = ResetRequest(self.web_token, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, ResetRequest.URI)
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
         response_json = json.loads(response.text)
@@ -86,6 +100,8 @@ class SecuredBridge(metaclass=Singleton):
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
+
+        self.web_token = response_json['web_token']
         logger.info('Environment reset done.')
         
         return state
