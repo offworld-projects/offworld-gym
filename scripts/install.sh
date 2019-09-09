@@ -48,13 +48,21 @@ git clone https://github.com/offworld-projects/keras-rl.git -b offworld-gym
 cd keras-rl
 pip install -e .
 
-echo "Python packages installed."
-
 # install additional ROS packages
 sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration \
                     ros-kinetic-ros-controllers ros-kinetic-rospack \
-                    libignition-math2-dev python3-tk libeigen3-dev \
-                    ros-kinetic-roslint
+                    libignition-math2 libignition-math2-dev python3-tk libeigen3-dev \
+                    ros-kinetic-roslint ros-kinetic-tf2-bullet
+
+
+# Milestone 1: Python and system packages
+if [ $? -eq 0 ]
+then
+  printf "\nOK: Python and system packages were installed successfully.\n\n"
+else
+  printf "\nFAIL: Errors detected installing system packages, please resolve them and restart the installation script.\n\n" >&2
+  exit 1
+fi
 
 # build Python 3.5 version of catkin *without* installing it system-wide
 cd $OFFWORLD_GYM_ROOT/assets
@@ -96,6 +104,15 @@ git clone https://github.com/ros-perception/vision_opencv.git -b kinetic
 cd ..
 $OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
 
+# Milestone 1: Python and system packages
+if [ $? -eq 0 ]
+then
+  printf "\nOK: ROS workspace built successfully\n\n"
+else
+  printf "\nFAIL: Errors detected while building ROS workspace. Please resolve the issues and finish installation manually, line-by-line, do no restart this script.\n\n" >&2
+  exit 1
+fi
+
 echo "ROS dependencies build complete."
 
 # build the Gym Shell script
@@ -115,8 +132,7 @@ sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `ls
 sudo apt install wget
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 sudo apt-get update
-sudo apt-get install gazebo7
-sudo apt-get install libgazebo7-dev
+sudo apt-get install -y gazebo7 libgazebo7-dev
 
 printf "\n\nInstallation complete\n---------------------\n\n"
 printf "To setup a shell for OffWorld Gym run\n\n\tsource $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\n\nin each new terminal to activate Gym Shell.\n"

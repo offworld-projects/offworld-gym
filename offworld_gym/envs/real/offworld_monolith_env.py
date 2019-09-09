@@ -32,10 +32,12 @@ class OffWorldMonolithEnv(RealEnv):
 
     A RL agent learns to reach the goal(monolith) in shortest time
 
-    Usage:
+    .. code:: python
+
         env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.DEPTHONLY)
         env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.RGB_ONLY)
         env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.RGBD)
+    
     """
     _PROXIMITY_THRESHOLD = 0.20
     _EPISODE_LENGTH = 100
@@ -74,9 +76,9 @@ class OffWorldMonolithEnv(RealEnv):
 
         Args:
             action: An action to be taken in the environment
+
         Returns:
-            state: The state of the environment as captured by the robot's
-                rgbd sensor
+            state: The state of the environment as captured by the robot's rgbd sensor
             reward: Reward from the environment
             done: A flag which is true when an episode is complete
             info: No info given for fair learning :)
@@ -100,9 +102,9 @@ class OffWorldMonolithEnv(RealEnv):
 
     def reset(self, random_step_count=10):
         """Resets the state of the environment and returns an initial observation.
+
         Returns:
-            A numpy array with rgb/depth/rgbd encoding of the state as seen by
-            the robot
+            A numpy array with rgb/depth/rgbd encoding of the state as seen by the robot
         """
         state = self.secured_bridge.perform_reset(self._channel_type)
         logger.info("Environment reset complete")
@@ -110,6 +112,7 @@ class OffWorldMonolithEnv(RealEnv):
     
     def render(self, mode='human'):
         """
+        .. todo:: TODO
         """
-        #TODO
+        
         raise NotImplementedError

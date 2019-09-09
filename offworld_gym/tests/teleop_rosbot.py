@@ -3,11 +3,6 @@ import time
 import cv2
 import sys,tty,termios
 
-# start ros node
-rospy.init_node('test_tele_op')
-from geometry_msgs.msg import Twist
-vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
-
 def move_rosbot(lin_vel, ang_vel, sleep_time=2):
     """Moves the ROSBot 
 
@@ -61,4 +56,10 @@ def perform_teleop():
         else: quit()
 
 if __name__ == "__main__":
+
+    # start ros node
+    rospy.init_node('test_tele_op')
+    from geometry_msgs.msg import Twist
+    vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
+
     perform_teleop()

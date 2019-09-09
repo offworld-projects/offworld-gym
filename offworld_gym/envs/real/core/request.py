@@ -14,12 +14,24 @@ import json
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 
-class Request:
-    """Generic class to create requests for the offworld gym server
+class TokenRequest:
+    """ Request model for getting a web token from the server
     """
-    def __init__(self, username=None, password=None):
-        self.username = username
-        self.password = password
+    URI = "initiate"
+    def __init__(self, api_token):
+        self.api_token = api_token
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
+    
+    def to_dict(self):
+        return self.__dict__
+
+class Request:
+    """ Generitc environment request model
+    """
+    def __init__(self, web_token):
+        self.web_token = web_token
 
     def to_json(self):
         """Returns a JSON representation of the request object
@@ -33,30 +45,32 @@ class Request:
         
 
 class ActionRequest(Request):
-    """Create request for the action api
+    """ Environment action request model
     """
     URI = "action"
 
-    def __init__(self, username=None, password=None, action_type=FourDiscreteMotionActions.FORWARD, channel_type=Channels.DEPTH_ONLY):
-        Request.__init__(self, username, password)
+    def __init__(self, web_token, action_type=FourDiscreteMotionActions.FORWARD, channel_type=Channels.DEPTH_ONLY):
+        Request.__init__(self, web_token)
         self.action_type = action_type.value if isinstance(action_type, FourDiscreteMotionActions) else action_type
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
 
 class ResetRequest(Request):
-    """Create request for the reset api
+    """ Environment reset request model
     """    
     URI = "reset"
 
-    def __init__(self, username=None, password=None, channel_type=Channels.DEPTH_ONLY):
-        Request.__init__(self, username, password)
+    def __init__(self, web_token, channel_type=Channels.DEPTH_ONLY):
+        Request.__init__(self, web_token)
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
         self.no_action = False  
 
 class HeartBeatRequest(Request):
-    """Create request for the heartbeat api
-    """    
+    """ Robot heartbeat request model
+    """
+    
     URI = "heartbeat"
     STATUS_RUNNING = "STATUS_RUNNING"
     
-    def __init__(self, username=None, password=None):
-        Request.__init__(self, username, password)
+    def __init__(self, web_token):
+        Request.__init__(self, web_token)
+

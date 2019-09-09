@@ -38,38 +38,40 @@ from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
 
 class OffWorldMonolithEnv(GazeboGymEnv):
+    """Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.  
 
-    """
-    Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.  
-
-    Agent received RGB or Depth camera feed as input and needs to learn to approch visual
-    beacon in the center of the environment. Agent receives a sparse reward of +1 upon
-    approaching the monolith within `_PROXIMITY_THRESHOLD` radius.
+    Agent receives RGB or Depth camera feed as input and needs to learn to approch the visual
+    beacon in the center of the environment. Agent receives a sparse reward of `+1` upon
+    approaching the monolith within ``_PROXIMITY_THRESHOLD`` radius.
     
-    # Usage
-    ```
-    env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.DEPTHONLY)
-    env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGB_ONLY)
-    env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGBD)
-    ```
+    .. code:: python
+    
+        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.DEPTHONLY)
+        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGB_ONLY)
+        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGBD)
     """
+
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
-    _TIME_DILATION = 10.0 # Has to match Gazebo sim speed up
+    _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `gymbox.world`
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
+        """
+        Args:
+            channel_type: Input stream type: depth, RGB or both
+            random_init: Randomize robot position at the start of each episode
+        """
 
-        
         super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
 
         assert isinstance(channel_type, Channels), "Channel type is not of Channels."
         rospy.loginfo("Environment has been initiated.")
 
-        #gazebo
+        # gazebo
         self.reset_sim = rospy.ServiceProxy('/gazebo/reset_simulation', Empty_srv)
         rospy.loginfo("Service proxies have been initiated.")
 
-        #rosbot
+        # rosbot
         self.vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=2)
 
         # environment
@@ -89,18 +91,22 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.loginfo("Environment has been started.")
 
     def seed(self, seed=None):
-        """
+        """Calls ``gym`` strong random seed generator
 
+        Args:
+            seed: None seeds from an operating system specific randomness source
         """
+        
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
     def _get_state(self):
         """Encapsulates state of the environment as captured by an rgbd sensor in a numpy array
+        
         Returns:
-            state: The state of the environment as captured by the robot's
-                rgbd sensor
+            state: The state of the environment as captured by the robot's rgbd sensor
         """
+
         rgb_data = None
         img = None
         while rgb_data is None:
@@ -151,6 +157,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         
     def _send_action_commands(self, action_type):
         """Sends an action command to the robot
+        
         Args:
             action_type: FourDiscreteMotionActions instance 
         """
@@ -168,6 +175,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
         Args:
             name: name of the model
+
         Returns:
             state: state of the model contained in a GetModelState service message
         """
@@ -185,6 +193,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
         Args:
             name: name of the model
+
         Returns:
             state: A vector representing 4-DOF of a model (x, y, z, w)
         """
@@ -209,6 +218,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
     def _calculate_reward(self):
         """Calculates the reward at every step
+       
         Returns:
             reward: Reward from the environment
             done: A flag which is true when an episode is complete
@@ -216,6 +226,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rosbot_state = self._get_state_vector('rosbot')
         dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
         rospy.logdebug("Distance between the rosbot and the monolith is : {}".format(str(dst)))
+        
         # check distance to the monolith
         if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
             reward = 1.0
@@ -238,13 +249,14 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
         Args:
             action: An action to be taken in the environment
+
         Returns:
-            state: The state of the environment as captured by the robot's
-                rgbd sensor
+            state: The state of the environment as captured by the robot's rgbd sensor
             reward: Reward from the environment
             done: A flag which is true when an episode is complete
             info: No info given for fair learning :)
         """
+        
         # unpause physics before interaction with the environment
         GazeboUtils.unpause_physics()
         self.step_count += 1
@@ -277,6 +289,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
         Args:
             name - name of the model
+
         Raises:
             GymException: Exception occured while resetting the environment.
         """
@@ -306,6 +319,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
         Args:
             name: name of the model.
+
         Raises:
             GymException: Exception occured while resetting the environment.
         """
@@ -325,6 +339,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
     def reset(self):
         """Resets the state of the environment and returns an initial observation.
+
         Returns:
             A numpy array with rgb/depth/rgbd encoding of the state as seen by
             the robot
@@ -343,6 +358,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
     def render(self, mode='human'):
         """
+        .. todo:: TODO
         """
-        #TODO
+
         raise NotImplementedError

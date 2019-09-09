@@ -154,7 +154,7 @@ def train():
     memory_size = 25000
     window_length = 1
     total_nb_steps = 1000000
-    exploration_anneal_nb_steps = 40000
+    exploration_anneal_nb_steps = 20000
     max_eps = 0.8
     min_eps = 0.1
     learning_warmup_nb_steps = 50
