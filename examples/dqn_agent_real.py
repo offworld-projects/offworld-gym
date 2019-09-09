@@ -36,7 +36,7 @@ NAME              = 'real_offworld_monolith-{}'.format(datetime.now().strftime("
 OFFWORLD_GYM_ROOT = os.environ['OFFWORLD_GYM_ROOT']
 LOG_PATH          = '%s/logs/real' % OFFWORLD_GYM_ROOT
 MODEL_PATH        = '%s/models/real' % OFFWORLD_GYM_ROOT
-STATE_PATH        = './real_agent_state'
+STATE_PATH        = './run/real_agent_state'
 
 if not os.path.exists(LOG_PATH): os.makedirs(LOG_PATH)
 if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
@@ -70,7 +70,6 @@ def create_network():
     input_image_size = env.observation_space.shape[1:]
         
     img_input = Input(shape=input_image_size, name='img_input')
-    config_input = Input(shape=(1,), name='config_input')
         
     x = img_input
     for i in range(2):
@@ -79,9 +78,6 @@ def create_network():
 
     x = convBNRELU(x, filters=1, kernel_size=5, strides=1, id1=9, use_batch_norm=False, use_leaky_relu=True)
     x = Flatten()(x)
-        
-    x = keras.layers.concatenate([x, config_input])
-
     x = Dense(16)(x)
     x = Activation('relu')(x)
     x = Dense(16)(x)
@@ -169,7 +165,7 @@ def train():
     model_checkpoint_interval = 5000 # steps
     verbose_level = 2                # 1 for step interval, 2 for episode interval
     log_interval = 200               # steps
-    save_state_interval = 3          # episodes
+    save_state_interval = 20          # episodes
 
     processor = RosbotProcessor()
     policy = LinearAnnealedPolicy(EpsGreedyQPolicy(), 'eps', max_eps, min_eps, 0.0, exploration_anneal_nb_steps)
@@ -203,7 +199,7 @@ def train():
     # other callbacks
     callback_poisonpill = TerminateTrainingOnFileExists(dqn, '/tmp/killrlreal')
     callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
-    callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, memory, dqn, , snapshot_limit=10)
+    callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, memory, dqn, snapshot_limit=40)
     cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill]
 
     # train the agent
