@@ -6,6 +6,7 @@ cd ..
 export OFFWORLD_GYM_ROOT=`pwd`
 
 # make sure we have Python 3.5
+sudo apt update
 sudo apt install -y python3.5 python3.5-dev
 
 # create virtual environment
@@ -17,9 +18,6 @@ pip install --upgrade pip
 source /opt/ros/kinetic/setup.bash
 
 echo "Virtual environment set up done."
-# (we will drop this)
-#echo "source ~/ve/py36/bin/activate" >> ~/.bashrc
-#source ~/.bashrc
 
 # intall Python packages
 pip install numpy
@@ -52,7 +50,7 @@ pip install -e .
 sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration \
                     ros-kinetic-ros-controllers ros-kinetic-rospack \
                     libignition-math2 libignition-math2-dev python3-tk libeigen3-dev \
-                    ros-kinetic-roslint ros-kinetic-tf2-bullet
+                    ros-kinetic-roslint
 
 
 # Milestone 1: Python and system packages
