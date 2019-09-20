@@ -7,7 +7,7 @@ export OFFWORLD_GYM_ROOT=`pwd`
 
 # make sure we have Python 3.5
 sudo apt update
-sudo apt install -y python3.5 python3.5-dev
+sudo apt install -y python3.5 python3.5-dev libbullet-dev
 
 # create virtual environment
 sudo apt install -y virtualenv
@@ -36,6 +36,7 @@ pip install psutil
 pip install gym
 pip install python-socketio
 pip install scikit-image
+pip install bullet
 cd $OFFWORLD_GYM_ROOT
 pip install -e .
 
