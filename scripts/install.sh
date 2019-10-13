@@ -5,50 +5,65 @@
 cd ..
 export OFFWORLD_GYM_ROOT=`pwd`
 
-# make sure we have Python 3.5
 sudo apt update
-sudo apt install -y python3.5 python3.5-dev libbullet-dev
+sudo apt install -y libbullet-dev python-pip git curl wget
 
-# create virtual environment
-sudo apt install -y virtualenv
-mkdir ~/ve
-virtualenv -p python3.5 ~/ve/py35gym
-source ~/ve/py35gym/bin/activate
-pip install --upgrade pip
+pip install --user --upgrade pip
+pip install --user --upgrade setuptools
+pip install --user numpy==1.16.5
+pip install --user scipy==1.2.2
+pip install --user tensorflow-gpu==1.14.0
+pip install --user keras==2.2.4
+pip install --user opencv-python
+pip install --user catkin_pkg
+pip install --user empy
+pip install --user requests
+pip install --user defusedxml
+pip install --user rospkg
+pip install --user matplotlib
+pip install --user netifaces
+pip install --user regex
+pip install --user psutil
+pip install --user gym
+pip install --user python-socketio
+pip install --user scikit-image
+pip install --user pyquaternion
+cd $OFFWORLD_GYM_ROOT
+pip install --user -e .
+
+# Python3.6
+sudo add-apt-repository ppa:jonathonf/python-3.6 -y
+sudo apt-get update
+sudo apt-get install -y python3.6 python3.6-dev
+curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
+
+pip3.6 install --upgrade --user setuptools
+pip3.6 install --user numpy
+pip3.6 install --user scipy
+pip3.6 install --user tensorflow==1.14.0
+pip3.6 install --user keras==2.2.4
+pip3.6 install --user opencv-python
+pip3.6 install --user catkin_pkg
+pip3.6 install --user empy
+pip3.6 install --user requests
+pip3.6 install --user defusedxml 
+pip3.6 install --user matplotlib
+pip3.6 install --user netifaces
+pip3.6 install --user regex
+pip3.6 install --user psutil
+pip3.6 install --user gym
+pip3.6 install --user python-socketio
+pip3.6 install --user scikit-image
+pip3.6 install --user pyquaternion
+
+cd $OFFWORLD_GYM_ROOT
+pip3.6 install --user -e .
+		
 source /opt/ros/kinetic/setup.bash
 
-echo "Virtual environment set up done."
-
-# intall Python packages
-pip install numpy
-pip install tensorflow-gpu
-pip install keras==2.2.4
-pip install opencv-python
-pip install catkin_pkg
-pip install empy
-pip install requests
-pip install defusedxml
-pip install rospkg
-pip install matplotlib
-pip install netifaces
-pip install regex
-pip install psutil
-pip install gym
-pip install python-socketio
-pip install scikit-image
-pip install bullet
-cd $OFFWORLD_GYM_ROOT
-pip install -e .
-
-# install customized version of keras-rl
-mkdir $OFFWORLD_GYM_ROOT/assets
-cd $OFFWORLD_GYM_ROOT/assets
-git clone https://github.com/offworld-projects/keras-rl.git -b offworld-gym
-cd keras-rl
-pip install -e .
 
 # install additional ROS packages
-sudo apt install -y ros-kinetic-grid-map ros-kinetic-frontier-exploration \
+sudo apt install --allow-unauthenticated -y ros-kinetic-grid-map ros-kinetic-frontier-exploration \
                     ros-kinetic-ros-controllers ros-kinetic-rospack \
                     libignition-math2 libignition-math2-dev python3-tk libeigen3-dev \
                     ros-kinetic-roslint
@@ -63,45 +78,21 @@ else
   exit 1
 fi
 
-# build Python 3.5 version of catkin *without* installing it system-wide
-cd $OFFWORLD_GYM_ROOT/assets
-echo "Building catkin here: `pwd`."
-git clone https://github.com/ros/catkin.git -b kinetic-devel
-cd $OFFWORLD_GYM_ROOT/assets/catkin
-mkdir build && cd build && cmake .. && make
-echo "Catkin build for Python 3.5 complete."
-
-# prepare for building the workspace
 cd /usr/lib/x86_64-linux-gnu
 sudo ln -s libboost_python-py35.so libboost_python3.so
-
-# build ROS workspace
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install -y libignition-math4-dev
+sudo rm -f /opt/ros/kinetic/lib/python2.7/dist-packages/cv2.so
 cd $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
-$OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_init_workspace
 
-git clone https://github.com/ros/xacro.git -b kinetic-devel
-git clone https://github.com/ros/ros.git -b kinetic-devel
-git clone https://github.com/ros/ros_comm.git -b kinetic-devel
-git clone https://github.com/ros/common_msgs.git -b indigo-devel
-git clone https://github.com/ros/catkin.git -b kinetic-devel
-git clone https://github.com/ros/ros_comm_msgs.git -b indigo-devel
-git clone https://github.com/ros/gencpp.git -b indigo-devel
-git clone https://github.com/jsk-ros-pkg/geneus.git -b master
-git clone https://github.com/ros/genlisp.git -b groovy-devel
-git clone https://github.com/ros/genmsg.git -b indigo-devel
-git clone https://github.com/ros/genpy.git -b kinetic-devel
-git clone https://github.com/RethinkRobotics-opensource/gennodejs.git -b kinetic-devel
-git clone https://github.com/ros/std_msgs.git -b groovy-devel
-git clone https://github.com/ros/geometry.git -b indigo-devel
-git clone https://github.com/ros/geometry2.git -b indigo-devel
-git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
-git clone https://github.com/ros-controls/ros_control.git -b kinetic-devel
-git clone https://github.com/ros/dynamic_reconfigure.git -b master
-git clone https://github.com/offworld-projects/offworld_rosbot_description.git -b kinetic-devel
+#git clone https://github.com/ros/geometry2.git -b indigo-devel
+#git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
 git clone https://github.com/ros-perception/vision_opencv.git -b kinetic
 
 cd ..
-$OFFWORLD_GYM_ROOT/assets/catkin/bin/catkin_make -j1
+catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3.6 -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
 
 # Milestone 1: Python and system packages
 if [ $? -eq 0 ]
@@ -116,19 +107,16 @@ echo "ROS dependencies build complete."
 
 # build the Gym Shell script
 echo '#!/usr/bin/env bash' > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-echo "source ~/ve/py35gym/bin/activate" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-echo "unset PYTHONPATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "source /opt/ros/kinetic/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-echo 'export PYTHONPATH=~/ve/py35gym/lib/python3.5/site-packages:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo 'export PYTHONPATH=$OFFWORLD_GYM_ROOT/assets/keras-rl:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 chmod +x $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 
 # update to gazebo 7.13
 # http://answers.gazebosim.org/question/18934/kinect-in-gazebo-not-publishing-topics/
 sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-sudo apt install wget
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install -y gazebo7 libgazebo7-dev
@@ -137,4 +125,4 @@ printf "\n\nInstallation complete\n---------------------\n\n"
 printf "To setup a shell for OffWorld Gym run\n\n\tsource $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\n\nin each new terminal to activate Gym Shell.\n"
 printf "Or add to your ~/.bashrc by running\n\n\techo \"source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\" >> ~/.bashrc\n\n---------------------\n\n"
 printf "To test Real environment:\n\t(add instructions here)\n\n"
-printf "To test Sim environment: open two terminals, activate Gym Shell, and run:\n\t1. roslaunch gym_offworld_monolith env_bringup.launch\n\t2. gzclient\n\n"
+printf "To test Sim environment: open two terminals, activate Gym Shell in each one, and run:\n\t1. roslaunch gym_offworld_monolith env_bringup.launch\n\t2. gzclient\n\n"
