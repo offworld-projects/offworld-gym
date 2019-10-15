@@ -28,6 +28,7 @@ pip install --user gym
 pip install --user python-socketio
 pip install --user scikit-image
 pip install --user pyquaternion
+pip install --user imageio
 cd $OFFWORLD_GYM_ROOT
 pip install --user -e .
 
@@ -37,16 +38,18 @@ sudo apt-get update
 sudo apt-get install -y python3.6 python3.6-dev
 curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
 
-pip3.6 install --upgrade --user setuptools
+pip3.6 install --user --upgrade setuptools
+pip3.6 install --user --upgrade pip
 pip3.6 install --user numpy
 pip3.6 install --user scipy
-pip3.6 install --user tensorflow==1.14.0
+pip3.6 install --user tensorflow-gpu==1.14.0
 pip3.6 install --user keras==2.2.4
 pip3.6 install --user opencv-python
 pip3.6 install --user catkin_pkg
 pip3.6 install --user empy
 pip3.6 install --user requests
 pip3.6 install --user defusedxml 
+pip3.6 install --user rospkg
 pip3.6 install --user matplotlib
 pip3.6 install --user netifaces
 pip3.6 install --user regex
@@ -55,10 +58,17 @@ pip3.6 install --user gym
 pip3.6 install --user python-socketio
 pip3.6 install --user scikit-image
 pip3.6 install --user pyquaternion
+pip3.6 install --user imageio
 
 cd $OFFWORLD_GYM_ROOT
 pip3.6 install --user -e .
 		
+# put modified keras-rl under ./assets
+# gymshell.sh will update the $PYTHONPATH to point here
+mkdir -p $OFFWORLD_GYM_ROOT/assets
+cd $OFFWORLD_GYM_ROOT/assets
+git clone https://github.com/offworld-projects/keras-rl.git -b offworld-gym
+
 source /opt/ros/kinetic/setup.bash
 
 
@@ -90,6 +100,7 @@ cd $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
 #git clone https://github.com/ros/geometry2.git -b indigo-devel
 #git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
 git clone https://github.com/ros-perception/vision_opencv.git -b kinetic
+git clone https://github.com/offworld-projects/offworld_rosbot_description.git -b kinetic-devel
 
 cd ..
 catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3.6 -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
