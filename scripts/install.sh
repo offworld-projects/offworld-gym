@@ -123,6 +123,7 @@ echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.b
 echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo 'export PYTHONPATH=$OFFWORLD_GYM_ROOT/assets/keras-rl:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo 'export OFFWORLD_GYM_ACCESS_TOKEN="COPY IT HERE"' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 chmod +x $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 
 # update to gazebo 7.13
