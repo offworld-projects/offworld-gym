@@ -37,8 +37,8 @@ and you are all set to run your RL algorithm on a **real robot**, for free!
     :caption: Getting Started
 
     introduction
-    installation
     getting-access
+    installation
     examples
 
 .. toctree::

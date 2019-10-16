@@ -26,7 +26,7 @@ Setup
     export OFFWORLD_GYM_ROOT=`pwd`/..
     ./install.sh
 
-To prepare a terminal for running OffWorld Gym, run
+Each time you will be running OffWorld Gym, execute
 
 .. code:: bash
 
@@ -38,11 +38,9 @@ in each new terminal. Or add it  your ~/.bashrc by running
 
     echo "source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh" >> ~/.bashrc
 
-To test Real environment
+**To test the Real environment** you need to register as a user at `gym.offworld.ai <https://gym.offworld.ai>`_, copy "OffWorld Gym Access Token" from your `Profile  <https://gym.offworld.ai/account>`_ page into ``OFFWORLD_GYM_ACCESS_TOKEN`` variable in your ``offworld_gym/scripts/gymshell.sh`` script, and follow the instructions in the `Examples <./examples.html>`_ section.
 
-.. todo:: Add instructions for testing connection with real environment
-
-To test Sim environment open two terminals, ``source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh`` in each of them, and run:  
+**To test the Sim environment** open two terminals, ``source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh`` in each of them, and run:  
 
 .. code:: bash
 
