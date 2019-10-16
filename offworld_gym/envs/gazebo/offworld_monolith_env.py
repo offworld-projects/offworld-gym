@@ -16,6 +16,7 @@ import time
 import numpy as np
 from scipy.spatial import distance
 import pdb
+from pyquaternion import Quaternion
 
 #gym
 import gym
@@ -32,7 +33,6 @@ from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 import rospy
 from std_srvs.srv import Empty as Empty_srv
 from geometry_msgs.msg import Twist
-import tf
 from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
@@ -108,29 +108,29 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         """
 
         rgb_data = None
-        img = None
-        while rgb_data is None:
+        rgb_img = None
+        while rgb_data is None and not rospy.is_shutdown():
             try:
                 rgb_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
-                img = ImageUtils.process_img_msg(rgb_data)
+                rgb_img = ImageUtils.process_img_msg(rgb_data)
             except rospy.ROSException:
-                rospy.logerr("Error: '/camera/rgb/image_raw' timeout.")
-        assert(img is not None)
+                rospy.sleep(0.1)
+            
         depth_data = None
         depth_img = None
-        while depth_data is None:
+        while depth_data is None and not rospy.is_shutdown():
             try:
                 depth_data = rospy.wait_for_message('/camera/depth/image_raw', Image, timeout=5)
                 depth_img = ImageUtils.process_depth_msg(depth_data)
             except rospy.ROSException:
-                rospy.logerr("Error: '/camera/depth/image_raw' timeout.")
-        
+                rospy.sleep(0.1)
+
         if self.channel_type == Channels.DEPTH_ONLY:
             state = depth_img
         elif self.channel_type == Channels.RGB_ONLY:
-            state = img
+            state = rgb_img
         elif self.channel_type == Channels.RGBD:
-            state =  np.concatenate((img, depth_img)) 
+            state =  np.concatenate((rgb_img, depth_img)) 
         rospy.loginfo("State of the environment captured.")
         return state
 
@@ -200,15 +200,9 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         try:
             ms = self._get_model_state(name)
             if ms is not None:
-                quaternion = (
-                    ms.pose.orientation.x,
-                    ms.pose.orientation.y,
-                    ms.pose.orientation.z,
-                    ms.pose.orientation.w
-                )
-
-                euler = tf.transformations.euler_from_quaternion(quaternion)
-                state = (ms.pose.position.x, ms.pose.position.y, ms.pose.position.z, euler[2])
+                quaternion = Quaternion(ms.pose.orientation.w,  ms.pose.orientation.x, ms.pose.orientation.y, ms.pose.orientation.z,)
+                yaw, _, _ = quaternion.yaw_pitch_roll
+                state = (ms.pose.position.x, ms.pose.position.y, ms.pose.position.z, yaw)
                 return state
             else:
                 return None
