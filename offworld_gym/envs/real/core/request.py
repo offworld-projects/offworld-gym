@@ -41,8 +41,7 @@ class Request:
     def to_dict(self):
         """Returns the class properties encapsulated in a dictionary
         """
-        return self.__dict__
-        
+        return self.__dict__        
 
 class ActionRequest(Request):
     """ Environment action request model
@@ -64,13 +63,15 @@ class ResetRequest(Request):
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
         self.no_action = False  
 
-class HeartBeatRequest(Request):
+class SetUpRequest(Request):
     """ Robot heartbeat request model
     """
     
-    URI = "heartbeat"
+    URI = "setup"
     STATUS_RUNNING = "STATUS_RUNNING"
     
-    def __init__(self, web_token):
+    def __init__(self, web_token, experiment_name, resume_experiment):
         Request.__init__(self, web_token)
+        self.experiment_name = experiment_name
+        self.resume_experiment = resume_experiment
 

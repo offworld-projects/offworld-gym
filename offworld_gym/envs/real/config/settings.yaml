@@ -10,4 +10,4 @@ application:
       server_ip: "offworldgymserver.com"
       secured_port: 8443
     user:
-      api_token: "ImFhc2Rhc0Bhc2RhLmNvbTphc2Rhc3Nkc2Ei.XU0OIg.BP7pPrBRmuv7UgPn8TdF49i2Lu8"
+      api_token: "OFFWORLD_GYM_ACCESS_TOKEN"

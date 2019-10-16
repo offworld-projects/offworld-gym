@@ -14,6 +14,7 @@ from offworld_gym import logger
 import numpy as np
 import requests
 import os 
+import time
 
 # offworld gym
 from offworld_gym.envs.real.config import settings
@@ -36,40 +37,68 @@ class SecuredBridge(metaclass=Singleton):
         self.secured_port = self.settings_dict["gym_server"]["secured_port"]
         self._action_counter = 0
         self._certificate = False #os.path.join(os.path.dirname(os.path.realpath(__file__)), "../certs/gym_monolith/certificate.pem") #TODO find out why doesn't the certificate work, unverified certs can cause mitm attack
-        self._web_token = self.initiate_communication()
-
+        
     def initiate_communication(self):
         """Uses the api token of an user to get the web token for next request
         """
-        token_request = TokenRequest(self.settings_dict["user"]["api_token"])
+
+        token_var = self.settings_dict["user"]["api_token"]
+        if not token_var in os.environ:
+            raise ValueError("Please update OFFWORLD_GYM_ACCESS_TOKEN environment variable with api-token.")
+
+        if os.environ[token_var] is None or os.environ[token_var] == '':
+            raise ValueError("Api-token is null or empty.")
+
+        req = TokenRequest(os.environ[token_var])
         api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, TokenRequest.URI)
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
-        response_json = json.loads(response.text)
+        try:
+            response_json = json.loads(response.text)
+        except:
+            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
         if DEBUG: logger.debug("Web Token  : {}".format(response_json['web_token']))
         return response_json['web_token']
 
-    def get_last_heartbeat(self):
-        """Return the last heartbeat value
+    def perform_handshake(self, experiment_name, resume_experiment):
+        """Perform handshake with the gym server
+
+        To perform a handshake: initiate communication with the server, get the robot's heartbeat, send experiment details to the server.
         """
-        req = HeartBeatRequest(self.web_token)
-        api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, HeartBeatRequest.URI)
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
-        response_json = json.loads(response.text)
-        if DEBUG: logger.debug("Heartbeat  : {}".format(response_json['heartbeat']))
-        self.web_token = response_json['web_token']
-        return response_json['heartbeat']
+    
+        # Initiate communication by sharing the api-token
+        self._web_token = self.initiate_communication()
+
+        # Get the heartbeat of the robot
+        # Share the experiment details with the server
+        req = SetUpRequest(self._web_token, experiment_name, resume_experiment)
+        api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, SetUpRequest.URI)
+        set_up_response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
+
+        try:
+            set_up_response_json = json.loads(set_up_response.text)
+        except:
+            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+        if DEBUG: logger.debug("Heartbeat  : {}".format(set_up_response_json['heartbeat']))
+        self._web_token = set_up_response_json['web_token']
+
+        return set_up_response_json['heartbeat'], set_up_response_json['registered'], set_up_response_json['message']
         
     def perform_action(self, action_type, channel_type):
         """Perform an action on the robot
         """
+        start_time = time.time()
         self._action_counter += 1
         if DEBUG: logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
         
-        req = ActionRequest(self.web_token, action_type=action_type, channel_type=channel_type)
+        req = ActionRequest(self._web_token, action_type=action_type, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, ActionRequest.URI)
 
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
-        response_json = json.loads(response.text)
+
+        try:
+            response_json = json.loads(response.text)
+        except:
+            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
 
         reward = int(response_json['reward'])
         state = json.loads(response_json['state'])
@@ -81,8 +110,8 @@ class SecuredBridge(metaclass=Singleton):
         if DEBUG: logger.debug("Reward  : {}".format(str(reward)))
         if DEBUG: logger.debug("Is done : {}".format(str(done)))
 
-        self.web_token = response_json['web_token']
-        logger.info("Action execution complete. Telemetry recieved.")
+        self._web_token = response_json['web_token']
+        if True: logger.debug("Action execution complete. Telemetry recieved. Total time to execute: {}.".format(str(time.time() - start_time)))
         
         return state, reward, done
     
@@ -91,17 +120,21 @@ class SecuredBridge(metaclass=Singleton):
         """
         if DEBUG: logger.debug("Waiting for reset done from the server.")       
         
-        req = ResetRequest(self.web_token, channel_type=channel_type)
+        req = ResetRequest(self._web_token, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, ResetRequest.URI)
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
-        response_json = json.loads(response.text)
+        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
+
+        try:
+            response_json = json.loads(response.text)
+        except:
+            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
 
         state = json.loads(response_json['state'])
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
+        if DEBUG: print('Environment reset done. The state shape is: ', state.shape)
 
-        self.web_token = response_json['web_token']
-        logger.info('Environment reset done.')
+        self._web_token = response_json['web_token']
         
         return state

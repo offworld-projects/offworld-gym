@@ -16,7 +16,20 @@ from offworld_gym import logger
 from offworld_gym.envs.real.core.secured_bridge import SecuredBridge
 
 class RealEnv(gym.Env):
-    def __init__(self):
+    """Base class for the real environments
+    """
+
+    def __init__(self, experiment_name, resume_experiment):
+        if experiment_name is not None:
+            raise ValueError("Please provide a value for experiment name.")
+        elif resume_experiment is not None:
+            raise ValueError("Would you like to resume training if experiment already exists?")
+        
+        if type(resume_experiment) == bool:
+            raise ValueError("Not a valid value for resume_experiment.")
+
+        self.experiment_name = experiment_name
+        self.resume_experiment = resume_experiment
         self.secured_bridge = SecuredBridge()
 
     def step(self, action):        
@@ -33,4 +46,3 @@ class RealEnv(gym.Env):
         
     def seed(self, seed=None):
         logger.warn("Can not seed a real environment")
-        return

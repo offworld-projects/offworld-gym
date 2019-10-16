@@ -2,16 +2,18 @@
 
 from gym.envs.registration import register
 
-# real environments
+# Real environments
+
+# OffWorld Monolith Real 
 register(
     id='OffWorldMonolithRealEnv-v0',
-    entry_point='offworld_gym.envs.real:OffWorldMonolithEnv',
-    # More arguments here
+    entry_point='offworld_gym.envs.real:OffWorldMonolithEnv'
 )
 
 # simulated environments
+
+# OffWorld Monolith Simulated replica 
 register(
     id='OffWorldMonolithSimEnv-v0',
-    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithEnv',
-    # More arguments here
+    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithEnv'
 )

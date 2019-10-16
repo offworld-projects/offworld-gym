@@ -22,7 +22,7 @@ from keras.models import Model, load_model
 from keras.layers import Dense, Activation, Flatten, Conv2D, Input, MaxPooling2D, LeakyReLU, BatchNormalization
 from keras.optimizers import Adam
 
-from rl.agents.dqn import DQNAgent
+from rl.agents.dqn import DQNAgent, HumanDQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.processors import Processor
@@ -43,8 +43,7 @@ if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
-env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.DEPTH_ONLY)
-env.seed(123)
+env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_first_experiment', resume_experiment=True, channel_type=Channels.DEPTH_ONLY)
 nb_actions = env.action_space.n
 
 
@@ -68,14 +67,12 @@ def convBNRELU(input1, filters=8, kernel_size = 5, strides = 1, id1=0, use_batch
 
 def create_network():
     input_image_size = env.observation_space.shape[1:]
-        
     img_input = Input(shape=input_image_size, name='img_input')
         
     x = img_input
     for i in range(2):
         x = convBNRELU(x, filters=4, kernel_size=5, strides=2, id1=i, use_batch_norm=False, use_leaky_relu=True)
         x = MaxPooling2D((2, 2))(x)
-
     x = convBNRELU(x, filters=1, kernel_size=5, strides=1, id1=9, use_batch_norm=False, use_leaky_relu=True)
     x = Flatten()(x)
     x = Dense(16)(x)
@@ -84,12 +81,10 @@ def create_network():
     x = Activation('relu')(x)
         
     output = Dense(nb_actions)(x)
-
-    model = Model(inputs=[img_input, config_input], outputs=output)
+    model = Model(inputs=[img_input], outputs=output)
     print(model.summary())
         
     return model
-
 
 class RosbotProcessor(Processor):
     
@@ -97,29 +92,24 @@ class RosbotProcessor(Processor):
         '''
         observations are [image(240, 320, 3), config(4,)]
         '''
+
         return observation
 
     def process_state_batch(self, batch):
-        '''
-        stitch together images and configs
-        '''
         imgs_batch = []
-        configs_batch = []
         for exp in batch:
             imgs = []
             configs = []
             for state in exp:
                 imgs.append(np.expand_dims(state[0], 0))
-                #configs.append(np.expand_dims(state[1], 0)) # TODO: Change to real config if any
                 configs.append(np.expand_dims(100, 0))
             imgs_batch.append(np.concatenate(imgs, -1))
-            configs_batch.append(np.concatenate(configs, 0))
         imgs_batch = np.concatenate(imgs_batch, 0)
-        configs_batch = np.concatenate(configs_batch, 0)
-        return [imgs_batch, configs_batch]
+
+        return imgs_batch
 
 
-def train():
+def train(hitl=False):
     
     # waiting for the ROS messages to clear
     time.sleep(5)
@@ -154,7 +144,7 @@ def train():
     memory_size = 25000
     window_length = 1
     total_nb_steps = 1000000
-    exploration_anneal_nb_steps = 20000
+    exploration_anneal_nb_steps = 80000
     max_eps = 0.8
     min_eps = 0.1
     learning_warmup_nb_steps = 50
@@ -178,8 +168,13 @@ def train():
         model = create_network()
         memory = SequentialMemory(limit=memory_size, window_length=window_length)    
 
+    Agent = None
+    if hitl:
+        Agent = HumanDQNAgent
+    else:
+        Agent = DQNAgent    
     # create the agent
-    dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
+    dqn = Agent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
                    target_model_update=target_model_update, policy=policy)
     dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
 
@@ -208,4 +203,4 @@ def train():
 
 
 if __name__ == "__main__":        
-    train()
+    train(True)
