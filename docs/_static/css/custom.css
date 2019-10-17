@@ -1,3 +1,51 @@
 .wy-menu-vertical p.caption {
-    color: #ffa500;
+    color: #f15a24;
+}
+
+/*
+ *  Fonts
+ */
+@font-face {
+    font-family: "Montserrat-ExtraBold";
+    src: url("../fonts/Montserrat-ExtraBold.otf") format("opentype");
+}
+@font-face {
+    font-family: "Montserrat-Bold";
+    src: url("../fonts/Montserrat-Bold.otf") format("opentype");
+}
+@font-face {
+    font-family: "Montserrat-Medium";
+    src: url("../fonts/Montserrat-Medium.otf") format("opentype");
+}
+@font-face {
+    font-family: "SourceSansPro-Light";
+    src: url("../fonts/SourceSansPro-Light.otf") format("opentype");
+}
+@font-face {
+    font-family: "SourceSansPro-Regular";
+    src: url("../fonts/SourceSansPro-Regular.otf") format("opentype");
+}
+
+.wy-menu-vertical p.caption {
+    color: #f15a24;
+}
+
+.wy-side-nav-search a:hover {
+  background: none;
+}
+
+p, li, a {
+  font-family: "SourceSansPro-Light", sans-serif;
+}
+
+strong {
+  font-family: "SourceSansPro-Regular", sans-serif;
+}
+
+h1, h2, h3, h4, p.caption {
+  font-family: "Montserrat-Bold", sans-serif;
+}
+
+span.caption-text {
+  font-family: "SourceSansPro-Light", sans-serif;
 }
