@@ -1,17 +1,22 @@
 #!/usr/bin/env python
-# Copyright offworld.ai 2018
+
+# Copyright 2019 OffWorld Inc.
+# Doing business as Off-World AI, Inc. in California.
+# All rights reserved.
+#
+# Licensed under GNU General Public License v3.0 (the "License")
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at https://www.gnu.org/licenses/gpl-3.0.en.html
+#
+# Unless required by applicable law, any source code or other materials
+# distributed under the License is distributed on an "AS IS" basis,
+# without warranties or conditions of any kind, express or implied.
+
 from offworld_gym import version
 
-__author__      = "Ashish Kumar"
-__copyright__   = "Copyright offworld.ai 2019"
-__license__     = "None"
 __version__     = version.__version__
-__maintainer__  = "Ashish Kumar"
-__email__       = "ashish.kumar@offworld.ai"
-__status__      = "Development"
 
 import gym
-
 from offworld_gym import logger
 from offworld_gym.envs.real.core.secured_bridge import SecuredBridge
 

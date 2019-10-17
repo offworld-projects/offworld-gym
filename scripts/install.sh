@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 
+# Copyright 2019 OffWorld Inc.
+# Doing business as Off-World AI, Inc. in California.
+# All rights reserved.
+#
+# Licensed under GNU General Public License v3.0 (the "License")
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at https://www.gnu.org/licenses/gpl-3.0.en.html
+#
+# Unless required by applicable law, any source code or other materials
+# distributed under the License is distributed on an "AS IS" basis,
+# without warranties or conditions of any kind, express or implied.
+
+
 # this assumes the script is executed from under `scripts` directory
 # (should we move `install.sh` to the repository root? will be cleaner)
 cd ..
