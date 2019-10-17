@@ -20,12 +20,12 @@ class RealEnv(gym.Env):
     """
 
     def __init__(self, experiment_name, resume_experiment):
-        if experiment_name is not None:
+        if experiment_name is None:
             raise ValueError("Please provide a value for experiment name.")
-        elif resume_experiment is not None:
+        elif resume_experiment is None:
             raise ValueError("Would you like to resume training if experiment already exists?")
         
-        if type(resume_experiment) == bool:
+        if not isinstance(resume_experiment, bool):
             raise ValueError("Not a valid value for resume_experiment.")
 
         self.experiment_name = experiment_name

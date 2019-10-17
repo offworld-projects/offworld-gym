@@ -3,11 +3,9 @@ application:
     log:
       disable_file_log_stream: true
       log_folder: "logs"
-      disable_network_log_stream: true
-      log_server_ip: "offworldgymserver.com"
     gym_server:
       protocol: https
-      server_ip: "offworldgymserver.com"
+      server_ip: "137.27.196.190"
       secured_port: 8443
     user:
       api_token: "OFFWORLD_GYM_ACCESS_TOKEN"
