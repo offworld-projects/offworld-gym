@@ -46,7 +46,7 @@ export OFFWORLD_GYM_ROOT=`pwd`/..
 ./install.sh
 ```
 
-To prepare a terminal for running OffWorld Gym, run
+Each time you will be running OffWorld Gym, execute
 ```
 source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 ```
@@ -55,14 +55,18 @@ in each new terminal. Or add it  your ~/.bashrc by running
 echo "source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh" >> ~/.bashrc
 ```
 
-To test Real environment:	
-	(add instructions here)
+To test the Real environment:	
+	
+    * Register as a user at [gym.offworld.ai](https://gym.offworld.ai)
+    * Copy "OffWorld Gym Access Token" from your [Profile](https://gym.offworld.ai/account) page into `OFFWORLD_GYM_ACCESS_TOKEN` variable in your `offworld_gym/scripts/gymshell.sh` script (this instruction will be repeated in the installation manual)
+    * Follow the instructions in the [Examples](https://gym.offworld.ai/docs/examples.html) section of [documentation](https://gym.offworld.ai/docs)
 
 To test Sim environment open two terminals, `source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh` in each of them, and run:  
 ```
 terminal one: roslaunch gym_offworld_monolith env_bringup.launch  
 terminal two: gzclient  
 ```
+
 
 
 ### Examples
@@ -72,6 +76,8 @@ In our examples we use slightly [modified version](https://github.com/offworld-p
 
 
 #### Sim
+
+Make sure you have executed `source scripts/gymshell.sh` before running any OffWorld Gym programs. This script takes care of setting the environment variables.
 
 Start training by going to `examples` and running `python dqn_agent_sim.py`. This will initialize the environment and start the training process, you can have a peak by running `gzclient` in a separate terminal.
 

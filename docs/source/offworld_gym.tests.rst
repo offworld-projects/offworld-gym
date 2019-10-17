@@ -12,14 +12,6 @@ offworld\_gym.tests.teleop\_rosbot module
    :undoc-members:
    :show-inheritance:
 
-offworld\_gym.tests.test\_client\_server module
------------------------------------------------
-
-.. automodule:: offworld_gym.tests.test_client_server
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 offworld\_gym.tests.test\_cv module
 -----------------------------------
 

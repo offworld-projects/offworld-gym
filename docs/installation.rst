@@ -1,7 +1,7 @@
 Installation
 ============
 
-The installation was tested on: Ubuntu 16.04.6. Following these steps will prepare you for running both the Real and the Sim versions of the OffWorld Gym. You will be able to use Python 3 with this environemt.
+The installation was tested on: Ubuntu 16.04.6. Following these steps will prepare you for running both the Real and the Sim versions of OffWorld Gym. You must use **Python 3** with this environemt, Python 2 is not supported.
 
 Pre-requisites
 --------------
