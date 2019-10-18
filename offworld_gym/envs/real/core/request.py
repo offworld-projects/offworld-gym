@@ -21,7 +21,11 @@ from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 
 class TokenRequest:
-    """ Request model for getting a web token from the server
+    """Request model for getting a web token from the server
+
+    Attributes:
+        URI: String constant containing uri to access initiate api.
+        api_token: String with the user's api token.
     """
     URI = "initiate"
     def __init__(self, api_token):
@@ -34,7 +38,10 @@ class TokenRequest:
         return self.__dict__
 
 class Request:
-    """ Generitc environment request model
+    """Base class for backend api requests
+
+    Attributes:
+        web_token: String with the server's web token.
     """
     def __init__(self, web_token):
         self.web_token = web_token
@@ -50,7 +57,13 @@ class Request:
         return self.__dict__        
 
 class ActionRequest(Request):
-    """ Environment action request model
+    """Environment action request model
+
+    Attributes:
+        URI: String constant containing uri to access action api.
+        web_token: String with the server's web token.
+        channel_type: Channels type indicating type of channel for observation.
+        action_type: FourDiscreteMotionActions type value indicating type of action.
     """
     URI = "action"
 
@@ -60,7 +73,13 @@ class ActionRequest(Request):
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
 
 class ResetRequest(Request):
-    """ Environment reset request model
+    """Environment reset request model
+
+    Attributes:
+        URI: String constant containing uri to access reset api.
+        web_token: String with the server's web token.
+        channel_type: Channels type value indicating type of channel for observation.
+        no_value: Boolean value to determine if action is to be taken during reset.
     """    
     URI = "reset"
 
@@ -70,7 +89,13 @@ class ResetRequest(Request):
         self.no_action = False  
 
 class SetUpRequest(Request):
-    """ Robot heartbeat request model
+    """Robot heartbeat request model
+
+    Attributes:
+        URI: String constant containing uri to access setup api.
+        web_token: String with the server's web token.
+        experiment_name: String containing the experiment name.
+        resume_experiment: Boolean indicating whether existing experiment is to be resumed.
     """
     
     URI = "setup"
@@ -81,3 +106,13 @@ class SetUpRequest(Request):
         self.experiment_name = experiment_name
         self.resume_experiment = resume_experiment
 
+
+class DisconnectRequest(Request):
+    """Server Disconnect request
+
+    Attributes:
+        URI: String constant containing uri to access disconnet api.
+        web_token: String with the server's web token.
+    """
+
+    URI = "disconnect"

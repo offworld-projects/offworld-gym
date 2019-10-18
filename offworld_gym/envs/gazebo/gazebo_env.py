@@ -24,6 +24,8 @@ import subprocess
 import signal
 import psutil
 import threading
+from abc import abstractmethod
+from abc import ABCMeta
 
 #gym
 from offworld_gym import logger
@@ -37,8 +39,13 @@ import rospy
 import rospkg
 
 
-class GazeboGymEnv(gym.Env):
-    """Abstract Gazebo based Gym environments
+class GazeboGymEnv(gym.Env, metaclass=ABCMeta):
+    """Base class for Gazebo based Gym environments
+
+    Attributes:
+        package_name: String containing the ROS package name
+        launch_file: String containing the name of the environment's launch file.
+        node_name: String with a ROS node name for the environment's node
     """
     metadata = {'render.modes': ['human']}
 
@@ -60,7 +67,7 @@ class GazeboGymEnv(gym.Env):
     def launch_node(self):
         """Launches the gazebo world 
 
-        Launches a ros node containing a gazebo world, spawns a robot in the world
+        Launches a ROS node containing a gazebo world, spawns a robot in the world
         """
         try:
             rospack = rospkg.RosPack()
@@ -86,27 +93,24 @@ class GazeboGymEnv(gym.Env):
         except: 
             logger.error("An error occured while waiting for roslaunch to finish.")
 
+    @abstractmethod
     def step(self, action):
-        """Gym step function
-
-        Must be implemented in a child class
+        """Abstract step method to be implemented in a child class
         """
         raise NotImplementedError
-
+    
+    @abstractmethod
     def reset(self):
-        """Gym reset function
-
-        Must be implemented in a child class
+        """Abstract reset method to be implemented in a child class
         """
         raise NotImplementedError
-
+    
+    @abstractmethod
     def render(self, mode='human'):
-        """Gym render function
-
-        Must be implemented in a child class
+        """Abstract render method to be implemented in a child class
         """
         raise NotImplementedError
-
+    
     def close(self):
         """Closes environment and all processes created for the environment
         """

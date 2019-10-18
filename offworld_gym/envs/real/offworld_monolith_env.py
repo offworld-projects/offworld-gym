@@ -34,23 +34,25 @@ from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 from offworld_gym.envs.common.offworld_gym_utils import ImageUtils
 from offworld_gym.envs.real.core.request import SetUpRequest
+from offworld_gym.envs.real.config import settings
+
+DEBUG = settings.config["application"]["dev"]["debug"]
 
 class OffWorldMonolithEnv(RealEnv):
-    """Real Gym environment with a rosbot and a monolith on an uneven terrain
+    """Real Gym environment with a rosbot and a monolith on an uneven terrain.
 
-    A RL agent learns to reach the goal(monolith) in shortest time
+    A RL agent learns to reach the goal(monolith) in shortest time.
 
     .. code:: python
 
-        env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.DEPTHONLY)
-        env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.RGB_ONLY)
-        env = gym.make('OffWorldMonolithRealEnv-v0', channel_type=Channels.RGBD)
+        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, channel_type=Channels.DEPTHONLY)
+        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, channel_type=Channels.RGB_ONLY)
+        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, channel_type=Channels.RGBD)
 
     Attributes:
-        experiment_name: A unique experiment name
-        resume_experiment: Resume a registered experiment, set to False if experiment is new
-        channel_type: Channel type for the observation
-    
+        observation_space: Gym data structure that encapsulates an observation.
+        action_space: Gym data structure that encapsulates an action.
+        step_count: An integer count of step during an episode. 
     """
     _EPISODE_LENGTH = 100
     
@@ -71,7 +73,7 @@ class OffWorldMonolithEnv(RealEnv):
         logger.info("Environment has been started.")
 
     def _initiate(self):
-        """Initate communication with the real environment
+        """Initate communication with the real environment.
         """
         logger.info("Waiting to connect to the environment server.")
         wait_start = time.time()
@@ -92,16 +94,16 @@ class OffWorldMonolithEnv(RealEnv):
         logger.info("The environment server is running.")
 
     def step(self, action):
-        """Take an action in the environment
+        """Take an action in the environment.
 
         Args:
-            action: An action to be taken in the environment
+            action: An action to be taken in the environment.
 
         Returns:
-            state: The state of the environment as captured by the robot's rgbd sensor
-            reward: Reward from the environment
-            done: A flag which is true when an episode is complete
-            info: No info given for fair learning :)
+            A numpy array with rgb/depth/rgbd encoding of the state observation.
+            An integer with reward from the environment.
+            A boolean flag which is true when an episode is complete.
+            No info given for fair learning.
         """
         self.step_count += 1
         logger.info("Step count: {}".format(str(self.step_count)))
@@ -127,26 +129,25 @@ class OffWorldMonolithEnv(RealEnv):
         return state, reward, done, {}
 
     def reset(self):
-        """Resets the state of the environment and returns an initial observation.
+        """Resets the state of the environment and returns an observation.
 
         Returns:
-            A numpy array with rgb/depth/rgbd encoding of the state as seen by the robot
+            A numpy array with rgb/depth/rgbd encoding of the state observation.
         """
         state = self.secured_bridge.perform_reset(self._channel_type)
         logger.info("Environment reset complete")
         return state
     
     def render(self, mode='human'):
-        """Renders the environment
+        """Renders the environment.
         
         Args:
             mode: The type of rendering to use.
                 - 'human': Renders state to a graphical window.
         
         Returns:
-            None as only human mode is implemented
-        """
-        
+            None as only human mode is implemented.
+        """        
         if mode == 'human':
             self.plot(self._last_state)
         else:
@@ -154,13 +155,13 @@ class OffWorldMonolithEnv(RealEnv):
         return None
 
     def plot(self, img, id=1, title="State"):
-        """Plot an image in a non-blocking way
+        """Plot an image in a non-blocking way.
 
 
         Args:
             img: A numpy array containing the observation.
-            id: Numeric id which is assigned to the pyplot figure
-            title: String value which is used as the title
+            id: Numeric id which is assigned to the pyplot figure.
+            title: String value which is used as the title.
         """
         if img is not None and isinstance(img, np.ndarray):
             plt.figure(id)     
@@ -170,3 +171,8 @@ class OffWorldMonolithEnv(RealEnv):
             plt.title(title)  
             plt.show(block=False)
             plt.pause(0.05)
+
+    def close(self):
+        """Closes the environment.
+        """
+        self.secured_bridge.disconnect()

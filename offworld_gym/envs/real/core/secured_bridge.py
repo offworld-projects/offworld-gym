@@ -30,23 +30,24 @@ from offworld_gym.envs.real.core.request import *
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 
-DEBUG = False
-
 class SecuredBridge(metaclass=Singleton):
-    """ Secured rest-based communication over HTTPS
-    This securely sends/recieves content to/from the OffWorld Gym server
+    """Secured rest-based communication over HTTPS.
+
+    This securely sends/recieves content to/from the OffWorld Gym server.
     """
     settings_dict = settings.config["application"]["dev"]
     _TELEMETRY_WAIT_TIME = 10
 
     def __init__(self):
-        self.server_ip = self.settings_dict["gym_server"]["server_ip"]
-        self.secured_port = self.settings_dict["gym_server"]["secured_port"]
+        self._server_ip = self.settings_dict["gym_server"]["server_ip"]
+        self._secured_port = self.settings_dict["gym_server"]["secured_port"]
         self._action_counter = 0
         self._certificate = False #os.path.join(os.path.dirname(os.path.realpath(__file__)), "../certs/gym_monolith/certificate.pem") #TODO find out why doesn't the certificate work, unverified certs can cause mitm attack
         
-    def initiate_communication(self):
-        """Uses the api token of an user to get the web token for next request
+    def _initiate_communication(self):
+        """Validate api token, get web token for next request.
+
+        Validates the api-token of an user and checks if user has access to the environment.
         """
 
         token_var = self.settings_dict["user"]["api_token"]
@@ -57,48 +58,67 @@ class SecuredBridge(metaclass=Singleton):
             raise ValueError("Api-token is null or empty.")
 
         req = TokenRequest(os.environ[token_var])
-        api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, TokenRequest.URI)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, TokenRequest.URI)
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
         try:
             response_json = json.loads(response.text)
         except:
             raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
-        if DEBUG: logger.debug("Web Token  : {}".format(response_json['web_token']))
+        logger.debug("Web Token  : {}".format(response_json['web_token']))
         return response_json['web_token']
 
     def perform_handshake(self, experiment_name, resume_experiment):
-        """Perform handshake with the gym server
+        """Perform handshake with the gym server.
 
-        To perform a handshake: initiate communication with the server, get the robot's heartbeat, send experiment details to the server.
+        To perform a handshake: initiate communication with the server, 
+        get the robot's heartbeat, send experiment details to the server.
+
+        Args:
+            experiment_name: String value as the experiment name.
+            resume_experiment: Boolean value to indicate if existing experiment is to be resumed.
+
+        Returns:
+            A string value with the heartbeat status.
+            A boolean value to indicate whether experiment was registered or not.
+            A string containing message from the server.
         """
     
         # Initiate communication by sharing the api-token
-        self._web_token = self.initiate_communication()
+        self._web_token = self._initiate_communication()
 
         # Get the heartbeat of the robot
         # Share the experiment details with the server
         req = SetUpRequest(self._web_token, experiment_name, resume_experiment)
-        api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, SetUpRequest.URI)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, SetUpRequest.URI)
         set_up_response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
 
         try:
             set_up_response_json = json.loads(set_up_response.text)
         except:
             raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
-        if DEBUG: logger.debug("Heartbeat  : {}".format(set_up_response_json['heartbeat']))
+        logger.debug("Heartbeat  : {}".format(set_up_response_json['heartbeat']))
         self._web_token = set_up_response_json['web_token']
 
         return set_up_response_json['heartbeat'], set_up_response_json['registered'], set_up_response_json['message']
         
     def perform_action(self, action_type, channel_type):
         """Perform an action on the robot
+
+        Args:
+            action_type: FourDiscreteMotionActions type value with the action to execute.
+            channel_type: Channels type value, determines observation's channel.
+
+        Returns:
+            A numpy array as the observation.
+            An integer value represeting reward from the environment.
+            A boolean value that indicates whether episode is done or not.
         """
         start_time = time.time()
         self._action_counter += 1
-        if DEBUG: logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
+        logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
         
         req = ActionRequest(self._web_token, action_type=action_type, channel_type=channel_type)
-        api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, ActionRequest.URI)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, ActionRequest.URI)
 
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
 
@@ -114,21 +134,27 @@ class SecuredBridge(metaclass=Singleton):
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
 
-        if DEBUG: logger.debug("Reward  : {}".format(str(reward)))
-        if DEBUG: logger.debug("Is done : {}".format(str(done)))
+        logger.debug("Reward  : {}".format(str(reward)))
+        logger.debug("Is done : {}".format(str(done)))
 
         self._web_token = response_json['web_token']
-        if True: logger.debug("Action execution complete. Telemetry recieved. Total time to execute: {}.".format(str(time.time() - start_time)))
+        logger.debug("Action execution complete. Telemetry recieved. Total time to execute: {}.".format(str(time.time() - start_time)))
         
         return state, reward, done
     
     def perform_reset(self, channel_type=Channels.DEPTH_ONLY):
-        """Requests server to reset the environment
+        """Requests server to reset the environment.
+
+        Args:
+            channel_type: Channels type value, determines observation's channel.
+
+        Returns:
+            A numpy array as the observation.
         """
-        if DEBUG: logger.debug("Waiting for reset done from the server.")       
+        logger.debug("Waiting for reset done from the server.")       
         
         req = ResetRequest(self._web_token, channel_type=channel_type)
-        api_endpoint = "https://{}:{}/{}".format(self.server_ip, self.secured_port, ResetRequest.URI)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, ResetRequest.URI)
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
 
         try:
@@ -140,8 +166,17 @@ class SecuredBridge(metaclass=Singleton):
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
-        if DEBUG: print('Environment reset done. The state shape is: ', state.shape)
+        logger.debug('Environment reset done. The state shape is: ', state.shape)
 
         self._web_token = response_json['web_token']
         
         return state
+    
+    def disconnect(self):
+        """Disconnect from the backend.
+        """
+        logger.debug("Disconnecting from the server.") 
+
+        req = DisconnectRequest(self._web_token, channel_type=channel_type)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, ResetRequest.URI)
+        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        

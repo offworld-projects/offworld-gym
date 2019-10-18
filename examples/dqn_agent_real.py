@@ -61,7 +61,7 @@ if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
-env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_first_experiment', resume_experiment=True, channel_type=Channels.DEPTH_ONLY)
+env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_fifth_experiment', resume_experiment=False, channel_type=Channels.DEPTH_ONLY)
 nb_actions = env.action_space.n
 
 

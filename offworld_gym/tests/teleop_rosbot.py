@@ -57,7 +57,7 @@ def perform_teleop():
 
 if __name__ == "__main__":
 
-    # start ros node
+    # start ROS node
     rospy.init_node('test_tele_op')
     from geometry_msgs.msg import Twist
     vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)

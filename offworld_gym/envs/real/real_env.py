@@ -16,12 +16,15 @@ from offworld_gym import version
 
 __version__     = version.__version__
 
+from abc import abstractmethod
+from abc import ABCMeta
+
 import gym
 from offworld_gym import logger
 from offworld_gym.envs.real.core.secured_bridge import SecuredBridge
 
-class RealEnv(gym.Env):
-    """Base class for the real environments
+class RealEnv(gym.Env, metaclass=ABCMeta):
+    """Base class for the real environments.
     """
 
     def __init__(self, experiment_name, resume_experiment):
@@ -37,17 +40,31 @@ class RealEnv(gym.Env):
         self.resume_experiment = resume_experiment
         self.secured_bridge = SecuredBridge()
 
+    @abstractmethod
     def step(self, action):        
+        """Abstract step method to be implemented in a child class.
+        """
         raise NotImplementedError
-
-    def reset(self):        
+    
+    @abstractmethod
+    def reset(self):   
+        """Abstract reset method to be implemented in a child class.
+        """     
         raise NotImplementedError
-
-    def render(self, mode='human'):        
+    
+    @abstractmethod
+    def render(self, mode='human'):  
+        """Abstract render method to be implemented in a child class.
+        """      
         raise NotImplementedError
-
+    
+    @abstractmethod
     def close(self):      
+        """Abstract close method to be implemented in a child class.
+        """
         raise NotImplementedError
         
     def seed(self, seed=None):
+        """No implementation for a real environment.
+        """
         logger.warn("Can not seed a real environment")

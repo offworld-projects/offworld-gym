@@ -1,5 +1,6 @@
 application:
   dev:
+    debug: False
     log:
       disable_file_log_stream: true
       log_folder: "logs"
