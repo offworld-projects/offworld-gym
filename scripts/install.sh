@@ -113,7 +113,7 @@ cd $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
 #git clone https://github.com/ros/geometry2.git -b indigo-devel
 #git clone https://github.com/ros-simulation/gazebo_ros_pkgs.git -b kinetic-devel
 git clone https://github.com/ros-perception/vision_opencv.git -b kinetic
-git clone https://github.com/offworld-projects/offworld_rosbot_description.git -b kinetic-devel
+git clone https://github.com/offworld-projects/rosbot_description.git -b offworld-gym
 
 cd ..
 catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3.6 -DPYTHON_INCLUDE_DIR=/usr/include/python3.6m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.6m.so
