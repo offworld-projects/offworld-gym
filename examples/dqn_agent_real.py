@@ -61,7 +61,7 @@ if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
-env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_fifth_experiment', resume_experiment=False, channel_type=Channels.DEPTH_ONLY)
+env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_hl_experiment_1', resume_experiment=False, channel_type=Channels.DEPTH_ONLY)
 nb_actions = env.action_space.n
 
 
@@ -216,6 +216,7 @@ def train(hitl=False):
     cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill]
 
     # train the agent
+    input("Press Enter to continue...\n")
     dqn.fit(env, callbacks=cbs, action_repetition=1, nb_steps=total_nb_steps, visualize=False, 
                 verbose=verbose_level, log_interval=log_interval, resume_episode_nr=episode_nr, resume_step_nr=step_nr)
 

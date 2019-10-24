@@ -166,7 +166,7 @@ class SecuredBridge(metaclass=Singleton):
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
-        logger.debug('Environment reset done. The state shape is: ', state.shape)
+        logger.debug('Environment reset done. The state shape is: '+ str(state.shape))
 
         self._web_token = response_json['web_token']
         
