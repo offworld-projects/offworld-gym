@@ -44,7 +44,7 @@ from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.processors import Processor
-from rl.callbacks import ModelIntervalCheckpoint, TerminateTrainingOnFileExists, SaveDQNTrainingState
+from rl.callbacks import ModelIntervalCheckpoint, TerminateTrainingOnFileExists, SaveDQNTrainingState, Visualizer
 
 from utils import TB_RL, GetLogPath
 
@@ -207,7 +207,8 @@ def train():
     callback_poisonpill = TerminateTrainingOnFileExists(dqn, '/tmp/killrlsim')
     callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
     callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, memory, dqn, snapshot_limit=3)
-    cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill]
+    state_visualizer = Visualizer()
+    cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill, state_visualizer]
 
     # train the agent
     dqn.fit(env, callbacks=cbs, action_repetition=1, nb_steps=total_nb_steps, visualize=False, 

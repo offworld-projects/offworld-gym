@@ -26,6 +26,7 @@ from offworld_gym.envs.real.core.secured_bridge import SecuredBridge
 class RealEnv(gym.Env, metaclass=ABCMeta):
     """Base class for the real environments.
     """
+    metadata = {'render.modes': ['human']}
 
     def __init__(self, experiment_name, resume_experiment):
         if experiment_name is None:

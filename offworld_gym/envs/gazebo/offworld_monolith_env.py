@@ -23,6 +23,7 @@ import numpy as np
 from scipy.spatial import distance
 import pdb
 from pyquaternion import Quaternion
+from matplotlib import pyplot as plt
 
 #gym
 import gym
@@ -87,6 +88,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         self.channel_type = channel_type
         self.random_init = random_init
         self.step_count = 0
+        self._current_state = None
 
         self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
         self.action_space = spaces.Discrete(4)
@@ -272,8 +274,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.loginfo(action)
         self._send_action_commands(action)
         
-        state = self._get_state()
-    
+        self._current_state = self._get_state()
         reward, done = self._calculate_reward()
         
         if done:
@@ -282,7 +283,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         # pause physics now, speeds up simulation
         GazeboUtils.pause_physics()
         
-        return state, reward, done, {}
+        return self._current_state, reward, done, {}
 
     def _move_to_random_position(self, model_name, orient=True):
         """re-position a model to a random position.
@@ -358,8 +359,35 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         return state
 
     def render(self, mode='human'):
-        """
-        .. todo:: TODO
-        """
+        """Renders the environment.
+        
+        Args:
+            mode: The type of rendering to use.
+                - 'human': Renders state to a graphical window.
+        
+        Returns:
+            None as only human mode is implemented.
+        """        
+        if mode == 'human':
+            self.plot(self._current_state)
+        else:
+            raise NotImplementedError(mode)
+        return None
+        
+    def plot(self, img, id=1, title="State"):
+        """Plot an image in a non-blocking way.
 
-        raise NotImplementedError
+
+        Args:
+            img: A numpy array containing the observation.
+            id: Numeric id which is assigned to the pyplot figure.
+            title: String value which is used as the title.
+        """
+        if img is not None and isinstance(img, np.ndarray):
+            plt.figure(id)     
+            plt.ion()
+            plt.clf() 
+            plt.imshow(img.squeeze())         
+            plt.title(title)  
+            plt.show(block=False)
+            plt.pause(0.05)
