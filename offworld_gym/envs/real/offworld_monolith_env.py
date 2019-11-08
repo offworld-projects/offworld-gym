@@ -54,7 +54,6 @@ class OffWorldMonolithEnv(RealEnv):
         action_space: Gym data structure that encapsulates an action.
         step_count: An integer count of step during an episode. 
     """
-    _EPISODE_LENGTH = 100
     
     def __init__(self, experiment_name, resume_experiment, channel_type=Channels.DEPTH_ONLY):
         super(OffWorldMonolithEnv, self).__init__(experiment_name, resume_experiment)
@@ -118,9 +117,6 @@ class OffWorldMonolithEnv(RealEnv):
         state, reward, done = self.secured_bridge.perform_action(action, self._channel_type)
         
         self._last_state = state
-
-        if self.step_count == OffWorldMonolithEnv._EPISODE_LENGTH:
-            done = True
 
         if done:
             logger.debug('Environment episode is complete.')
