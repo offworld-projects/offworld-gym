@@ -22,26 +22,28 @@ sudo apt update
 sudo apt install -y libbullet-dev python-pip git curl wget
 
 curl https://bootstrap.pypa.io/get-pip.py | sudo -H python2.7
+pip install --user --upgrade testresources
 pip install --user --upgrade setuptools
-pip install --user numpy==1.16.5
-pip install --user scipy==1.2.2
-pip install --user tensorflow-gpu==1.14.0
-pip install --user keras==2.2.4
-pip install --user opencv-python
-pip install --user catkin_pkg
-pip install --user empy
-pip install --user requests
-pip install --user defusedxml
-pip install --user rospkg
-pip install --user matplotlib
-pip install --user netifaces
-pip install --user regex
-pip install --user psutil
-pip install --user gym
-pip install --user python-socketio
-pip install --user scikit-image
-pip install --user pyquaternion
-pip install --user imageio
+pip install --user --upgrade numpy==1.16.5
+pip install --user --upgrade scipy==1.2.2
+pip install --user --upgrade futures==3.1.1
+pip install --user --upgrade tensorflow-gpu==1.14.0
+pip install --user --upgrade keras==2.2.4
+pip install --user --upgrade opencv-python
+pip install --user --upgrade catkin_pkg
+pip install --user --upgrade empy
+pip install --user --upgrade requests
+pip install --user --upgrade defusedxml
+pip install --user --upgrade rospkg
+pip install --user --upgrade matplotlib
+pip install --user --upgrade netifaces
+pip install --user --upgrade regex
+pip install --user --upgrade psutil
+pip install --user --upgrade gym
+pip install --user --upgrade python-socketio
+pip install --user --upgrade scikit-image
+pip install --user --upgrade pyquaternion
+pip install --user --upgrade imageio
 cd $OFFWORLD_GYM_ROOT
 pip install --user -e .
 
@@ -53,25 +55,25 @@ curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
 
 pip3.6 install --user --upgrade setuptools
 pip3.6 install --user --upgrade pip
-pip3.6 install --user numpy
-pip3.6 install --user scipy
-pip3.6 install --user tensorflow-gpu==1.14.0
-pip3.6 install --user keras==2.2.4
-pip3.6 install --user opencv-python
-pip3.6 install --user catkin_pkg
-pip3.6 install --user empy
-pip3.6 install --user requests
-pip3.6 install --user defusedxml 
-pip3.6 install --user rospkg
-pip3.6 install --user matplotlib
-pip3.6 install --user netifaces
-pip3.6 install --user regex
-pip3.6 install --user psutil
-pip3.6 install --user gym
-pip3.6 install --user python-socketio
-pip3.6 install --user scikit-image
-pip3.6 install --user pyquaternion
-pip3.6 install --user imageio
+pip3.6 install --user --upgrade numpy
+pip3.6 install --user --upgrade scipy
+pip3.6 install --user --upgrade tensorflow-gpu==1.14.0
+pip3.6 install --user --upgrade keras==2.2.4
+pip3.6 install --user --upgrade opencv-python
+pip3.6 install --user --upgrade catkin_pkg
+pip3.6 install --user --upgrade empy
+pip3.6 install --user --upgrade requests
+pip3.6 install --user --upgrade defusedxml 
+pip3.6 install --user --upgrade rospkg
+pip3.6 install --user --upgrade matplotlib
+pip3.6 install --user --upgrade netifaces
+pip3.6 install --user --upgrade regex
+pip3.6 install --user --upgrade psutil
+pip3.6 install --user --upgrade gym
+pip3.6 install --user --upgrade python-socketio
+pip3.6 install --user --upgrade scikit-image
+pip3.6 install --user --upgrade pyquaternion
+pip3.6 install --user --upgrade imageio
 
 cd $OFFWORLD_GYM_ROOT
 pip3.6 install --user -e .
