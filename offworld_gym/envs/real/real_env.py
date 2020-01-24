@@ -18,21 +18,43 @@ __version__     = version.__version__
 
 from abc import abstractmethod
 from abc import ABCMeta
+from enum import Enum
 
 import gym
 from offworld_gym import logger
 from offworld_gym.envs.real.core.secured_bridge import SecuredBridge
+
+class AlgorithmMode(Enum):
+    """Algorithm run mode
+    """
+    TRAIN = "train"
+    TEST = "test"
+
+class LearningType(Enum):
+    """Type of learning
+    """
+    
+    END_TO_END = "end2end"
+    SIM_2_REAL = "sim2real"
+    HUMAN_DEMOS = "humandemos"
 
 class RealEnv(gym.Env, metaclass=ABCMeta):
     """Base class for the real environments.
     """
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, experiment_name, resume_experiment):
+    def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN):
         if experiment_name is None:
             raise ValueError("Please provide a value for experiment name.")
-        elif resume_experiment is None:
+        
+        if resume_experiment is None:
             raise ValueError("Would you like to resume training if experiment already exists?")
+
+        if learning_type is None:
+            raise ValueError("Learning_type cannot be none")
+
+        assert isinstance(learning_type, LearningType), "Learning_type is not of type LearningType."
+        assert isinstance(algorithm_mode, AlgorithmMode), "Algorithm_mode is not of type AlgorithmMode."
         
         if not isinstance(resume_experiment, bool):
             raise ValueError("Not a valid value for resume_experiment.")
@@ -40,6 +62,8 @@ class RealEnv(gym.Env, metaclass=ABCMeta):
         self.experiment_name = experiment_name
         self.resume_experiment = resume_experiment
         self.secured_bridge = SecuredBridge()
+        self.learning_type = learning_type
+        self.algorithm_mode = algorithm_mode
 
     @abstractmethod
     def step(self, action):        

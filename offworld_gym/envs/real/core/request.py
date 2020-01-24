@@ -101,10 +101,12 @@ class SetUpRequest(Request):
     URI = "setup"
     STATUS_RUNNING = "STATUS_RUNNING"
     
-    def __init__(self, web_token, experiment_name, resume_experiment):
+    def __init__(self, web_token, experiment_name, resume_experiment, learning_type, algorithm_mode):
         Request.__init__(self, web_token)
         self.experiment_name = experiment_name
         self.resume_experiment = resume_experiment
+        self.learning_type = learning_type
+        self.algorithm_mode = algorithm_mode
 
 
 class DisconnectRequest(Request):

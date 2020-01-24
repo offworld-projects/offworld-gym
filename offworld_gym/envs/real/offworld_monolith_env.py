@@ -28,7 +28,7 @@ from matplotlib import pyplot as plt
 import gym
 from gym import utils, spaces
 from offworld_gym import logger
-from offworld_gym.envs.real.real_env import RealEnv
+from offworld_gym.envs.real.real_env import RealEnv, AlgorithmMode, LearningType
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
@@ -45,9 +45,9 @@ class OffWorldMonolithEnv(RealEnv):
 
     .. code:: python
 
-        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, channel_type=Channels.DEPTHONLY)
-        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, channel_type=Channels.RGB_ONLY)
-        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, channel_type=Channels.RGBD)
+        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTHONLY)
+        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.SIM_2_REAL, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGB_ONLY)
+        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGBD)
 
     Attributes:
         observation_space: Gym data structure that encapsulates an observation.
@@ -55,9 +55,10 @@ class OffWorldMonolithEnv(RealEnv):
         step_count: An integer count of step during an episode. 
     """
     
-    def __init__(self, experiment_name, resume_experiment, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithEnv, self).__init__(experiment_name, resume_experiment)
+    def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
+        super(OffWorldMonolithEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
         
+
         assert isinstance(channel_type, Channels), "Channel type is not of type Channels."
         logger.info("Environment has been initiated.")
         
@@ -77,7 +78,7 @@ class OffWorldMonolithEnv(RealEnv):
         logger.info("Waiting to connect to the environment server.")
         wait_start = time.time()
         while True:
-            heartbeat, registered, message = self.secured_bridge.perform_handshake(self.experiment_name, self.resume_experiment)
+            heartbeat, registered, message = self.secured_bridge.perform_handshake(self.experiment_name, self.resume_experiment, self.learning_type, self.algorithm_mode)
             if heartbeat is None:
                 continue
             elif heartbeat == SetUpRequest.STATUS_RUNNING and registered:

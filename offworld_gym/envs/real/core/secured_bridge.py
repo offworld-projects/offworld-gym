@@ -67,7 +67,7 @@ class SecuredBridge(metaclass=Singleton):
         logger.debug("Web Token  : {}".format(response_json['web_token']))
         return response_json['web_token']
 
-    def perform_handshake(self, experiment_name, resume_experiment):
+    def perform_handshake(self, experiment_name, resume_experiment, learning_type, algorithm_mode):
         """Perform handshake with the gym server.
 
         To perform a handshake: initiate communication with the server, 
@@ -88,7 +88,7 @@ class SecuredBridge(metaclass=Singleton):
 
         # Get the heartbeat of the robot
         # Share the experiment details with the server
-        req = SetUpRequest(self._web_token, experiment_name, resume_experiment)
+        req = SetUpRequest(self._web_token, experiment_name, resume_experiment, learning_type.value, algorithm_mode.value)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, SetUpRequest.URI)
         set_up_response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
 
@@ -125,7 +125,7 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response_json = json.loads(response.text)
         except:
-            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            raise GymException("An error has occured. Most likely your time slot has ended or there was a time-out. Please try again.")
 
         reward = int(response_json['reward'])
         state = json.loads(response_json['state'])
@@ -160,7 +160,7 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response_json = json.loads(response.text)
         except:
-            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            raise GymException("An error has occured. Most likely your time slot has ended or there was a time-out. Please try again.")
 
         state = json.loads(response_json['state'])
 

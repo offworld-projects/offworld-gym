@@ -34,6 +34,7 @@ set_session(tf.Session(config=config))
 import gym
 import offworld_gym
 from offworld_gym.envs.common.channels import Channels
+from offworld_gym.envs.real.real_env import AlgorithmMode, LearningType
 
 import keras
 from keras.models import Model, load_model
@@ -61,7 +62,7 @@ if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
-env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_hl_experiment_1', resume_experiment=False, channel_type=Channels.DEPTH_ONLY)
+env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_hl_experiment_5', resume_experiment=True, channel_type=Channels.DEPTH_ONLY, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TEST)
 nb_actions = env.action_space.n
 
 
@@ -98,7 +99,8 @@ def create_network():
     x = Dense(16)(x)
     x = Activation('relu')(x)
         
-    output = Dense(nb_actions)(x)
+    x = Dense(nb_actions)(x)
+    output = Activation('linear')(x)
     model = Model(inputs=[img_input], outputs=output)
     print(model.summary())
         
@@ -110,7 +112,7 @@ class RosbotProcessor(Processor):
         '''
         observations are [image(240, 320, 3), config(4,)]
         '''
-
+        observation = observation/5.5
         return observation
 
     def process_state_batch(self, batch):
@@ -162,9 +164,9 @@ def train(hitl=False):
     memory_size = 25000
     window_length = 1
     total_nb_steps = 1000000
-    exploration_anneal_nb_steps = 80000
+    exploration_anneal_nb_steps = 5000 #40000
     max_eps = 0.8
-    min_eps = 0.1
+    min_eps = 0.0
     learning_warmup_nb_steps = 50
     target_model_update = 1e-2
     learning_rate = 1e-3
@@ -193,7 +195,7 @@ def train(hitl=False):
         Agent = DQNAgent    
     # create the agent
     dqn = Agent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
-                   target_model_update=target_model_update, policy=policy)
+                   target_model_update=target_model_update, policy=policy, gamma=0.95)
     dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
 
     # model snapshot and tensorboard callbacks
