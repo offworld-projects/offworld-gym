@@ -16,7 +16,6 @@ import gym
 import offworld_gym
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
-from offworld_gym.envs.real.core.secured_bridge import SecuredBridge
 from offworld_gym.envs.real.real_env import AlgorithmMode, LearningType
 
 # create the envronment and establish connection
