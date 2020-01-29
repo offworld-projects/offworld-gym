@@ -23,20 +23,7 @@ from enum import Enum
 import gym
 from offworld_gym import logger
 from offworld_gym.envs.real.core.secured_bridge import SecuredBridge
-
-class AlgorithmMode(Enum):
-    """Algorithm run mode
-    """
-    TRAIN = "train"
-    TEST = "test"
-
-class LearningType(Enum):
-    """Type of learning
-    """
-    
-    END_TO_END = "end2end"
-    SIM_2_REAL = "sim2real"
-    HUMAN_DEMOS = "humandemos"
+from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 
 class RealEnv(gym.Env, metaclass=ABCMeta):
     """Base class for the real environments.

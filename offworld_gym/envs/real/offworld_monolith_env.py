@@ -28,13 +28,14 @@ from matplotlib import pyplot as plt
 import gym
 from gym import utils, spaces
 from offworld_gym import logger
-from offworld_gym.envs.real.real_env import RealEnv, AlgorithmMode, LearningType
+from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 from offworld_gym.envs.common.offworld_gym_utils import ImageUtils
 from offworld_gym.envs.real.core.request import SetUpRequest
 from offworld_gym.envs.real.config import settings
+from offworld_gym.envs.real import RealEnv
 
 DEBUG = settings.config["application"]["dev"]["debug"]
 
@@ -69,6 +70,7 @@ class OffWorldMonolithEnv(RealEnv):
         self._initiate()
         self.step_count = 0
         self._last_state = None
+        self._closed = False
 
         logger.info("Environment has been started.")
 
@@ -111,13 +113,19 @@ class OffWorldMonolithEnv(RealEnv):
         assert action is not None, "Action cannot be None."
         assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
+        if self._closed:
+            raise GymException("The environment has been closed.")
+
         if isinstance(action, (int, np.int32, np.int64)):
             assert action >= 0 and action < 4, "Unrecognized value for the action"
             action = FourDiscreteMotionActions(action)
         
-        state, reward, done = self.secured_bridge.perform_action(action, self._channel_type)
+        state, reward, done = self.secured_bridge.perform_action(action, self._channel_type, self.algorithm_mode)
         
         self._last_state = state
+        
+        if self.step_count == 100:
+            self.close()
 
         if done:
             logger.debug('Environment episode is complete.')
@@ -131,6 +139,10 @@ class OffWorldMonolithEnv(RealEnv):
         Returns:
             A numpy array with rgb/depth/rgbd encoding of the state observation.
         """
+
+        if self._closed:
+            raise GymException("The environment has been closed.")
+
         state = self.secured_bridge.perform_reset(self._channel_type)
         logger.info("Environment reset complete")
         return state
@@ -172,4 +184,5 @@ class OffWorldMonolithEnv(RealEnv):
     def close(self):
         """Closes the environment.
         """
+        self._closed = True
         self.secured_bridge.disconnect()

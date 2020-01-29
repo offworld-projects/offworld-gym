@@ -76,6 +76,7 @@ class SecuredBridge(metaclass=Singleton):
         Args:
             experiment_name: String value as the experiment name.
             resume_experiment: Boolean value to indicate if existing experiment is to be resumed.
+            learning_type: String value indicating whether type is end2end, humandemos or sim2real.
 
         Returns:
             A string value with the heartbeat status.
@@ -88,7 +89,7 @@ class SecuredBridge(metaclass=Singleton):
 
         # Get the heartbeat of the robot
         # Share the experiment details with the server
-        req = SetUpRequest(self._web_token, experiment_name, resume_experiment, learning_type.value, algorithm_mode.value)
+        req = SetUpRequest(self._web_token, experiment_name, resume_experiment, learning_type, algorithm_mode)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, SetUpRequest.URI)
         set_up_response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
 
@@ -101,12 +102,13 @@ class SecuredBridge(metaclass=Singleton):
 
         return set_up_response_json['heartbeat'], set_up_response_json['registered'], set_up_response_json['message']
         
-    def perform_action(self, action_type, channel_type):
+    def perform_action(self, action_type, channel_type, algorithm_mode):
         """Perform an action on the robot
 
         Args:
             action_type: FourDiscreteMotionActions type value with the action to execute.
             channel_type: Channels type value, determines observation's channel.
+            algorithm_mode: Whether algorithm is being run in train or test modde.
 
         Returns:
             A numpy array as the observation.
@@ -117,7 +119,7 @@ class SecuredBridge(metaclass=Singleton):
         self._action_counter += 1
         logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
         
-        req = ActionRequest(self._web_token, action_type=action_type, channel_type=channel_type)
+        req = ActionRequest(self._web_token, action_type=action_type, channel_type=channel_type, algorithm_mode=algorithm_mode)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, ActionRequest.URI)
 
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
@@ -126,6 +128,9 @@ class SecuredBridge(metaclass=Singleton):
             response_json = json.loads(response.text)
         except:
             raise GymException("An error has occured. Most likely your time slot has ended or there was a time-out. Please try again.")
+
+        if 'testing' in response_json:
+            raise GymException(response_json["message"])
 
         reward = int(response_json['reward'])
         state = json.loads(response_json['state'])

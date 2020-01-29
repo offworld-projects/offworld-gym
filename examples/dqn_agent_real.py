@@ -34,7 +34,7 @@ set_session(tf.Session(config=config))
 import gym
 import offworld_gym
 from offworld_gym.envs.common.channels import Channels
-from offworld_gym.envs.real.real_env import AlgorithmMode, LearningType
+from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 
 import keras
 from keras.models import Model, load_model
@@ -62,7 +62,7 @@ if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
-env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_hl_experiment_5', resume_experiment=True, channel_type=Channels.DEPTH_ONLY, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TEST)
+env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_e2e_experiment_1', resume_experiment=True, channel_type=Channels.DEPTH_ONLY, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
 nb_actions = env.action_space.n
 
 
@@ -164,9 +164,9 @@ def train(hitl=False):
     memory_size = 25000
     window_length = 1
     total_nb_steps = 1000000
-    exploration_anneal_nb_steps = 5000 #40000
-    max_eps = 0.8
-    min_eps = 0.0
+    exploration_anneal_nb_steps = 40000
+    max_eps = 0.9
+    min_eps = 0.1
     learning_warmup_nb_steps = 50
     target_model_update = 1e-2
     learning_rate = 1e-3
@@ -225,4 +225,4 @@ def train(hitl=False):
 
 
 if __name__ == "__main__":        
-    train(True)
+    train(False)

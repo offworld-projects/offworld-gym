@@ -19,6 +19,7 @@ __version__     = version.__version__
 import json
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
+from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 
 class TokenRequest:
     """Request model for getting a web token from the server
@@ -67,10 +68,11 @@ class ActionRequest(Request):
     """
     URI = "action"
 
-    def __init__(self, web_token, action_type=FourDiscreteMotionActions.FORWARD, channel_type=Channels.DEPTH_ONLY):
+    def __init__(self, web_token, action_type=FourDiscreteMotionActions.FORWARD, channel_type=Channels.DEPTH_ONLY, algorithm_mode=AlgorithmMode.TRAIN):
         Request.__init__(self, web_token)
         self.action_type = action_type.value if isinstance(action_type, FourDiscreteMotionActions) else action_type
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
+        self.algorithm_mode = algorithm_mode.value if isinstance(algorithm_mode, AlgorithmMode) else algorithm_mode
 
 class ResetRequest(Request):
     """Environment reset request model
@@ -96,6 +98,7 @@ class SetUpRequest(Request):
         web_token: String with the server's web token.
         experiment_name: String containing the experiment name.
         resume_experiment: Boolean indicating whether existing experiment is to be resumed.
+        learning_type: String value indicating whether type is end2end, humandemos or sim2real.
     """
     
     URI = "setup"
@@ -105,9 +108,8 @@ class SetUpRequest(Request):
         Request.__init__(self, web_token)
         self.experiment_name = experiment_name
         self.resume_experiment = resume_experiment
-        self.learning_type = learning_type
-        self.algorithm_mode = algorithm_mode
-
+        self.learning_type = learning_type.value if isinstance(learning_type, LearningType) else learning_type
+        self.algorithm_mode = algorithm_mode.value if isinstance(algorithm_mode, AlgorithmMode) else algorithm_mode
 
 class DisconnectRequest(Request):
     """Server Disconnect request
@@ -118,3 +120,6 @@ class DisconnectRequest(Request):
     """
 
     URI = "disconnect"
+    def __init__(self, web_token, channel_type):
+        Request.__init__(self, web_token)
+        self.channel_type = channel_type
