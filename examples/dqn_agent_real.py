@@ -41,7 +41,7 @@ from keras.models import Model, load_model
 from keras.layers import Dense, Activation, Flatten, Conv2D, Input, MaxPooling2D, LeakyReLU, BatchNormalization
 from keras.optimizers import Adam
 
-from rl.agents.dqn import DQNAgent, HumanDQNAgent
+from rl.agents.dqn import DQNAgent
 from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.processors import Processor
@@ -62,7 +62,9 @@ if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
-env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='dqn_depth_e2e_experiment_1', resume_experiment=True, channel_type=Channels.DEPTH_ONLY, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
+env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='The name of your experiment',
+               resume_experiment=False, channel_type=Channels.DEPTH_ONLY,
+               learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
 nb_actions = env.action_space.n
 
 
@@ -129,7 +131,7 @@ class RosbotProcessor(Processor):
         return imgs_batch
 
 
-def train(hitl=False):
+def train():
     
     # waiting for the ROS messages to clear
     time.sleep(5)
@@ -187,14 +189,9 @@ def train(hitl=False):
     else:
         model = create_network()
         memory = SequentialMemory(limit=memory_size, window_length=window_length)    
-
-    Agent = None
-    if hitl:
-        Agent = HumanDQNAgent
-    else:
-        Agent = DQNAgent    
+   
     # create the agent
-    dqn = Agent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
+    dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
                    target_model_update=target_model_update, policy=policy, gamma=0.95)
     dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
 
@@ -225,4 +222,4 @@ def train(hitl=False):
 
 
 if __name__ == "__main__":        
-    train(False)
+    train()

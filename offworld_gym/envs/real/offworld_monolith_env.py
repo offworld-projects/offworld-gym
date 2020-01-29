@@ -160,7 +160,7 @@ class OffWorldMonolithEnv(RealEnv):
         if mode == 'human':
             self.plot(self._last_state)
         else:
-            raise NotImplementedError(mode)
+            pass
         return None
 
     def plot(self, img, id=1, title="State"):
