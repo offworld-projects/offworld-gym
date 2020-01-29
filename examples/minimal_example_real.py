@@ -38,5 +38,5 @@ matplotlib.use('TkAgg')
 import matplotlib.pylab as plt
 fig, (ax1, ax2) = plt.subplots(1, 2);
 ax1.imshow(np.array(state[0, :, :, :3], dtype='int'));
-ax2.imshow(np.fliplr(state[0, :, :, 3]), cmap='gray');
+ax2.imshow(np.array(state[0, :, :, 3]), cmap='gray');
 plt.show();
