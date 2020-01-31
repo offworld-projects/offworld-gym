@@ -185,4 +185,4 @@ class OffWorldMonolithEnv(RealEnv):
         """Closes the environment.
         """
         self._closed = True
-        self.secured_bridge.disconnect()
+        self.secured_bridge.disconnect(self._channel_type)
