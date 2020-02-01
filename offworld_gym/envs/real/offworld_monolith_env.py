@@ -123,9 +123,6 @@ class OffWorldMonolithEnv(RealEnv):
         state, reward, done = self.secured_bridge.perform_action(action, self._channel_type, self.algorithm_mode)
         
         self._last_state = state
-        
-        if self.step_count == 100:
-            self.close()
 
         if done:
             logger.debug('Environment episode is complete.')

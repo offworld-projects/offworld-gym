@@ -177,7 +177,7 @@ class SecuredBridge(metaclass=Singleton):
         
         return state
     
-    def disconnect(self):
+    def disconnect(self, channel_type):
         """Disconnect from the backend.
         """
         logger.debug("Disconnecting from the server.") 
