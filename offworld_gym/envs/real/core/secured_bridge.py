@@ -22,6 +22,7 @@ import numpy as np
 import requests
 import os 
 import time
+from http import HTTPStatus
 
 # offworld gym
 from offworld_gym.envs.real.config import settings
@@ -63,7 +64,12 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response_json = json.loads(response.text)
         except:
-            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            if response.status_code == HTTPStatus.NOT_FOUND:
+                raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            else:
+                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
         logger.debug("Web Token  : {}".format(response_json['web_token']))
         return response_json['web_token']
 
@@ -96,7 +102,12 @@ class SecuredBridge(metaclass=Singleton):
         try:
             set_up_response_json = json.loads(set_up_response.text)
         except:
-            raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            if response.status_code == HTTPStatus.NOT_FOUND:
+                raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            else:
+                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
         logger.debug("Heartbeat  : {}".format(set_up_response_json['heartbeat']))
         self._web_token = set_up_response_json['web_token']
 
@@ -126,8 +137,13 @@ class SecuredBridge(metaclass=Singleton):
 
         try:
             response_json = json.loads(response.text)
-        except:
-            raise GymException("An error has occured. Most likely your time slot has ended or there was a time-out. Please try again.")
+        except:            
+            if response.status_code == HTTPStatus.NOT_FOUND:
+                raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            else:
+                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
 
         if 'testing' in response_json:
             raise GymException(response_json["message"])
@@ -165,8 +181,14 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response_json = json.loads(response.text)
         except:
-            raise GymException("An error has occured. Most likely your time slot has ended or there was a time-out. Please try again.")
-
+            
+            if response.status_code == HTTPStatus.NOT_FOUND:
+                raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            else:
+                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+            
         state = json.loads(response_json['state'])
 
         state = np.asarray(state)
