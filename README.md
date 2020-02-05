@@ -1,6 +1,8 @@
 # OffWorld Gym
 
-The challenge that the community sets as a benchmark is usually the challenge that the community eventually solves. The ultimate challenge of reinforcement learning research is to train *real* agents to operate in the *real* environment, but until now there has not been a common real-world RL benchmark.
+The challenge that the community sets as a benchmark is usually the challenge that the community eventually solves. The ultimate challenge of reinforcement learning research is to train *real* agents to operate in the *real* environment, but until now there has not been a common real-world RL benchmark.  
+
+OffWorld Gym is free to use, try it out at [gym.offworld.ai](https://gym.offworld.ai)
 
 ## Real-world Robotics Environment for Reinforcement Learning Research
 
