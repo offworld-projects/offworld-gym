@@ -5,7 +5,7 @@ import cv2
 import scipy
 import rospy
 from sensor_msgs.msg import Image
-from offworld_gym.envs.common.offworld_gym_utils import ImageUtils
+from offworld_gym.envs.gazebo.utils import ImageUtils
 
 IMG_H = 240
 IMG_W = 320
