@@ -148,5 +148,5 @@ sudo apt-get install -y gazebo7 libgazebo7-dev
 printf "\n\nInstallation complete\n---------------------\n\n"
 printf "To setup a shell for OffWorld Gym run\n\n\tsource $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\n\nin each new terminal to activate Gym Shell.\n"
 printf "Or add to your ~/.bashrc by running\n\n\techo \"source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\" >> ~/.bashrc\n\n---------------------\n\n"
-printf "To test Real environment:\n\t(add instructions here)\n\n"
-printf "To test Sim environment: open two terminals, activate Gym Shell in each one, and run:\n\t1. roslaunch gym_offworld_monolith env_bringup.launch\n\t2. gzclient\n\n"
+printf "To test the Real environment:\n\n\t* Book your time slot at https://gym.offworld.ai/book\n\t* Copy the access token from https://gym.offworld.ai/account to $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\n\t* Activate Gym Shell by calling \"source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh\"\n\t* Open https://gym.offworld.ai/cameras in your browser to see the real-time camera stream\n\t* Run the minimal example \"python3.6 examples/minimal_example_real.py\"\n\n"
+printf "To test Sim environment: open two terminals, activate Gym Shell in each one, and run:\n\n\tTerminal 1: roslaunch gym_offworld_monolith env_bringup.launch\n\tTerminal 2: gzclient\n\n"

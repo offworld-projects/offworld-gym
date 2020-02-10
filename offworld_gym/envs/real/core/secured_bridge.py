@@ -113,7 +113,7 @@ class SecuredBridge(metaclass=Singleton):
 
         return set_up_response_json['heartbeat'], set_up_response_json['registered'], set_up_response_json['message']
         
-    def perform_action(self, action_type, channel_type, algorithm_mode):
+    def monolith_discrete_perform_action(self, action_type, channel_type, algorithm_mode):
         """Perform an action on the robot
 
         Args:
@@ -130,8 +130,8 @@ class SecuredBridge(metaclass=Singleton):
         self._action_counter += 1
         logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
         
-        req = ActionRequest(self._web_token, action_type=action_type, channel_type=channel_type, algorithm_mode=algorithm_mode)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, ActionRequest.URI)
+        req = MonolithDiscreteActionRequest(self._web_token, action_type=action_type, channel_type=channel_type, algorithm_mode=algorithm_mode)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteActionRequest.URI)
 
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
 
@@ -163,7 +163,7 @@ class SecuredBridge(metaclass=Singleton):
         
         return state, reward, done
     
-    def perform_reset(self, channel_type=Channels.DEPTH_ONLY):
+    def monolith_discrete_perform_reset(self, channel_type=Channels.DEPTH_ONLY):
         """Requests server to reset the environment.
 
         Args:
@@ -174,8 +174,8 @@ class SecuredBridge(metaclass=Singleton):
         """
         logger.debug("Waiting for reset done from the server.")       
         
-        req = ResetRequest(self._web_token, channel_type=channel_type)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, ResetRequest.URI)
+        req = MonolithDiscreteResetRequest(self._web_token, channel_type=channel_type)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
 
         try:
