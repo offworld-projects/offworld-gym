@@ -61,7 +61,7 @@ if not os.path.exists(MODEL_PATH): os.makedirs(MODEL_PATH)
 
 
 # create the envronment
-env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.DEPTH_ONLY)
+env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.DEPTH_ONLY)
 env.seed(123)
 nb_actions = env.action_space.n
 

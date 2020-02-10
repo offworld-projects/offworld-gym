@@ -39,16 +39,16 @@ from offworld_gym.envs.real import RealEnv
 
 DEBUG = settings.config["application"]["dev"]["debug"]
 
-class OffWorldMonolithEnv(RealEnv):
+class OffWorldMonolithDiscreteEnv(RealEnv):
     """Real Gym environment with a rosbot and a monolith on an uneven terrain.
 
     A RL agent learns to reach the goal(monolith) in shortest time.
 
     .. code:: python
 
-        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTHONLY)
-        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.SIM_2_REAL, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGB_ONLY)
-        env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGBD)
+        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTHONLY)
+        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.SIM_2_REAL, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGB_ONLY)
+        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGBD)
 
     Attributes:
         observation_space: Gym data structure that encapsulates an observation.
@@ -57,7 +57,7 @@ class OffWorldMonolithEnv(RealEnv):
     """
     
     def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
+        super(OffWorldMonolithDiscreteEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
         
 
         assert isinstance(channel_type, Channels), "Channel type is not of type Channels."
@@ -120,7 +120,7 @@ class OffWorldMonolithEnv(RealEnv):
             assert action >= 0 and action < 4, "Unrecognized value for the action"
             action = FourDiscreteMotionActions(action)
         
-        state, reward, done = self.secured_bridge.perform_action(action, self._channel_type, self.algorithm_mode)
+        state, reward, done = self.secured_bridge.monolith_discrete_perform_action(action, self._channel_type, self.algorithm_mode)
         
         self._last_state = state
 
@@ -140,7 +140,7 @@ class OffWorldMonolithEnv(RealEnv):
         if self._closed:
             raise GymException("The environment has been closed.")
 
-        state = self.secured_bridge.perform_reset(self._channel_type)
+        state = self.secured_bridge.monolith_discrete_perform_reset(self._channel_type)
         logger.info("Environment reset complete")
         return state
     

@@ -19,7 +19,7 @@ from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 from offworld_gym.envs.real.real_env import AlgorithmMode, LearningType
 
 # create the envronment and establish connection
-env = gym.make('OffWorldMonolithRealEnv-v0', experiment_name='Demo of a minimal example 01',
+env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Demo of a minimal example 01',
                resume_experiment=False, channel_type=Channels.RGBD,
                learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
 env.metadata = {'render.modes': []}

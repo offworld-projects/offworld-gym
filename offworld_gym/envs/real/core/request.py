@@ -28,7 +28,7 @@ class TokenRequest:
         URI: String constant containing uri to access initiate api.
         api_token: String with the user's api token.
     """
-    URI = "initiate"
+    URI = "/owgym/initiate"
     def __init__(self, api_token):
         self.api_token = api_token
 
@@ -57,7 +57,7 @@ class Request:
         """
         return self.__dict__        
 
-class ActionRequest(Request):
+class MonolithDiscreteActionRequest(Request):
     """Environment action request model
 
     Attributes:
@@ -66,7 +66,7 @@ class ActionRequest(Request):
         channel_type: Channels type indicating type of channel for observation.
         action_type: FourDiscreteMotionActions type value indicating type of action.
     """
-    URI = "action"
+    URI = "/owgym/monolithdiscrete/action"
 
     def __init__(self, web_token, action_type=FourDiscreteMotionActions.FORWARD, channel_type=Channels.DEPTH_ONLY, algorithm_mode=AlgorithmMode.TRAIN):
         Request.__init__(self, web_token)
@@ -74,7 +74,7 @@ class ActionRequest(Request):
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
         self.algorithm_mode = algorithm_mode.value if isinstance(algorithm_mode, AlgorithmMode) else algorithm_mode
 
-class ResetRequest(Request):
+class MonolithDiscreteResetRequest(Request):
     """Environment reset request model
 
     Attributes:
@@ -83,7 +83,7 @@ class ResetRequest(Request):
         channel_type: Channels type value indicating type of channel for observation.
         no_value: Boolean value to determine if action is to be taken during reset.
     """    
-    URI = "reset"
+    URI = "/owgym/monolithdiscrete/reset"
 
     def __init__(self, web_token, channel_type=Channels.DEPTH_ONLY):
         Request.__init__(self, web_token)
@@ -101,7 +101,7 @@ class SetUpRequest(Request):
         learning_type: String value indicating whether type is end2end, humandemos or sim2real.
     """
     
-    URI = "setup"
+    URI = "/owgym/setup"
     STATUS_RUNNING = "STATUS_RUNNING"
     
     def __init__(self, web_token, experiment_name, resume_experiment, learning_type, algorithm_mode):
@@ -119,7 +119,7 @@ class DisconnectRequest(Request):
         web_token: String with the server's web token.
     """
 
-    URI = "disconnect"
+    URI = "/owgym/disconnect"
     def __init__(self, web_token, channel_type):
         Request.__init__(self, web_token)
         self.channel_type = channel_type

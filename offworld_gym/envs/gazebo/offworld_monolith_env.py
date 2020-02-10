@@ -44,7 +44,7 @@ from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
 
-class OffWorldMonolithEnv(GazeboGymEnv):
+class OffWorldMonolithDDiscreteEnv(GazeboGymEnv):
     """Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.  
 
     Agent receives RGB or Depth camera feed as input and needs to learn to approch the visual
@@ -53,9 +53,9 @@ class OffWorldMonolithEnv(GazeboGymEnv):
     
     .. code:: python
     
-        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.DEPTHONLY, random_init=True)
-        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGB_ONLY, random_init=True)
-        env = gym.make('OffWorldMonolithSimEnv-v0', channel_type=Channels.RGBD, random_init=True)
+        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.DEPTHONLY, random_init=True)
+        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.RGB_ONLY, random_init=True)
+        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.RGBD, random_init=True)
 
     Attributes:
         channel_type: Channels type value indicating channel type to use for observation.
@@ -71,7 +71,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
-        super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
+        super(OffWorldMonolithDiscreteEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
 
         assert isinstance(channel_type, Channels), "Channel type is not of Channels."
         rospy.loginfo("Environment has been initiated.")
