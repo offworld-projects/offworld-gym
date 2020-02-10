@@ -40,7 +40,7 @@ You can now install the `offworld_gym` library. Please follow the instructions i
 ## Installation
 The installation was tested on: Ubuntu 16.04.6. Following these steps will prepare you for running both the Real and the Sim versions of OffWorld Gym. You will need to use **Python 3** with this environemt, Python 2 is not supported.
 
-#### Pre-requisites
+#### Pre-requisites for the sim environment
 Please install the following components using the corresponding installation instructions.
 
   * [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
@@ -57,7 +57,16 @@ For GPU support also install
 git clone https://github.com/offworld-projects/offworld-gym.git
 cd offworld-gym/scripts
 export OFFWORLD_GYM_ROOT=`pwd`/..
+```
+
+##### Sim Only
+```
 ./install.sh
+```
+
+##### Real Only
+```
+./install-real.sh
 ```
 
 Each time you will be running OffWorld Gym, execute
