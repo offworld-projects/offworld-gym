@@ -6,31 +6,7 @@
 OffWorld Gym
 ============
 
-The challenge that the community sets as a benchmark is usually the challenge that the community eventually solves. The ultimate challenge of reinforcement learning research is to train *real* agents to operate in the *real* environment, but until now there has not been a common real-world RL benchmark.
-
-**OffWorld Gym is an open-access physical robotics environment for real-world reinforcement learning benchmark and research!**
-
-Close integration into existing ecosystem allows you to start using OffWorld Gym without any prior experience in robotics and takes away the burden of managing a physical robotics system, abstracting it under a familiar API.
-
-.. figure:: images/offworld-gym-monolith-v1.png
-
-    Environment 1: OffWorld Monolith
-
-Install the library, change
-
-.. code:: python
-
-    gym.make('CartPole-v0')
-
-to
-
-.. code:: python
-
-    gym.make('OffWorldMonolithRealEnv-v0')
-
-and you are all set to run your RL algorithm on a **real robot**, for free!
-
-
+.. include:: intro-body.rst
 
 .. toctree::
     :maxdepth: 2

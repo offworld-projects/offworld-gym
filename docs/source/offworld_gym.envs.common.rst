@@ -35,6 +35,14 @@ offworld\_gym.envs.common.data\_structures module
    :undoc-members:
    :show-inheritance:
 
+offworld\_gym.envs.common.enums module
+--------------------------------------
+
+.. automodule:: offworld_gym.envs.common.enums
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 offworld\_gym.envs.common.offworld\_gym\_utils module
 -----------------------------------------------------
 
