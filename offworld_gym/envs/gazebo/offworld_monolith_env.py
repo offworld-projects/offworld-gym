@@ -44,18 +44,12 @@ from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
 
-class OffWorldMonolithDDiscreteEnv(GazeboGymEnv):
-    """Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.  
+class OffWorldMonolithEnv(GazeboGymEnv):
+    """Generic Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.  
 
     Agent receives RGB or Depth camera feed as input and needs to learn to approch the visual
     beacon in the center of the environment. Agent receives a sparse reward of `+1` upon
     approaching the monolith within ``_PROXIMITY_THRESHOLD`` radius.
-    
-    .. code:: python
-    
-        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.DEPTHONLY, random_init=True)
-        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.RGB_ONLY, random_init=True)
-        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.RGBD, random_init=True)
 
     Attributes:
         channel_type: Channels type value indicating channel type to use for observation.
@@ -64,14 +58,13 @@ class OffWorldMonolithDDiscreteEnv(GazeboGymEnv):
         observation_space: Gym data structure that encapsulates an observation.
         action_space: Gym data structure that encapsulates an action.
     """
-
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
     _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `gymbox.world`
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
-        super(OffWorldMonolithDiscreteEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
+        super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
 
         assert isinstance(channel_type, Channels), "Channel type is not of Channels."
         rospy.loginfo("Environment has been initiated.")
@@ -91,7 +84,7 @@ class OffWorldMonolithDDiscreteEnv(GazeboGymEnv):
         self._current_state = None
 
         self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
-        self.action_space = spaces.Discrete(4)
+        self.action_space = None
         self._monolith_space = self._get_state_vector('monolith')
         rospy.logdebug("----------------Monolith----------------")
         rospy.logdebug("Pose x: {}".format(str(self._monolith_space[0])))
@@ -163,21 +156,6 @@ class OffWorldMonolithDDiscreteEnv(GazeboGymEnv):
         vel_cmd.linear.x = 0.0
         vel_cmd.angular.z = 0.0
         self.vel_pub.publish(vel_cmd)
-        
-    def _send_action_commands(self, action_type):
-        """Sends an action command to the robot.
-        
-        Args:
-            action_type: FourDiscreteMotionActions instance.
-        """
-        if action_type == FourDiscreteMotionActions.LEFT:
-            self._move_rosbot(0.07, 1.25, 4) 
-        elif action_type == FourDiscreteMotionActions.RIGHT:
-            self._move_rosbot(0.07, -1.25, 4) 
-        elif action_type == FourDiscreteMotionActions.FORWARD:
-            self._move_rosbot(0.1, 0.0)
-        elif action_type == FourDiscreteMotionActions.BACKWARD:
-            self._move_rosbot(-0.1, 0.0)
             
     def _get_model_state(self, name):
         """Get model state object.
@@ -248,42 +226,7 @@ class OffWorldMonolithDDiscreteEnv(GazeboGymEnv):
         return reward, done
 
     def step(self, action):
-        """Take an action in the environment.
-
-        Args:
-            action: An action to be taken in the environment.
-
-        Returns:
-            A numpy array with rgb/depth/rgbd encoding of the state observation.
-            An integer with reward from the environment.
-            A boolean flag which is true when an episode is complete.
-            No info given for fair learning.
-        """        
-        # unpause physics before interaction with the environment
-        GazeboUtils.unpause_physics()
-        self.step_count += 1
-
-        assert action is not None, "Action cannot be None."
-        assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
-
-        if isinstance(action, (int, np.int32, np.int64)):
-            assert action >= 0 and action < 4, "Unrecognized value for the action"
-            action = FourDiscreteMotionActions(action)
-
-        rospy.loginfo("Step: %d" % self.step_count)
-        rospy.loginfo(action)
-        self._send_action_commands(action)
-        
-        self._current_state = self._get_state()
-        reward, done = self._calculate_reward()
-        
-        if done:
-            self.step_count = 0
-            
-        # pause physics now, speeds up simulation
-        GazeboUtils.pause_physics()
-        
-        return self._current_state, reward, done, {}
+        raise NotImplementedError("Must be implemented in the child class.")
 
     def _move_to_random_position(self, model_name, orient=True):
         """re-position a model to a random position.
@@ -391,3 +334,116 @@ class OffWorldMonolithDDiscreteEnv(GazeboGymEnv):
             plt.title(title)  
             plt.show(block=False)
             plt.pause(0.05)
+
+class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
+    """Discrete version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.      
+    .. code:: python
+    
+        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.DEPTHONLY, random_init=True)
+        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.RGB_ONLY, random_init=True)
+        env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.RGBD, random_init=True)
+    """
+
+    def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
+        super(OffWorldMonolithDiscreteEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
+        self.action_space = spaces.Discrete(4)
+        
+    def _send_action_commands(self, action_type):
+        """Sends an action command to the robot.
+        
+        Args:
+            action_type: FourDiscreteMotionActions instance.
+        """
+        if action_type == FourDiscreteMotionActions.LEFT:
+            self._move_rosbot(0.07, 1.25, 4) 
+        elif action_type == FourDiscreteMotionActions.RIGHT:
+            self._move_rosbot(0.07, -1.25, 4) 
+        elif action_type == FourDiscreteMotionActions.FORWARD:
+            self._move_rosbot(0.1, 0.0)
+        elif action_type == FourDiscreteMotionActions.BACKWARD:
+            self._move_rosbot(-0.1, 0.0)
+
+    def step(self, action):
+        """Take an action in the environment.
+
+        Args:
+            action: An action to be taken in the environment.
+
+        Returns:
+            A numpy array with rgb/depth/rgbd encoding of the state observation.
+            An integer with reward from the environment.
+            A boolean flag which is true when an episode is complete.
+            No info given for fair learning.
+        """        
+        # unpause physics before interaction with the environment
+        GazeboUtils.unpause_physics()
+        self.step_count += 1
+
+        assert action is not None, "Action cannot be None."
+        assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
+
+        if isinstance(action, (int, np.int32, np.int64)):
+            assert action >= 0 and action < 4, "Unrecognized value for the action"
+            action = FourDiscreteMotionActions(action)
+
+        rospy.loginfo("Step: %d" % self.step_count)
+        rospy.loginfo(action)
+        self._send_action_commands(action)
+        
+        self._current_state = self._get_state()
+        reward, done = self._calculate_reward()
+        
+        if done:
+            self.step_count = 0
+            
+        # pause physics now, speeds up simulation
+        GazeboUtils.pause_physics()
+        
+        return self._current_state, reward, done, {}
+
+class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
+    """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.      
+    .. code:: python
+    
+        env = gym.make('OffWorldMonolithContinousSim-v0', channel_type=Channels.DEPTHONLY, random_init=True)
+        env = gym.make('OffWorldMonolithContinousSim-v0', channel_type=Channels.RGB_ONLY, random_init=True)
+        env = gym.make('OffWorldMonolithContinousSim-v0', channel_type=Channels.RGBD, random_init=True)
+    """
+
+    def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
+        super(OffWorldMonolithContinousEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')ame, action_type)
+        self.action_space = spaces.Box(low=np.array([-1.0, -3.0]), high=np.array([1.0, 3.0]), dtype=np.float32)
+
+    def step(self, action):
+        """Take an action in the environment.
+
+        Args:
+            action: An action to be taken in the environment.
+
+        Returns:
+            A numpy array with rgb/depth/rgbd encoding of the state observation.
+            An integer with reward from the environment.
+            A boolean flag which is true when an episode is complete.
+            No info given for fair learning.
+        """        
+        # unpause physics before interaction with the environment
+        GazeboUtils.unpause_physics()
+        self.step_count += 1
+
+        assert action is not None, "Action cannot be None."
+        assert isinstance(action, (np.ndarray, spaces.Box)), "Action type is not recognized."
+
+        rospy.loginfo("Step: %d" % self.step_count)
+        rospy.loginfo(action)
+        self._move_rosbot(action[0], action[1], 4) 
+        
+        self._current_state = self._get_state()
+        reward, done = self._calculate_reward()
+        
+        if done:
+            self.step_count = 0
+            
+        # pause physics now, speeds up simulation
+        GazeboUtils.pause_physics()
+        
+        return self._current_state, reward, done, {}

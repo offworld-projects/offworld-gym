@@ -12,8 +12,13 @@ register(
 
 # simulated environments
 
-# OffWorld Monolith Simulated replica 
+# OffWorld Monolith Simulated replica with discrete actions
 register(
     id='OffWorldMonolithDiscreteSim-v0',
     entry_point='offworld_gym.envs.gazebo:OffWorldMonolithDiscreteEnv'
+
+# OffWorld Monolith Simulated replica with continous actions
+register(
+    id='OffWorldMonolithDiscreteSim-v0',
+    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithContinousEnv'
 )
