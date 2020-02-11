@@ -24,7 +24,8 @@ sudo apt install -y curl
 # Python 3.6
 sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt-get update
-sudo apt-get install -y python3.6 python3.6-dev python3-distutils python3-testresources
+sudo apt-get install -y python3.6 python3.6-dev
+sudo apt-get install -y python3-distutils python3-testresources
 curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
 
 pip3.6 install --user --upgrade setuptools

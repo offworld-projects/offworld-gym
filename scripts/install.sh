@@ -109,7 +109,6 @@ sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `ls
 wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
 sudo apt-get update
 sudo apt-get install -y libignition-math4-dev
-sudo rm -f /opt/ros/kinetic/lib/python2.7/dist-packages/cv2.so
 cd $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
 
 git clone https://github.com/ros-perception/vision_opencv.git -b kinetic
@@ -131,11 +130,11 @@ echo "ROS dependencies build complete."
 
 # build the Gym Shell script
 echo '#!/usr/bin/env bash' > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-echo "source /opt/ros/kinetic/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo "source /opt/ros/kinetic/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-echo 'export PYTHONPATH=$OFFWORLD_GYM_ROOT/assets/keras-rl:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+echo 'export PYTHONPATH=$OFFWORLD_GYM_ROOT/assets/keras-rl:~/.local/lib/python3.6/site-packages/$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 chmod +x $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 
 # update to gazebo 7.13

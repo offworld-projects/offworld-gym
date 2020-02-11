@@ -344,7 +344,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithDiscreteEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
+        super(OffWorldMonolithDiscreteEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
         self.action_space = spaces.Discrete(4)
         
     def _send_action_commands(self, action_type):
@@ -410,7 +410,7 @@ class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithContinousEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')ame, action_type)
+        super(OffWorldMonolithContinousEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
         self.action_space = spaces.Box(low=np.array([-1.0, -3.0]), high=np.array([1.0, 3.0]), dtype=np.float32)
 
     def step(self, action):
