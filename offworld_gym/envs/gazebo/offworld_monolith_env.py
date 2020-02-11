@@ -30,8 +30,7 @@ import gym
 from gym import utils, spaces
 from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
 from gym.utils import seeding
-from offworld_gym.envs.common.offworld_gym_utils import ImageUtils
-from offworld_gym.envs.common.offworld_gym_utils import GazeboUtils
+from offworld_gym.envs.gazebo.utils import ImageUtils, GazeboUtils
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions

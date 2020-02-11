@@ -32,7 +32,6 @@ from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
-from offworld_gym.envs.common.offworld_gym_utils import ImageUtils
 from offworld_gym.envs.real.core.request import SetUpRequest
 from offworld_gym.envs.real.config import settings
 from offworld_gym.envs.real import RealEnv
@@ -65,7 +64,7 @@ class OffWorldMonolithDiscreteEnv(RealEnv):
         
         #environment
         self._channel_type = channel_type
-        self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
+        self.observation_space = spaces.Box(0, 255, shape = (1, 240, 320, channel_type.value))
         self.action_space = spaces.Discrete(4)
         self._initiate()
         self.step_count = 0
