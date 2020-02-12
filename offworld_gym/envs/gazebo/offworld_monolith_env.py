@@ -411,7 +411,8 @@ class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
         super(OffWorldMonolithContinousEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
-        self.action_space = spaces.Box(low=np.array([-1.0, -3.0]), high=np.array([1.0, 3.0]), dtype=np.float32)
+        self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
+        self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
 
     def step(self, action):
         """Take an action in the environment.
@@ -430,11 +431,11 @@ class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
-        assert isinstance(action, (np.ndarray, spaces.Box)), "Action type is not recognized."
-
+        assert isinstance(action, (np.ndarray)), "Action type is not recognized."
+        action = np.clip(action, self.action_limit[0], self.action_limit[1])
         rospy.loginfo("Step: %d" % self.step_count)
         rospy.loginfo(action)
-        self._move_rosbot(action[0], action[1], 4) 
+        self._move_rosbot(action[0], action[1], 1.0) 
         
         self._current_state = self._get_state()
         reward, done = self._calculate_reward()
