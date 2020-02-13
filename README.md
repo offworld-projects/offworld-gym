@@ -38,60 +38,15 @@ You can now install the `offworld_gym` library. Please follow the instructions i
 
 
 ## Installation
-The installation was tested on: Ubuntu 16.04.6. Following these steps will prepare you for running both the Real and the Sim versions of OffWorld Gym. You will need to use **Python 3** with this environemt, Python 2 is not supported.
+There are two installation options: **real-only** (OS agnostic, no ROS dependencies) and **real-and-sim** (requires Ubuntu 16.04 and ROS Kinetic).  
 
-#### Pre-requisites for the sim environment
-Please install the following components using the corresponding installation instructions.
+Please check the [Installation](https://gym.offworld.ai/docs/installation.html) section of the documentation for the instructions.
 
-  * [ROS Kinetic](http://wiki.ros.org/kinetic/Installation/Ubuntu)
-  
-For GPU support also install
-
-  * [CUDA 10.0 Library](https://developer.nvidia.com/cuda-10.0-download-archive)
-  * [cuDNN 7.0 Library](https://developer.nvidia.com/cudnn)
-
-
-
-#### Setup
-```
-git clone https://github.com/offworld-projects/offworld-gym.git
-cd offworld-gym/scripts
-export OFFWORLD_GYM_ROOT=`pwd`/..
-```
-
-##### Sim Only
-```
-./install.sh
-```
-
-##### Real Only
-```
-./install-real.sh
-```
-
-Each time you will be running OffWorld Gym, execute
-```
-source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-```
-in each new terminal. Or add it  your ~/.bashrc by running
-```
-echo "source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh" >> ~/.bashrc
-```
-
-To test the Real environment:	
-
-  * Register as a user at [gym.offworld.ai](https://gym.offworld.ai)
-  * Copy "OffWorld Gym Access Token" from your [Profile](https://gym.offworld.ai/account) page into `OFFWORLD_GYM_ACCESS_TOKEN` variable in your `offworld_gym/scripts/gymshell.sh` script (this instruction will be repeated in the installation manual)
-  * Follow the instructions in the [Examples](https://gym.offworld.ai/docs/examples.html) section of [documentation](https://gym.offworld.ai/docs)
-
-To test Sim environment open two terminals, `source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh` in each of them, and run:  
-```
-terminal one: roslaunch gym_offworld_monolith env_bringup.launch  
-terminal two: gzclient  
-```
 
 
 ## Examples
-In our examples we use a slightly [modified version](https://github.com/offworld-projects/keras-rl/tree/offworld-gym) of [Keras-RL](https://github.com/keras-rl/keras-rl) library that allows us to make the training process resumable after an interruption. This is something that happens quite often when training in real. A set of `utils` allows you to visualize additional information on a TensorBoard. The `offworld_gym` library itself does not depend on these tools - you can ignore them, build on top of them or use them for inspiration. Keras-RL was our choice but you can use any other framework when developing your RL agents.
+For a short example of how to connect to the real robot and interact with it please have a look at the [Minimal example in the Real environment](https://gym.offworld.ai/docs/examples.html).
 
-Please see the [Examples](https://gym.offworld.ai/docs/examples.html) section of the Docs.
+We also provide examples where and agent achieves learning in both the real and the simulated environment. We use a slightly [modified version](https://github.com/offworld-projects/keras-rl/tree/offworld-gym) of [Keras-RL](https://github.com/keras-rl/keras-rl) library that allows us to make the training process resumable after an interruption. This is something that happens quite often when training in real. A set of `utils` allows you to visualize additional information on a TensorBoard. The `offworld_gym` library itself does not depend on these tools - you can ignore them, build on top of them or use them for inspiration. Keras-RL was our choice but you can use any other framework when developing your RL agents.
+
+See the [Examples](https://gym.offworld.ai/docs/examples.html) section of the Docs for more details.
