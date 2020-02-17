@@ -192,7 +192,7 @@ def train():
    
     # create the agent
     dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
-                   target_model_update=target_model_update, policy=policy, gamma=0.95)
+                   enable_double_dqn=True, target_model_update=target_model_update, policy=policy, gamma=0.95)
     dqn.compile(Adam(lr=learning_rate), metrics=['mae'])
 
     # model snapshot and tensorboard callbacks
