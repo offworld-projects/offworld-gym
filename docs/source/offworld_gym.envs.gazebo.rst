@@ -20,6 +20,14 @@ offworld\_gym.envs.gazebo.offworld\_monolith\_env module
    :undoc-members:
    :show-inheritance:
 
+offworld\_gym.envs.gazebo.utils module
+--------------------------------------
+
+.. automodule:: offworld_gym.envs.gazebo.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

@@ -8,7 +8,7 @@ By now you have registered at `gym.offworld.ai <https://gym.offworld.ai>`_, book
 Minimal example in the Real environment
 ---------------------------------------
 
-Execute ``source offworld-gym/scripts/gymshell.sh`` to prepare your environment and head to ``offworld-gym/examples``. Let us go over the code in ``minimal_example_real.py``:
+Execute ``source offworld-gym/scripts/gymshell.sh`` to prepare your environment and head to ``offworld-gym/examples``. Let us go over the code in ``minimal_example_OffWorldMonolithDiscreteReal.py``:
 
 .. note::
   Make sure you have booked the time with the `resource manager <https://gym.offworld.ai/book>`_ and that you are running the experiment during your time slot.
@@ -63,20 +63,20 @@ The next call to ``env.step()`` is the most exciting part of the example. This w
 
 Remaining part of the code shows how to access reward and state information and visualize it if needed.
 
-You can follow this example by executing the commands above one by one in an interactive ``iPython`` session, or execute the whole example by running ``python3.6 minimal_example_real.py``.
+You can follow this example by executing the commands above one by one in an interactive ``iPython`` session, or execute the whole example by running ``python3.6 minimal_example_OffWorldMonolithDiscreteReal.py``.
 
 
 
 DQN on the real robot
 ---------------------
 
-Execute ``source offworld-gym/scripts/gymshell.sh`` to prepare your environment and head to ``offworld-gym/examples``. Run ``python3.6 dqn_agent_real.py`` to start training a DQN agent on a real robot! Note that it will only work if you have booked the time with the resource manager and the time of running the experiment is the time you've booked.
+Execute ``source offworld-gym/scripts/gymshell.sh`` to prepare your environment and head to ``offworld-gym/examples``. Run ``python3.6 ddqn_OffWorldMonolithDiscreteReal.py`` to start training a DQN agent on a real robot! Note that it will only work if you have booked the time with the resource manager and the time of running the experiment is the time you've booked.
 
 .. code:: bash
 
     source $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
     cd $OFFWORLD_GYM_ROOT/examples
-    python3.6 dqn_agent_real.py
+    python3.6 ddqn_OffWorldMonolithDiscreteReal.py
 
 .. note::
    When initializing new environment you need to give a unique name for each new experiment.
@@ -118,7 +118,7 @@ DQN in OffWorld Gym simulator
 
 Make sure you have executed ``source scripts/gymshell.sh`` before running any OffWorld Gym programs. This script takes care of setting the environment variables.
 
-Start training by going to ``examples`` and running ``python3.6 dqn_agent_sim.py``. This will initialize the environment and start the training process; you can have a peek by running ``gzclient`` in a separate terminal.
+Start training by going to ``examples`` and running ``python3.6 ddqn_OffWorldMonolithDiscreteSim.py``. This will initialize the environment and start the training process; you can have a peek by running ``gzclient`` in a separate terminal.
 
 The ``SaveDQNTrainingState`` callback will store model and memory snapshots every 100 episodes in the ``sim_agent_state`` directory. In case your process stops you can just restart the python script, confirm that you wish to resume learning from the latest snapshot, and the learning will continue. Since we are storing the DQN replay buffer alongside the model, the script saves only the 3 last snapshots by default to save some storage space. Feel free to change that parameter or set it to `None` if you would like to keep all the snapshots. You can also stop training manually by calling ``touch /tmp/killrlsim`` or pressing Ctrl+C (this sometimes fails so it is better user the ``touch`` method).
 

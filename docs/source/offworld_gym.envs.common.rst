@@ -43,14 +43,6 @@ offworld\_gym.envs.common.enums module
    :undoc-members:
    :show-inheritance:
 
-offworld\_gym.envs.common.offworld\_gym\_utils module
------------------------------------------------------
-
-.. automodule:: offworld_gym.envs.common.offworld_gym_utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 offworld\_gym.envs.common.oops module
 -------------------------------------
 
