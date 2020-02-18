@@ -23,3 +23,16 @@ register(
     id='OffWorldMonolithContinousSim-v0',
     entry_point='offworld_gym.envs.gazebo:OffWorldMonolithContinousEnv'
 )
+
+
+# OffWorld Monolith Simulated replica with discrete actions
+register(
+    id='OffWorldMonolithObstacleDiscreteSim-v0',
+    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithObstacleDiscreteEnv'
+)
+
+# OffWorld Monolith Simulated replica with continous actions
+register(
+    id='OffWorldMonolithObstacleContinousSim-v0',
+    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithObstacleContinousEnv'
+)
