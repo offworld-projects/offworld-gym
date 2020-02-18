@@ -66,10 +66,12 @@ class OffWorldMonolithDiscreteEnv(RealEnv):
         self._channel_type = channel_type
         self.observation_space = spaces.Box(0, 255, shape = (1, 240, 320, channel_type.value))
         self.action_space = spaces.Discrete(4)
-        self._initiate()
         self.step_count = 0
         self._last_state = None
         self._closed = False
+        self._environment_name = 'OffWorldMonolithDiscreteReal-v0'
+
+        self._initiate()
 
         logger.info("Environment has been started.")
 
@@ -79,7 +81,7 @@ class OffWorldMonolithDiscreteEnv(RealEnv):
         logger.info("Waiting to connect to the environment server.")
         wait_start = time.time()
         while True:
-            heartbeat, registered, message = self.secured_bridge.perform_handshake(self.experiment_name, self.resume_experiment, self.learning_type, self.algorithm_mode)
+            heartbeat, registered, message = self.secured_bridge.perform_handshake(self.experiment_name, self.resume_experiment, self.learning_type, self.algorithm_mode, self._environment_name)
             if heartbeat is None:
                 continue
             elif heartbeat == SetUpRequest.STATUS_RUNNING and registered:

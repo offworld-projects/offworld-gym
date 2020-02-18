@@ -104,12 +104,13 @@ class SetUpRequest(Request):
     URI = "/owgym/setup"
     STATUS_RUNNING = "STATUS_RUNNING"
     
-    def __init__(self, web_token, experiment_name, resume_experiment, learning_type, algorithm_mode):
+    def __init__(self, web_token, experiment_name, resume_experiment, learning_type, algorithm_mode, environment_name):
         Request.__init__(self, web_token)
         self.experiment_name = experiment_name
         self.resume_experiment = resume_experiment
         self.learning_type = learning_type.value if isinstance(learning_type, LearningType) else learning_type
         self.algorithm_mode = algorithm_mode.value if isinstance(algorithm_mode, AlgorithmMode) else algorithm_mode
+        self.environment_name = environment_name
 
 class DisconnectRequest(Request):
     """Server Disconnect request

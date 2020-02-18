@@ -73,7 +73,7 @@ class SecuredBridge(metaclass=Singleton):
         logger.debug("Web Token  : {}".format(response_json['web_token']))
         return response_json['web_token']
 
-    def perform_handshake(self, experiment_name, resume_experiment, learning_type, algorithm_mode):
+    def perform_handshake(self, experiment_name, resume_experiment, learning_type, algorithm_mode, environment_name):
         """Perform handshake with the gym server.
 
         To perform a handshake: initiate communication with the server, 
@@ -95,7 +95,7 @@ class SecuredBridge(metaclass=Singleton):
 
         # Get the heartbeat of the robot
         # Share the experiment details with the server
-        req = SetUpRequest(self._web_token, experiment_name, resume_experiment, learning_type, algorithm_mode)
+        req = SetUpRequest(self._web_token, experiment_name, resume_experiment, learning_type, algorithm_mode, environment_name)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, SetUpRequest.URI)
         set_up_response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
 
