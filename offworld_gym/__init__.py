@@ -4,10 +4,16 @@ from gym.envs.registration import register
 
 # Real environments
 
-# OffWorld Monolith Real 
+# OffWorld Monolith Real with Discrete actions
 register(
     id='OffWorldMonolithDiscreteReal-v0',
     entry_point='offworld_gym.envs.real:OffWorldMonolithDiscreteEnv'
+)
+
+# OffWorld Monolith Real with Discrete actions
+register(
+    id='OffWorldMonolithContinousReal-v0',
+    entry_point='offworld_gym.envs.real:OffWorldMonolithContinousEnv'
 )
 
 # simulated environments

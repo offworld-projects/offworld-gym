@@ -162,8 +162,94 @@ class SecuredBridge(metaclass=Singleton):
         logger.debug("Action execution complete. Telemetry recieved. Total time to execute: {}.".format(str(time.time() - start_time)))
         
         return state, reward, done
+
+    def monolith_continous_perform_action(self, action, channel_type, algorithm_mode):
+        """Perform an action on the robot
+
+        Args:
+            action_type: FourDiscreteMotionActions type value with the action to execute.
+            channel_type: Channels type value, determines observation's channel.
+            algorithm_mode: Whether algorithm is being run in train or test modde.
+
+        Returns:
+            A numpy array as the observation.
+            An integer value represeting reward from the environment.
+            A boolean value that indicates whether episode is done or not.
+        """
+        start_time = time.time()
+        self._action_counter += 1
+        logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
+        
+        req = MonolithDiscreteActionRequest(self._web_token, action_type=action_type, channel_type=channel_type, algorithm_mode=algorithm_mode)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteActionRequest.URI)
+
+        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
+
+        try:
+            response_json = json.loads(response.text)
+        except:            
+            if response.status_code == HTTPStatus.NOT_FOUND:
+                raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            else:
+                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+
+        if 'testing' in response_json:
+            raise GymException(response_json["message"])
+
+        reward = int(response_json['reward'])
+        state = json.loads(response_json['state'])
+        done = bool(response_json['done'])
+
+        state = np.asarray(state)
+        state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
+
+        logger.debug("Reward  : {}".format(str(reward)))
+        logger.debug("Is done : {}".format(str(done)))
+
+        self._web_token = response_json['web_token']
+        logger.debug("Action execution complete. Telemetry recieved. Total time to execute: {}.".format(str(time.time() - start_time)))
+        
+        return state, reward, done
     
     def monolith_discrete_perform_reset(self, channel_type=Channels.DEPTH_ONLY):
+        """Requests server to reset the environment.
+
+        Args:
+            channel_type: Channels type value, determines observation's channel.
+
+        Returns:
+            A numpy array as the observation.
+        """
+        logger.debug("Waiting for reset done from the server.")       
+        
+        req = MonolithDiscreteResetRequest(self._web_token, channel_type=channel_type)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
+        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
+
+        try:
+            response_json = json.loads(response.text)
+        except:
+            
+            if response.status_code == HTTPStatus.NOT_FOUND:
+                raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
+            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            else:
+                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+            
+        state = json.loads(response_json['state'])
+
+        state = np.asarray(state)
+        state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
+        logger.debug('Environment reset done. The state shape is: '+ str(state.shape))
+
+        self._web_token = response_json['web_token']
+        
+        return state
+    
+    def monolith_continous_perform_reset(self, channel_type=Channels.DEPTH_ONLY):
         """Requests server to reset the environment.
 
         Args:

@@ -90,6 +90,22 @@ class MonolithDiscreteResetRequest(Request):
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
         self.no_action = False  
 
+class MonolithContinousResetRequest(Request):
+    """Environment reset request model
+
+    Attributes:
+        URI: String constant containing uri to access reset api.
+        web_token: String with the server's web token.
+        channel_type: Channels type value indicating type of channel for observation.
+        no_value: Boolean value to determine if action is to be taken during reset.
+    """    
+    URI = "/owgym/monolithcontinous/reset"
+
+    def __init__(self, web_token, channel_type=Channels.DEPTH_ONLY):
+        Request.__init__(self, web_token)
+        self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
+        self.no_action = False  
+        
 class SetUpRequest(Request):
     """Robot heartbeat request model
 
