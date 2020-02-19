@@ -48,21 +48,19 @@ class OffWorldMonolithEnv(RealEnv):
     """
     
     def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
-        
+        super(OffWorldMonolithEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)        
 
         assert isinstance(channel_type, Channels), "Channel type is not of type Channels."
         logger.info("Environment has been initiated.")
         
         #environment
-        self._channel_type = channel_type
         self.observation_space = spaces.Box(0, 255, shape = (1, 240, 320, channel_type.value))
         self.step_count = 0
+        self.environment_name = None
+
+        self._channel_type = channel_type
         self._last_state = None
         self._closed = False
-
-        self._initiate()
-
         logger.info("Environment has been started.")
 
     def _initiate(self):
@@ -71,7 +69,7 @@ class OffWorldMonolithEnv(RealEnv):
         logger.info("Waiting to connect to the environment server.")
         wait_start = time.time()
         while True:
-            heartbeat, registered, message = self.secured_bridge.perform_handshake(self.experiment_name, self.resume_experiment, self.learning_type, self.algorithm_mode, self._environment_name)
+            heartbeat, registered, message = self.secured_bridge.perform_handshake(self.experiment_name, self.resume_experiment, self.learning_type, self.algorithm_mode, self.environment_name)
             if heartbeat is None:
                 continue
             elif heartbeat == SetUpRequest.STATUS_RUNNING and registered:
@@ -155,10 +153,10 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
     """ 
 
     def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithDiscreteEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
+        super(OffWorldMonolithDiscreteEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode, channel_type)
         self.action_space = spaces.Discrete(4)
-        self._environment_name = 'OffWorldMonolithDiscreteReal-v0'
-        
+        self.environment_name = 'OffWorldMonolithDiscreteReal-v0'
+        self._initiate()        
 
     def step(self, action):
         """Take a discrete action in the environment.
@@ -228,11 +226,11 @@ class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
     """ 
     
     def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithContinousEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
+        super(OffWorldMonolithContinousEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode, channel_type)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
-        self._environment_name = 'OffWorldMonolithContinousReal-v0'
-        
+        self.environment_name = 'OffWorldMonolithContinousReal-v0'
+        self._initiate()        
 
     def step(self, action):
         """Take a continous action in the environment.
