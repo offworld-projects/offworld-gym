@@ -102,9 +102,9 @@ class SecuredBridge(metaclass=Singleton):
         try:
             set_up_response_json = json.loads(set_up_response.text)
         except:
-            if response.status_code == HTTPStatus.NOT_FOUND:
+            if set_up_response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
+            elif set_up_response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
             else:
                 raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
