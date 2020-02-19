@@ -343,6 +343,7 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
 
 class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
     """Discrete version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.      
+    
     .. code:: python
     
         env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.DEPTHONLY, random_init=True)
@@ -409,6 +410,7 @@ class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
 
 class OffWorldMonolithObstacleContinousEnv(OffWorldMonolithObstacleEnv):
     """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.      
+    
     .. code:: python
     
         env = gym.make('OffWorldMonolithContinousSim-v0', channel_type=Channels.DEPTHONLY, random_init=True)

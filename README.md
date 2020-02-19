@@ -2,13 +2,11 @@
 
 The challenge that the community sets as a benchmark is usually the challenge that the community eventually solves. The ultimate challenge of reinforcement learning research is to train *real* agents to operate in the *real* environment, but until now there has not been a common real-world RL benchmark.  
 
-OffWorld Gym is free to use, try it out at [gym.offworld.ai](https://gym.offworld.ai)
+OffWorld Gym is **free to use**, try it out at [gym.offworld.ai](https://gym.offworld.ai)
 
 ## Real-world Robotics Environment for Reinforcement Learning Research
 
 We have created OffWorld Gym - a collection of real-world environments for reinforcement learning in robotics with free public remote access. Close integration into the existing ecosystem allows you to start using OffWorld Gym without any prior experience in robotics and removes the burden of managing a physical robotics system, abstracting it under a familiar API.
-
-With this release we introduce our first prototype navigation task, where the robot has to reach the visual beacon over an uneven terrain using only the camera input.
 
 When testing your next RL algorithm on Atari, why not also gauge its applicability to the real world!
 
@@ -19,7 +17,17 @@ Environment 1: OffWorld Monolith
 
 
 
-## Getting access to OffWorld Gym Real
+## Evironments
+| Real | Description |
+| --- | --- |
+| ![OffWorldMonolithDiscreteReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithDiscreteReal.png) `OffWorldMonolithDiscreteReal-v0`  | Wheeled robot on an uneven terrain. Four **discrete actions**: left, right, forward, back. State space is RGB and/or Depth camera image. Sim version is available as `OffWorldMonolithDiscreteSim-v0`. |
+| ![OffWorldMonolithContinousReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithContinuousReal.png) `OffWorldMonolithContinousReal-v0`  | Wheeled robot on an uneven terrain. Two **continuous actions**: angular velocity, linear velocity. State space is RGB and/or Depth camera image. Sim version is available as `OffWorldMonolithContinousSim-v0`. |
+| ![OffWorldMonolithObstacleDiscreteReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithObstacleDiscreteReal.png) `OffWorldMonolithObstacleDiscreteReal-v0`  | Wheeled robot on an uneven terrain with **obstacles**. Four **discrete actions**: left, right, forward, back. State space is RGB and/or Depth camera image. Sim version is available **already now** as `OffWorldMonolithObstacleDiscreteSim-v0`. |
+| ![OffWorldMonolithObstacleContinousReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithObstacleContinuousReal.png) `OffWorldMonolithObstacleContinousReal-v0`  | Wheeled robot on an uneven terrain with **obstacles**. Two **continuous actions**: angular velocity, linear velocity. State space is RGB and/or Depth camera image. Sim version is available **already now** as `OffWorldMonolithObstacleContinousSim-v0`. |
+
+
+
+## Getting access to OffWorld Gym
 The main purpose of OffWorld Gym is to provide you with easy access to a physical robotic environment and allow you to train and test your algorithms on a real robotic system. To get access to the real robot, head to our web portal [gym.offworld.ai](https://gym.offworld.ai) and do the following:
 
   * Register as a user at [gym.offworld.ai](https://gym.offworld.ai).

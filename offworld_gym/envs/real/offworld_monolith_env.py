@@ -38,16 +38,8 @@ from offworld_gym.envs.real import RealEnv
 
 DEBUG = settings.config["application"]["dev"]["debug"]
 
-class OffWorldMonolithDiscreteEnv(RealEnv):
-    """Real Gym environment with a rosbot and a monolith on an uneven terrain.
-
-    A RL agent learns to reach the goal(monolith) in shortest time.
-
-    .. code:: python
-
-        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTHONLY)
-        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.SIM_2_REAL, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGB_ONLY)
-        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGBD)
+class OffWorldMonolithEnv(RealEnv):
+    """Generic Real Gym environment with a rosbot and a monolith on an uneven terrain.
 
     Attributes:
         observation_space: Gym data structure that encapsulates an observation.
@@ -56,7 +48,7 @@ class OffWorldMonolithDiscreteEnv(RealEnv):
     """
     
     def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithDiscreteEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
+        super(OffWorldMonolithEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
         
 
         assert isinstance(channel_type, Channels), "Channel type is not of type Channels."
@@ -65,11 +57,9 @@ class OffWorldMonolithDiscreteEnv(RealEnv):
         #environment
         self._channel_type = channel_type
         self.observation_space = spaces.Box(0, 255, shape = (1, 240, 320, channel_type.value))
-        self.action_space = spaces.Discrete(4)
         self.step_count = 0
         self._last_state = None
         self._closed = False
-        self._environment_name = 'OffWorldMonolithDiscreteReal-v0'
 
         self._initiate()
 
@@ -97,7 +87,81 @@ class OffWorldMonolithDiscreteEnv(RealEnv):
         logger.info("The environment server is running.")
 
     def step(self, action):
-        """Take an action in the environment.
+        """Must be implemented in a child class
+        """
+        raise NotImplementedError("Must be implemented in a child class.")
+
+    def reset(self, action):
+        """Must be implemented in a child class
+        """
+        raise NotImplementedError("Must be implemented in a child class.")
+    
+    def render(self, mode='human'):
+        """Renders the environment.
+        
+        Args:
+            mode: The type of rendering to use.
+                - 'human': Renders state to a graphical window.
+        
+        Returns:
+            None as only human mode is implemented.
+        """        
+        if mode == 'human':
+            self.plot(self._last_state)
+        else:
+            pass
+        return None
+
+    def plot(self, img, id=1, title="State"):
+        """Plot an image in a non-blocking way.
+
+
+        Args:
+            img: A numpy array containing the observation.
+            id: Numeric id which is assigned to the pyplot figure.
+            title: String value which is used as the title.
+        """
+        if img is not None and isinstance(img, np.ndarray):
+            plt.figure(id)     
+            plt.ion()
+            plt.clf() 
+            plt.imshow(img.squeeze())         
+            plt.title(title)  
+            plt.show(block=False)
+            plt.pause(0.05)
+
+    def close(self):
+        """Closes the environment.
+        """
+        self._closed = True
+        self.secured_bridge.disconnect(self._channel_type)
+
+
+class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
+    """Real Gym environment with a rosbot and a monolith on an uneven terrain with discrete action space.
+
+    A RL agent learns to reach the goal(monolith) in shortest time.
+
+    .. code:: python
+
+        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTHONLY)
+        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.SIM_2_REAL, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGB_ONLY)
+        env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGBD)
+
+    Attributes:
+        observation_space: Gym data structure that encapsulates an observation.
+        action_space: Gym space box type to represent that environment has 4 discrete actions.
+        step_count: An integer count of step during an episode. 
+    """ 
+
+    def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
+        super(OffWorldMonolithDiscreteEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
+        self.action_space = spaces.Discrete(4)
+        self._environment_name = 'OffWorldMonolithDiscreteReal-v0'
+        
+
+    def step(self, action):
+        """Take a discrete action in the environment.
 
         Args:
             action: An action to be taken in the environment.
@@ -144,43 +208,74 @@ class OffWorldMonolithDiscreteEnv(RealEnv):
         state = self.secured_bridge.monolith_discrete_perform_reset(self._channel_type)
         logger.info("Environment reset complete")
         return state
+
+
+class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
+    """Real Gym environment with a rosbot and a monolith on an uneven terrain with continous action space.
+
+    A RL agent learns to reach the goal(monolith) in shortest time.
+
+    .. code:: python
+
+        env = gym.make('OffWorldMonolithContinousReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTHONLY)
+        env = gym.make('OffWorldMonolithContinousReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.SIM_2_REAL, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGB_ONLY)
+        env = gym.make('OffWorldMonolithContinousReal-v0', experiment_name='first_experiment', resume_experiment=False, learning_type=LearningType.HUMAN_DEMOS, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.RGBD)
+
+    Attributes:
+        observation_space: Gym data structure that encapsulates an observation.
+        action_space: Gym space box type to represent that environment has continouss actions.
+        step_count: An integer count of step during an episode. 
+    """ 
     
-    def render(self, mode='human'):
-        """Renders the environment.
+    def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
+        super(OffWorldMonolithContinousEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode)
+        self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
+        self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
+        self._environment_name = 'OffWorldMonolithContinousReal-v0'
         
+
+    def step(self, action):
+        """Take a continous action in the environment.
+
         Args:
-            mode: The type of rendering to use.
-                - 'human': Renders state to a graphical window.
-        
+            action: An action to be taken in the environment.
+
         Returns:
-            None as only human mode is implemented.
-        """        
-        if mode == 'human':
-            self.plot(self._last_state)
-        else:
-            pass
-        return None
-
-    def plot(self, img, id=1, title="State"):
-        """Plot an image in a non-blocking way.
-
-
-        Args:
-            img: A numpy array containing the observation.
-            id: Numeric id which is assigned to the pyplot figure.
-            title: String value which is used as the title.
+            A numpy array with rgb/depth/rgbd encoding of the state observation.
+            An integer with reward from the environment.
+            A boolean flag which is true when an episode is complete.
+            No info given for fair learning.
         """
-        if img is not None and isinstance(img, np.ndarray):
-            plt.figure(id)     
-            plt.ion()
-            plt.clf() 
-            plt.imshow(img.squeeze())         
-            plt.title(title)  
-            plt.show(block=False)
-            plt.pause(0.05)
+        self.step_count += 1
+        logger.info("Step count: {}".format(str(self.step_count)))
+        
+        assert action is not None, "Action cannot be None."
+        assert isinstance(action, (np.ndarray)), "Action type is not recognized."
+        action = np.clip(action, self.action_limit[0], self.action_limit[1])
 
-    def close(self):
-        """Closes the environment.
+        if self._closed:
+            raise GymException("The environment has been closed.")
+        
+        state, reward, done = self.secured_bridge.monolith_continous_perform_action(action, self._channel_type, self.algorithm_mode)
+        
+        self._last_state = state
+
+        if done:
+            logger.debug('Environment episode is complete.')
+            self.step_count = 0
+        logger.info('Environment step is complete.')
+        return state, reward, done, {}
+
+    def reset(self):
+        """Resets the state of the environment and returns an observation.
+
+        Returns:
+            A numpy array with rgb/depth/rgbd encoding of the state observation.
         """
-        self._closed = True
-        self.secured_bridge.disconnect(self._channel_type)
+
+        if self._closed:
+            raise GymException("The environment has been closed.")
+
+        state = self.secured_bridge.monolith_continous_perform_reset(self._channel_type)
+        logger.info("Environment reset complete")
+        return state
