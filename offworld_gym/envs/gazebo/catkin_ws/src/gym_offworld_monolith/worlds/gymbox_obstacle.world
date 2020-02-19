@@ -1,0 +1,1362 @@
+<sdf version='1.6'>
+  <world name='default'>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+        <gravity>1</gravity>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.006</max_step_size>
+      <real_time_factor>3</real_time_factor>
+      <real_time_update_rate>500</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0 0 0 1</ambient>
+      <background>0 0 0 1</background>
+      <grid>0</grid>
+      <sky>
+        <time>13</time>
+        <sunrise>12</sunrise>
+        <sunset>12</sunset>
+        <clouds>
+          <humidity>0</humidity>
+        </clouds>
+      </sky>
+      <shadows>1</shadows>
+    </scene>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <state world_name='default'>
+      <sim_time>5060 190000000</sim_time>
+      <real_time>712 37506498</real_time>
+      <wall_time>1581991165 486216871</wall_time>
+      <iterations>354278</iterations>
+      <model name='backwall'>
+        <pose frame=''>-1.98385 -0.26563 1.143 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-1.98385 -0.26563 1.143 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='backwall_0'>
+        <pose frame=''>2.1151 -0.270631 1.143 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>2.1151 -0.270631 1.143 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_12'>
+        <pose frame=''>-0.455572 -1.37325 0.073468 0.184659 0 0.752468</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-0.455572 -1.37325 0.073468 0.184659 0 0.752468</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_0'>
+        <pose frame=''>-0.676522 -0.187467 0.082641 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-0.676522 -0.187467 0.082641 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_1'>
+        <pose frame=''>-0.437419 0.726252 0.088825 0 -0 0.740829</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-0.437419 0.726252 0.088825 0 -0 0.740829</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_10'>
+        <pose frame=''>1.64689 -0.260499 0.092498 0.238836 -0.172205 -0.041698</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>1.64689 -0.260499 0.092498 0.238836 -0.172205 -0.041698</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_11'>
+        <pose frame=''>1.22069 0.454796 0.075337 -0.235534 0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>1.22069 0.454796 0.075337 -0.235534 0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_2'>
+        <pose frame=''>-1.17338 0.850785 0.088269 -0.174777 -0 0.539563</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-1.17338 0.850785 0.088269 -0.174777 -0 0.539563</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_3'>
+        <pose frame=''>-1.64248 0.134313 0.089358 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-1.64248 0.134313 0.089358 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_4'>
+        <pose frame=''>-0.966331 -0.854601 0.094733 -0.227838 -0.109331 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-0.966331 -0.854601 0.094733 -0.227838 -0.109331 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_13'>
+        <pose frame=''>0.02861 -0.903439 0.036382 -0.227838 -0.109331 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.02861 -0.903439 0.036382 -0.227838 -0.109331 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_5'>
+        <pose frame=''>-1.47158 -1.38165 0.105495 -0.315914 0 0.698217</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-1.47158 -1.38165 0.105495 -0.315914 0 0.698217</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_6'>
+        <pose frame=''>0.467936 -1.33921 0.089866 -0.057246 -0 0.508852</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.467936 -1.33921 0.089866 -0.057246 -0 0.508852</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_7'>
+        <pose frame=''>0.762485 -0.241439 0.101356 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.762485 -0.241439 0.101356 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_8'>
+        <pose frame=''>0.424542 0.596922 0.095794 0 0 -0.866844</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.424542 0.596922 0.095794 0 0 -0.866844</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='boulder_9'>
+        <pose frame=''>1.07022 -0.895936 0.064711 0.125047 -0 0.30973</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>1.07022 -0.895936 0.064711 0.125047 -0 0.30973</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='gymbox'>
+        <pose frame=''>-2.23261 1.20045 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>-2.23261 1.20045 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='monolith'>
+        <pose frame=''>0.010881 -0.203404 0.283819 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.010881 -0.203404 0.283819 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='sidewall'>
+        <pose frame=''>0.063459 -1.81178 1.143 0 -0 1.5708</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.063459 -1.81178 1.143 0 -0 1.5708</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='sidewall_clone'>
+        <pose frame=''>0.070218 1.28129 1.143 0 -0 1.5708</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.070218 1.28129 1.143 0 -0 1.5708</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='user_point_light_0'>
+        <pose frame=''>0.393957 -0.317419 1.25902 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>-0.916134 -0.915271 7.06526 -0 1.44579 -0.022041</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+    <model name='backwall'>
+      <pose frame=''>-1.56679 -0.17164 1.143 0 -0 0</pose>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <mass>10</mass>
+          <inertia>
+            <ixx>11.8074</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>4.34598</iyy>
+            <iyz>0</iyz>
+            <izz>7.47857</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.1016 3 2.286</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.1016 3 2.286</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://backwall/materials/scripts</uri>
+              <uri>model://backwall/materials/textures</uri>
+              <name>backwall/wall</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='backwall_0'>
+      <pose frame=''>2.00001 -0.223232 1.143 0 -0 0</pose>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <mass>10</mass>
+          <inertia>
+            <ixx>11.8074</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>4.34598</iyy>
+            <iyz>0</iyz>
+            <izz>7.47857</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.1016 3 2.286</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.1016 3 2.286</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://backwall/materials/scripts</uri>
+              <uri>model://backwall/materials/textures</uri>
+              <name>backwall/wall</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='sidewall'>
+      <pose frame=''>0.063457 -1.33928 1.143 0 -0 0</pose>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <mass>10</mass>
+          <inertia>
+            <ixx>17.6174</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>4.34598</iyy>
+            <iyz>0</iyz>
+            <izz>13.2886</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.1016 4 2.286</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.1016 4 2.286</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://sidewall/materials/scripts</uri>
+              <uri>model://sidewall/materials/textures</uri>
+              <name>sidewall/wall</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='sidewall_clone'>
+      <pose frame=''>0.088038 1.28605 1.143 0 -0 1.5708</pose>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <mass>10</mass>
+          <inertia>
+            <ixx>17.6174</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>4.34598</iyy>
+            <iyz>0</iyz>
+            <izz>13.2886</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.1016 4 2.286</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.1016 4 2.286</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>model://sidewall/materials/scripts</uri>
+              <uri>model://sidewall/materials/textures</uri>
+              <name>sidewall/wall</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='monolith'>
+      <pose frame=''>0.010881 -0.203404 0.455 0 -0 0</pose>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <mass>2</mass>
+          <inertia>
+            <ixx>0.0424</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.0348</iyy>
+            <iyz>0</iyz>
+            <izz>0.007841</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <box>
+              <size>0.0254 0.2159 0.4572</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <box>
+              <size>0.0254 0.2159 0.4572</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.1 0.1 0.1 1</ambient>
+            <diffuse>0.1 0.1 0.2 1</diffuse>
+            <specular>0 0 0 0</specular>
+            <emissive>0 0 0 1</emissive>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <model name='gymbox'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <mass>1</mass>
+          <inertia>
+            <ixx>0.001</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.001</iyy>
+            <iyz>0</iyz>
+            <izz>0.001</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://gymbox/meshes/model.dae</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://gymbox/meshes/model.dae</uri>
+              <scale>1 1 1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-2.23819 1.03824 0 0 -0 0</pose>
+    </model>
+    <light name='user_point_light_0' type='point'>
+      <pose frame=''>-0.510257 -0.317419 1 0 -0 0</pose>
+      <diffuse>0.5 0.5 0.5 1</diffuse>
+      <specular>0.1 0.1 0.1 1</specular>
+      <attenuation>
+        <range>20</range>
+        <constant>0.5</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <cast_shadows>0</cast_shadows>
+      <direction>0 0 -1</direction>
+    </light>
+    <model name='boulder_12'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-0.455572 -1.37325 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_0'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-0.676522 -0.187467 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_1'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-0.43337 0.725046 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_2'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-1.17338 0.850785 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_3'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-1.64248 0.134313 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_4'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-1.21381 -0.640609 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_5'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-1.47158 -1.38165 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_6'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.467936 -1.33921 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_7'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.762485 -0.241439 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_8'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.661867 0.74744 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_9'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>1.52299 -1.2381 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_10'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>1.64689 -0.260499 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_11'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>1.58741 0.544021 0 0 -0 0</pose>
+    </model>
+    <model name='boulder_13'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>0.173878 -0.17802 2.88009 0 -0 0</pose>
+          <mass>1</mass>
+          <inertia>
+            <ixx>1.8741e+06</ixx>
+            <ixy>-208910</ixy>
+            <ixz>205630</ixz>
+            <iyy>2.40289e+06</iyy>
+            <iyz>25458.7</iyz>
+            <izz>1.98693e+06</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>0.6</mu>
+                <mu2>0.6</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://boulder/meshes/model.dae</uri>
+              <scale>0.1 0.1 0.1</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.01898 -0.882975 0.124114 -0.227838 -0.109331 0</pose>
+    </model>
+  </world>
+</sdf>
