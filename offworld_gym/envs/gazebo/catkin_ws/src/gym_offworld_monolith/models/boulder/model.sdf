@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="boulder">
+    <static>1</static>
+    <link name="link">
+      <inertial>
+        <pose>0.1738776 -0.1780197 2.880095 0 0 0</pose>
+        <mass>1.0</mass>
+        <inertia>     
+          <ixx>1874099.000000</ixx>
+          <ixy>-208910.1625000</ixy>
+          <ixz>205630.0250000</ixz>
+          <iyy>2402889.4000000</iyy>
+          <iyz>25458.6640625</iyz> 
+          <izz>1986932.4000000</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://boulder/meshes/model.dae</uri>
+            <scale>0.1 0.1 0.1</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.6</mu>
+              <mu2>0.6</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://boulder/meshes/model.dae</uri>
+            <scale>0.1 0.1 0.1</scale>
+          </mesh>
+        </geometry>
+      </visual> 
+    </link>
+  </model>
+</sdf>
