@@ -103,7 +103,7 @@
       </model>
       <model name='boulder_12'>
         <pose frame=''>-0.455572 -1.37325 0.073468 0.184659 0 0.752468</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>-0.455572 -1.37325 0.073468 0.184659 0 0.752468</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -113,7 +113,7 @@
       </model>
       <model name='boulder_0'>
         <pose frame=''>-0.676522 -0.187467 0.082641 0 -0 0</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>-0.676522 -0.187467 0.082641 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -123,7 +123,7 @@
       </model>
       <model name='boulder_1'>
         <pose frame=''>-0.437419 0.726252 0.088825 0 -0 0.740829</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>-0.437419 0.726252 0.088825 0 -0 0.740829</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -133,7 +133,7 @@
       </model>
       <model name='boulder_10'>
         <pose frame=''>1.64689 -0.260499 0.092498 0.238836 -0.172205 -0.041698</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>1.64689 -0.260499 0.092498 0.238836 -0.172205 -0.041698</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -143,7 +143,7 @@
       </model>
       <model name='boulder_11'>
         <pose frame=''>1.22069 0.454796 0.075337 -0.235534 0 0</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>1.22069 0.454796 0.075337 -0.235534 0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -153,7 +153,7 @@
       </model>
       <model name='boulder_2'>
         <pose frame=''>-1.17338 0.850785 0.088269 -0.174777 -0 0.539563</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>-1.17338 0.850785 0.088269 -0.174777 -0 0.539563</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -163,7 +163,7 @@
       </model>
       <model name='boulder_3'>
         <pose frame=''>-1.64248 0.134313 0.089358 0 -0 0</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>-1.64248 0.134313 0.089358 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -173,7 +173,7 @@
       </model>
       <model name='boulder_4'>
         <pose frame=''>-0.966331 -0.854601 0.094733 -0.227838 -0.109331 0</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>-0.966331 -0.854601 0.094733 -0.227838 -0.109331 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -183,7 +183,7 @@
       </model>
       <model name='boulder_13'>
         <pose frame=''>0.02861 -0.903439 0.036382 -0.227838 -0.109331 0</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.2</scale>
         <link name='link'>
           <pose frame=''>0.02861 -0.903439 0.036382 -0.227838 -0.109331 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -193,7 +193,7 @@
       </model>
       <model name='boulder_5'>
         <pose frame=''>-1.47158 -1.38165 0.105495 -0.315914 0 0.698217</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.2</scale>
         <link name='link'>
           <pose frame=''>-1.47158 -1.38165 0.105495 -0.315914 0 0.698217</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -203,7 +203,7 @@
       </model>
       <model name='boulder_6'>
         <pose frame=''>0.467936 -1.33921 0.089866 -0.057246 -0 0.508852</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.2</scale>
         <link name='link'>
           <pose frame=''>0.467936 -1.33921 0.089866 -0.057246 -0 0.508852</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -213,7 +213,7 @@
       </model>
       <model name='boulder_7'>
         <pose frame=''>0.762485 -0.241439 0.101356 0 -0 0</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>0.762485 -0.241439 0.101356 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -223,7 +223,7 @@
       </model>
       <model name='boulder_8'>
         <pose frame=''>0.424542 0.596922 0.095794 0 0 -0.866844</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>0.424542 0.596922 0.095794 0 0 -0.866844</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -233,7 +233,7 @@
       </model>
       <model name='boulder_9'>
         <pose frame=''>1.07022 -0.895936 0.064711 0.125047 -0 0.30973</pose>
-        <scale>1 1 1</scale>
+        <scale>0.15 0.15 0.15</scale>
         <link name='link'>
           <pose frame=''>1.07022 -0.895936 0.064711 0.125047 -0 0.30973</pose>
           <velocity>0 0 0 0 -0 0</velocity>
@@ -649,7 +649,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -673,7 +673,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -701,7 +701,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -725,7 +725,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -753,7 +753,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -777,7 +777,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -805,7 +805,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -829,7 +829,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -857,7 +857,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -881,7 +881,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -909,7 +909,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -933,7 +933,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -961,7 +961,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -985,7 +985,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -1013,7 +1013,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -1037,7 +1037,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -1065,7 +1065,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -1089,7 +1089,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -1117,7 +1117,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -1141,7 +1141,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -1169,7 +1169,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -1193,7 +1193,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -1221,7 +1221,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -1245,7 +1245,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -1273,7 +1273,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -1297,7 +1297,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
@@ -1325,7 +1325,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
           <surface>
@@ -1349,7 +1349,7 @@
           <geometry>
             <mesh>
               <uri>model://boulder/meshes/model.dae</uri>
-              <scale>0.1 0.1 0.1</scale>
+              <scale>0.15 0.15 0.15</scale>
             </mesh>
           </geometry>
         </visual>
