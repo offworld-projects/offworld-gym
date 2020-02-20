@@ -59,7 +59,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
     """
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
-    _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `gymbox.world`
+    _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/gymbox.world`
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
