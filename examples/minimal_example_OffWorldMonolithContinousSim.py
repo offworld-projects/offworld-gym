@@ -26,4 +26,5 @@ input("Press Enter to continue...\n")
 
 for i in range(50):
     action = np.array([random.uniform(-0.7, 0.7), random.uniform(-2.4, 2.4)])
-    env.step(action)
+    obs = env.step(action)
+    print(obs)
