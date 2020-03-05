@@ -73,8 +73,12 @@ class GazeboGymEnv(gym.Env, metaclass=ABCMeta):
             rospack = rospkg.RosPack()
             if rospack.get_path(self.package_name) is None:
                 raise GymException("The ROS package does not exist.")
+
+
+            ros_env = os.environ.copy()
+            ros_env["PYTHONPATH"] = "/opt/ros/kinetic/lib/python2.7/dist-packages"
         
-            self.roslaunch_process = subprocess.Popen(['roslaunch', os.path.join(rospack.get_path(self.package_name), "launch", self.launch_file)])
+            self.roslaunch_process = subprocess.Popen(['roslaunch', os.path.join(rospack.get_path(self.package_name), "launch", self.launch_file)], env=ros_env)
             self.roslaunch_wait_thread = threading.Thread(target=self._process_waiter, args=(1,))
             self.roslaunch_wait_thread.start()
         except OSError:
