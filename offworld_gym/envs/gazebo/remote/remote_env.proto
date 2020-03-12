@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "numproto/protobuf/ndarray.proto";
+// https://github.com/xainag/numproto
+
+message ObservationRewardDone {
+    numproto.protobuf.NDArray observation = 1;
+    float reward = 2;
+    bool done = 3;
+}
+
+message Observation {
+    numproto.protobuf.NDArray observation = 1;
+}
+message Action {
+    numproto.protobuf.NDArray action = 1;
+}
+
+message Image {
+    numproto.protobuf.NDArray image = 1;
+}
+
+service RemoteEnv {
+    rpc Reset(google.protobuf.Empty) returns (Observation) {}
+    rpc Step(Action) returns (ObservationRewardDone) {}
+    rpc Render(google.protobuf.Empty) returns (Image) {}
+    rpc Shutdown(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
