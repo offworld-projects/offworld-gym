@@ -87,7 +87,7 @@ if __name__ == '__main__':
     random_init = parse_random_init_from_environ()
 
     print("Starting env...")
-    # env: GazeboGymEnv = env_class(channel_type=channel_type, random_init=random_init)
+    env: GazeboGymEnv = env_class(channel_type=channel_type, random_init=random_init)
     print("Env fully initialized")
 
     # GRPC Server
