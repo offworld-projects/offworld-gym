@@ -1,6 +1,7 @@
 import docker
 import os
 import uuid
+import subprocess
 # from offworld_gym import logger
 
 
@@ -10,8 +11,19 @@ CONTAINER_GRPC_PORT_BINDING = '7676/tcp'
 if __name__ == '__main__':
     client = docker.from_env()
 
+    xhost_command = "xhost local:"
+    try:
+        subprocess.check_call(['bash', '-c', xhost_command])
+    except subprocess.CalledProcessError:
+        print(f"The bash command \"{xhost_command}\" returned an error. Exiting.")
+        exit()
+
     container_env = {
-        "DISPLAY": os.environ['DISPLAY']
+        "DISPLAY": os.environ['DISPLAY'],
+        "OFFWORLD_ENV_TYPE": "OffWorldMonolithContinuousEnv",
+        "OFFWORLD_ENV_CHANNEL_TYPE": "DEPTH_ONLY",
+        "OFFWORLD_ENV_RANDOM_INIT": "TRUE",
+        "OFFWORLD_GYM_GRPC_SERVER_PORT": CONTAINER_GRPC_PORT_BINDING,
     }
 
     # A dictionary to configure volumes mounted inside the container.
@@ -26,7 +38,7 @@ if __name__ == '__main__':
     }
 
     container_ports = {
-        CONTAINER_GRPC_PORT_BINDING: None
+        CONTAINER_GRPC_PORT_BINDING: None  # will be published to a random available host port
     }
 
     container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
@@ -40,7 +52,7 @@ if __name__ == '__main__':
                               name=container_name,
                               hostname=container_name,
                               detach=True,
-                              auto_remove=True,
+                              auto_remove=False,
                               environment=container_env,
                               volumes=container_volumes,
                               ports=container_ports)

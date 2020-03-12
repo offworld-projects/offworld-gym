@@ -16,21 +16,23 @@ import numpy as np
 from concurrent import futures
 from google.protobuf.empty_pb2 import Empty
 
-OFFWORLD_GYM_GRPC_SERVER_PORT = os.environ.get("OFFWORLD_GYM_GRPC_SERVER_PORT", 50051)
+OFFWORLD_GYM_GRPC_SERVER_PORT = int(os.environ.get("OFFWORLD_GYM_GRPC_SERVER_PORT", 50051))
 
 
 def parse_env_class_from_environ():
-    env_type = os.environ.get("OFFWORLD_ENV_TYPE", None)
-    if env_type is None:
-        raise EnvironmentError("The env variable OFFWORLD_ENV_TYPE isn't specified, and it needs to be. "
-                               "It should be the name of the gym environment "
-                               "that this server should provide an interface for")
     usable_env_classes = {
         "OffWorldMonolithContinuousEnv": OffWorldMonolithContinousEnv,
         "OffWorldMonolithDiscreteEnv": OffWorldMonolithDiscreteEnv,
         "OffWorldMonolithObstacleContinuousEnv": OffWorldMonolithObstacleContinousEnv,
         "OffWorldMonolithObstacleDiscreteEnv": OffWorldMonolithObstacleDiscreteEnv
     }
+
+    env_type = os.environ.get("OFFWORLD_ENV_TYPE", None)
+    if env_type is None:
+        raise EnvironmentError("The env variable OFFWORLD_ENV_TYPE isn't specified, and it needs to be. "
+                               "It should be the name of the gym environment "
+                               "that this server should provide an interface for"
+                               f"\nAcceptable values are {list(usable_env_classes.keys())}")
     try:
         env_class = usable_env_classes[env_type]
     except KeyError:
@@ -40,15 +42,16 @@ def parse_env_class_from_environ():
 
 
 def parse_channel_type_from_environ():
-    env_type = os.environ.get("OFFWORLD_ENV_CHANNEL_TYPE", None)
-    if env_type is None:
-        raise EnvironmentError("The env variable OFFWORLD_ENV_CHANNEL_TYPE needs to be specified to an enum value.")
-
     usable_channel_types = {
         "DEPTH_ONLY": Channels.DEPTH_ONLY,
         "RGB_ONLY": Channels.RGB_ONLY,
         "RGBD": Channels.RGBD,
     }
+
+    env_type = os.environ.get("OFFWORLD_ENV_CHANNEL_TYPE", None)
+    if env_type is None:
+        raise EnvironmentError("The env variable OFFWORLD_ENV_CHANNEL_TYPE needs to be specified to an enum value."
+                               f"\nAcceptable values are {list(usable_channel_types.keys())}")
 
     try:
         channel_type = usable_channel_types[env_type]
@@ -59,15 +62,15 @@ def parse_channel_type_from_environ():
 
 
 def parse_random_init_from_environ():
-    env_type: str = os.environ.get("OFFWORLD_ENV_RANDOM_INIT", None)
-    if env_type is None:
-        raise EnvironmentError("The env variable OFFWORLD_ENV_RANDOM_INIT needs to be specified to "
-                               "\'TRUE\' or \'FALSE\'.")
-
     usable_values = {
         "TRUE": True,
         "FALSE": False,
     }
+
+    env_type: str = os.environ.get("OFFWORLD_ENV_RANDOM_INIT", None)
+    if env_type is None:
+        raise EnvironmentError("The env variable OFFWORLD_ENV_RANDOM_INIT needs to be specified to "
+                               "\'TRUE\' or \'FALSE\'.")
 
     try:
         random_init = usable_values[env_type.upper()]
