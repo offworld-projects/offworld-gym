@@ -1,24 +1,27 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
-import "numproto/protobuf/ndarray.proto";
 // https://github.com/xainag/numproto
 
+message NDArray {
+  bytes ndarray = 1;
+}
+
 message ObservationRewardDone {
-    numproto.protobuf.NDArray observation = 1;
+    NDArray observation = 1;
     float reward = 2;
     bool done = 3;
 }
 
 message Observation {
-    numproto.protobuf.NDArray observation = 1;
+    NDArray observation = 1;
 }
 message Action {
-    numproto.protobuf.NDArray action = 1;
+    NDArray action = 1;
 }
 
 message Image {
-    numproto.protobuf.NDArray image = 1;
+    NDArray image = 1;
 }
 
 service RemoteEnv {

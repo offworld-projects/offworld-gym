@@ -1,19 +1,19 @@
 
 # import the generated GRPC classes
-from offworld_gym.envs.gazebo.remote.remote_env_pb2 import Observation, ObservationRewardDone, Action, Image
-from offworld_gym.envs.gazebo.remote.remote_env_pb2_grpc import RemoteEnvServicer, add_RemoteEnvServicer_to_server
+from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Observation, ObservationRewardDone, Action, Image
+from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2_grpc import RemoteEnvServicer, add_RemoteEnvServicer_to_server
 
 from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
 from offworld_gym.envs.gazebo.offworld_monolith_env import OffWorldMonolithContinousEnv, OffWorldMonolithDiscreteEnv
 from offworld_gym.envs.gazebo.offworld_monolith_obstacle_env import OffWorldMonolithObstacleContinousEnv, OffWorldMonolithObstacleDiscreteEnv
 from offworld_gym.envs.common.channels import Channels
+from offworld_gym.envs.gazebo.remote.ndarray_proto import ndarray_to_proto, proto_to_ndarray
 
 import os
 import grpc
 import threading
 import numpy as np
 from concurrent import futures
-from numproto import ndarray_to_proto, proto_to_ndarray
 from google.protobuf.empty_pb2 import Empty
 
 OFFWORLD_GYM_GRPC_SERVER_PORT = os.environ.get("OFFWORLD_GYM_GRPC_SERVER_PORT", 50051)
@@ -135,9 +135,11 @@ if __name__ == '__main__':
         stop_event.wait()
     except KeyboardInterrupt:
         grpc_server.stop(0)
+        env.close()
         exit(0)
 
     grpc_server.stop(0)
+    env.close()
     exit(0)
 
 
