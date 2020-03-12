@@ -2,11 +2,14 @@ import docker
 import os
 import uuid
 import subprocess
-
+import time
 import grpc
+import threading
 from google.protobuf.empty_pb2 import Empty
 from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2_grpc import RemoteEnvStub
 from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Action
+from grpc._channel import _InactiveRpcError
+from offworld_gym.envs.gazebo.remote.ndarray_proto import ndarray_to_proto, proto_to_ndarray
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "ros-gym")
 CONTAINER_GRPC_PORT = 7676
@@ -48,13 +51,13 @@ if __name__ == '__main__':
     container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
     container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo/remote/docker_entrypoint.sh"
-
+    stub_command = "python3.6 -m http.server"
     container_instance = None
     try:
         container_instance = client.containers.run(image=OFFWORLD_GYM_DOCKER_IMAGE,
                               command=container_entrypoint,
                               name=container_name,
-                              hostname=container_name,
+                              # hostname=container_name,
                               detach=True,
                               auto_remove=False,
                               environment=container_env,
@@ -67,15 +70,29 @@ if __name__ == '__main__':
         host_published_grpc_port = container_instance.ports[CONTAINER_GRPC_PORT_BINDING][0]['HostPort']
         print(f"grpc port: {host_published_grpc_port}")
 
-        # # open a gRPC channel
-        # channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
-        #
-        # # create a stub (client)
-        # stub = RemoteEnvStub(channel)
-        #
-        # # make the call
-        # response = stub.Reset(Empty())
-        # print(f"observation: {response.observation})")
+        # open a gRPC channel
+        channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
+
+
+        # create a stub (client)
+        stub = RemoteEnvStub(channel)
+        print("making call")
+        # make the call
+        connected = False
+        response = None
+        while not connected:
+            print("sleeping")
+            time.sleep(1)
+            print("done sleeping")
+            try:
+                response = stub.Reset(Empty())
+                connected = True
+            except grpc.RpcError as rpc_error:
+                if rpc_error.code() != grpc.StatusCode.UNAVAILABLE:
+                    raise rpc_error
+
+
+        print(f"observation: {proto_to_ndarray(response.observation)})")
 
 
 
