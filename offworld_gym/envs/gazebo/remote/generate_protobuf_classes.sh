@@ -7,9 +7,9 @@
 THIS_SCRIPTS_DIR="`dirname \"$0\"`"
 
 # Get the sitepackages path where the numproto is imported from
-NUMPROTO_PACKAGES_PATH=$(python -c 'import os, numproto; print(os.path.abspath(f"{os.path.dirname(numproto.__file__)}/.."))')
+NUMPROTO_PACKAGES_PATH=$(python3 -c 'import os, numproto; print(os.path.abspath(f"{os.path.dirname(numproto.__file__)}/.."))')
 
-python -m grpc_tools.protoc \
+python3 -m grpc_tools.protoc \
   -I "$NUMPROTO_PACKAGES_PATH" \
   -I "$THIS_SCRIPTS_DIR" \
   --python_out="$THIS_SCRIPTS_DIR" \
