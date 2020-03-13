@@ -17,7 +17,8 @@ from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Action, Obse
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworld-gym")
 CONTAINER_INTERNAL_GRPC_PORT = 7676
 CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
-MAX_TOLERABLE_HANG_TIME_SECONDS = 10
+MAX_TOLERABLE_HANG_TIME_SECONDS = 10000000
+
 
 class EnvVersions(Enum):
     MONOLITH_CONTINUOUS = "OffWorldMonolithContinuousEnv"
@@ -36,10 +37,10 @@ class Channels(Enum):
 
 OFFWORLD_GYM_CONFIG_DEFAULTS = {
     "version": EnvVersions.MONOLITH_CONTINUOUS,
-    "channel_type": Channels.DEPTH_ONLY, # options are DEPTH_ONLY, RGB_ONLY, RGBD
+    "channel_type": Channels.RGB_ONLY,  # options are DEPTH_ONLY, RGB_ONLY, RGBD
     "random_init": True,
-    "clip_depth_value": 3.0, # positive int or None, if not None, clips to this value and normalizes to [0, 1.0]
-    "image_out_size": (85, 85)  # observation images resized to this
+    "clip_depth_value": 3.0,  # positive int or None, if not None, clips to this value and normalizes to [0, 1.0]
+    "image_out_size": (240, 240)  # observation images resized to this
 }
 
 
@@ -91,7 +92,7 @@ class OffWorldDockerizedGym(gym.Env):
         container_env = {
             "DISPLAY": os.environ['DISPLAY'],
             "OFFWORLD_GYM_GRPC_SERVER_PORT": CONTAINER_INTERNAL_GRPC_PORT,
-            "OFFWORLD_ENV_TYPE": self._config['version'].value.upper(),
+            "OFFWORLD_ENV_TYPE": self._config['version'].value,
             "OFFWORLD_ENV_CHANNEL_TYPE": self._config['channel_type'].name.upper(),
             "OFFWORLD_ENV_RANDOM_INIT": str(self._config['random_init']).upper(),
             "OFFWORLD_ENV_CLIP_DEPTH_VALUE": str(float(self._config['clip_depth_value'])),
@@ -135,12 +136,9 @@ class OffWorldDockerizedGym(gym.Env):
         container_id = subprocess.check_output(["/bin/bash", "-c", docker_run_command]).decode("utf-8").strip()
         print(f"container_id is {container_id}")
         self._container_instance = self._docker_client.containers.get(container_id=container_id)
-        self._container_instance.reload()  # required to get auto-assigned ports, not needed if it was an already running container
         print(f"{self._container_instance.name} launched")
-        time.sleep(3)
-        self._container_instance.reload()  # required to get auto-assigned ports, not needed if it was an already running container
         host_published_grpc_port = self._container_instance.ports[CONTAINER_INTERNAL_GRPC_PORT_BINDING][0]['HostPort']
-        print(f"Connecteding on GRPC port: {host_published_grpc_port}")
+        print(f"Connecting on GRPC port: {host_published_grpc_port}")
         # open a gRPC channel
         channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
 
@@ -160,21 +158,22 @@ class OffWorldDockerizedGym(gym.Env):
             except grpc.RpcError as rpc_error:
                 if rpc_error.code() != grpc.StatusCode.UNAVAILABLE or \
                         time.time() - connection_attempt_start_time > MAX_TOLERABLE_HANG_TIME_SECONDS:
+                    print("The docker instance launched but the GRPC server couldn't be connected to.")
                     raise
-                continue
 
         self.observation_space = cloudpickle.loads(spaces_response.observation_space)
         self.action_space = cloudpickle.loads(spaces_response.action_space)
+        self.reset()
 
     def reset(self):
         reset_response: Observation = self._grpc_stub.Reset(Empty())
-        observation = np.asarray(cloudpickle.loads(reset_response))
+        observation = np.asarray(cloudpickle.loads(reset_response.observation))
         return observation
 
     def step(self, action):
         request = Action()
         request.action = cloudpickle.dumps(np.asarray(action))
-        step_response: ObservationRewardDone = self._grpc_stub.Step(Empty())
+        step_response: ObservationRewardDone = self._grpc_stub.Step(request)
         observation = np.asarray(cloudpickle.loads(step_response.observation))
         reward = float(step_response.reward)
         done = bool(step_response.done)
@@ -188,7 +187,7 @@ class OffWorldDockerizedGym(gym.Env):
             if not self._cv2_windows_need_destroy:
                 self._cv2_windows_need_destroy = True
 
-            cv2.imshow(self._config['version'], env_image)
+            cv2.imshow(self._config['version'].name, env_image)
             cv2.waitKey(1)
         elif mode == 'array':
             return env_image
@@ -204,10 +203,22 @@ class OffWorldDockerizedGym(gym.Env):
             print(f"Removing container {self._container_instance.name}")
             self._container_instance.remove(force=True)
             print(f"Container {self._container_instance.name} removed")
+            self._container_instance = None
+
+    def __del__(self):
+        self.close()
 
 
 if __name__ == '__main__':
     env = OffWorldDockerizedGym()
-    env.render()
+    print(f"action space: {env.action_space} observation_space: {env.observation_space}")
+    while True:
+        if env.reset().max() > 0:
+            sampled_action = env.action_space.sample()
+            print(sampled_action)
+            env.render()
+            env.step(sampled_action)
+            time.sleep(0.5)
+
     time.sleep(10)
     env.close()

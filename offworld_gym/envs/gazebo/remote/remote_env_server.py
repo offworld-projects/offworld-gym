@@ -10,6 +10,7 @@ import os
 import grpc
 import threading
 import numpy as np
+import traceback
 import cloudpickle
 from concurrent import futures
 from google.protobuf.empty_pb2 import Empty
@@ -55,15 +56,21 @@ if __name__ == '__main__':
             return response
 
         def Step(self, request: Action, context):
-            action = np.squeeze(cloudpickle.loads(request.action))
-            if action.shape == ():
-                action = float(action)
-            obs, rew, done, info = env.step(action=action)
-            response = ObservationRewardDone()
-            response.observation = cloudpickle.dumps(np.asarray(obs))
-            response.reward = float(rew)
-            response.done = bool(done)
-            return response
+            try:
+                action = np.squeeze(cloudpickle.loads(request.action))
+                if action.shape == ():
+                    action = float(action)
+                obs, rew, done, info = env.step(action=action)
+                response = ObservationRewardDone()
+                response.observation = cloudpickle.dumps(np.asarray(obs))
+                response.reward = float(rew)
+                response.done = bool(done)
+                return response
+            except Exception as err:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                details = f"{err}\n{traceback.format_exc()}"
+                context.set_details(details)
+            return context
 
         def Render(self, request, context):
             image = env.render(mode='array')
