@@ -118,7 +118,7 @@ if __name__ == '__main__':
         def Render(self, request, context):
             image = env.render(mode='array')
             response = Image()
-            response.image = ndarray_to_proto(image)
+            response.image.ndarray = ndarray_to_proto(image)
             return response
 
         def Shutdown(self, request, context):
