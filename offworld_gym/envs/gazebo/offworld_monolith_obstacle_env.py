@@ -354,7 +354,7 @@ class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithObstacleDiscreteEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
+        super(OffWorldMonolithObstacleDiscreteEnv, self).__init__(channel_type=channel_type, random_init=random_init)
         self.action_space = spaces.Discrete(4)
         
     def _send_action_commands(self, action_type):
@@ -421,7 +421,7 @@ class OffWorldMonolithObstacleContinousEnv(OffWorldMonolithObstacleEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithObstacleContinousEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
+        super(OffWorldMonolithObstacleContinousEnv, self).__init__(channel_type=channel_type, random_init=random_init)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
 
