@@ -77,7 +77,7 @@ class ImageUtils(object):
     IMG_C = 3
 
     @staticmethod
-    def process_img_msg(img_msg, resized_width=IMG_W, resized_height=IMG_H):
+    def process_img_msg(img_msg, resized_width=IMG_W, resized_height=IMG_H, max_value_for_clip_and_normalize=None):
         """Converts ROS image to cv2, then to numpy
         """
         img = CvBridge().imgmsg_to_cv2(img_msg, "bgr8")
@@ -86,10 +86,15 @@ class ImageUtils(object):
         img = cv2.resize(img, (resized_width, resized_height))
 
         img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2]))
+
+        if max_value_for_clip_and_normalize is not None:
+            img = np.clip(img, a_min=0.0, a_max=max_value_for_clip_and_normalize)
+            img = img / max_value_for_clip_and_normalize
+
         return img 
     
     @staticmethod
-    def process_depth_msg(depth_msg, resized_width=IMG_W, resized_height=IMG_H):
+    def process_depth_msg(depth_msg, resized_width=IMG_W, resized_height=IMG_H, max_value_for_clip_and_normalize=None):
         """Converts a depth image into numpy float32 array
         """
         cv_image = CvBridge().imgmsg_to_cv2(depth_msg, "32FC1")
@@ -98,5 +103,10 @@ class ImageUtils(object):
         img = cv2.resize(img, (resized_width, resized_height))
 
         img = np.reshape(img, (1, img.shape[0], img.shape[1], 1))
+
+        if max_value_for_clip_and_normalize is not None:
+            img = np.clip(img, a_min=0.0, a_max=max_value_for_clip_and_normalize)
+            img = img / max_value_for_clip_and_normalize
+
         return img
 

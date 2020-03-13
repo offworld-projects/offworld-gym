@@ -19,23 +19,30 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x10remote_env.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x1a\n\x07NDArray\x12\x0f\n\x07ndarray\x18\x01 \x01(\x0c\"T\n\x15ObservationRewardDone\x12\x1d\n\x0bobservation\x18\x01 \x01(\x0b\x32\x08.NDArray\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\",\n\x0bObservation\x12\x1d\n\x0bobservation\x18\x01 \x01(\x0b\x32\x08.NDArray\"\"\n\x06\x41\x63tion\x12\x18\n\x06\x61\x63tion\x18\x01 \x01(\x0b\x32\x08.NDArray\" \n\x05Image\x12\x17\n\x05image\x18\x01 \x01(\x0b\x32\x08.NDArray2\xd1\x01\n\tRemoteEnv\x12/\n\x05Reset\x12\x16.google.protobuf.Empty\x1a\x0c.Observation\"\x00\x12)\n\x04Step\x12\x07.Action\x1a\x16.ObservationRewardDone\"\x00\x12*\n\x06Render\x12\x16.google.protobuf.Empty\x1a\x06.Image\"\x00\x12<\n\x08Shutdown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x10remote_env.proto\x1a\x1bgoogle/protobuf/empty.proto\"9\n\x06Spaces\x12\x19\n\x11observation_space\x18\x01 \x01(\x0c\x12\x14\n\x0c\x61\x63tion_space\x18\x02 \x01(\x0c\"J\n\x15ObservationRewardDone\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\"\n\x0bObservation\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\x0c\"\x16\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x32\x81\x02\n\tRemoteEnv\x12.\n\tGetSpaces\x12\x16.google.protobuf.Empty\x1a\x07.Spaces\"\x00\x12/\n\x05Reset\x12\x16.google.protobuf.Empty\x1a\x0c.Observation\"\x00\x12)\n\x04Step\x12\x07.Action\x1a\x16.ObservationRewardDone\"\x00\x12*\n\x06Render\x12\x16.google.protobuf.Empty\x1a\x06.Image\"\x00\x12<\n\x08Shutdown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
 
 
 
-_NDARRAY = _descriptor.Descriptor(
-  name='NDArray',
-  full_name='NDArray',
+_SPACES = _descriptor.Descriptor(
+  name='Spaces',
+  full_name='Spaces',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='ndarray', full_name='NDArray.ndarray', index=0,
+      name='observation_space', full_name='Spaces.observation_space', index=0,
       number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='action_space', full_name='Spaces.action_space', index=1,
+      number=2, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -53,7 +60,7 @@ _NDARRAY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=49,
-  serialized_end=75,
+  serialized_end=106,
 )
 
 
@@ -66,8 +73,8 @@ _OBSERVATIONREWARDDONE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='observation', full_name='ObservationRewardDone.observation', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -97,8 +104,8 @@ _OBSERVATIONREWARDDONE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=77,
-  serialized_end=161,
+  serialized_start=108,
+  serialized_end=182,
 )
 
 
@@ -111,8 +118,8 @@ _OBSERVATION = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='observation', full_name='Observation.observation', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -128,8 +135,8 @@ _OBSERVATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=163,
-  serialized_end=207,
+  serialized_start=184,
+  serialized_end=218,
 )
 
 
@@ -142,8 +149,8 @@ _ACTION = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='action', full_name='Action.action', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -159,8 +166,8 @@ _ACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=209,
-  serialized_end=243,
+  serialized_start=220,
+  serialized_end=244,
 )
 
 
@@ -173,8 +180,8 @@ _IMAGE = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='image', full_name='Image.image', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      number=1, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -190,27 +197,23 @@ _IMAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=245,
-  serialized_end=277,
+  serialized_start=246,
+  serialized_end=268,
 )
 
-_OBSERVATIONREWARDDONE.fields_by_name['observation'].message_type = _NDARRAY
-_OBSERVATION.fields_by_name['observation'].message_type = _NDARRAY
-_ACTION.fields_by_name['action'].message_type = _NDARRAY
-_IMAGE.fields_by_name['image'].message_type = _NDARRAY
-DESCRIPTOR.message_types_by_name['NDArray'] = _NDARRAY
+DESCRIPTOR.message_types_by_name['Spaces'] = _SPACES
 DESCRIPTOR.message_types_by_name['ObservationRewardDone'] = _OBSERVATIONREWARDDONE
 DESCRIPTOR.message_types_by_name['Observation'] = _OBSERVATION
 DESCRIPTOR.message_types_by_name['Action'] = _ACTION
 DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
-NDArray = _reflection.GeneratedProtocolMessageType('NDArray', (_message.Message,), {
-  'DESCRIPTOR' : _NDARRAY,
+Spaces = _reflection.GeneratedProtocolMessageType('Spaces', (_message.Message,), {
+  'DESCRIPTOR' : _SPACES,
   '__module__' : 'remote_env_pb2'
-  # @@protoc_insertion_point(class_scope:NDArray)
+  # @@protoc_insertion_point(class_scope:Spaces)
   })
-_sym_db.RegisterMessage(NDArray)
+_sym_db.RegisterMessage(Spaces)
 
 ObservationRewardDone = _reflection.GeneratedProtocolMessageType('ObservationRewardDone', (_message.Message,), {
   'DESCRIPTOR' : _OBSERVATIONREWARDDONE,
@@ -248,13 +251,22 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=280,
-  serialized_end=489,
+  serialized_start=271,
+  serialized_end=528,
   methods=[
+  _descriptor.MethodDescriptor(
+    name='GetSpaces',
+    full_name='RemoteEnv.GetSpaces',
+    index=0,
+    containing_service=None,
+    input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    output_type=_SPACES,
+    serialized_options=None,
+  ),
   _descriptor.MethodDescriptor(
     name='Reset',
     full_name='RemoteEnv.Reset',
-    index=0,
+    index=1,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=_OBSERVATION,
@@ -263,7 +275,7 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='Step',
     full_name='RemoteEnv.Step',
-    index=1,
+    index=2,
     containing_service=None,
     input_type=_ACTION,
     output_type=_OBSERVATIONREWARDDONE,
@@ -272,7 +284,7 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='Render',
     full_name='RemoteEnv.Render',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=_IMAGE,
@@ -281,7 +293,7 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='Shutdown',
     full_name='RemoteEnv.Shutdown',
-    index=3,
+    index=4,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,

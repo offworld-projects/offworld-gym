@@ -15,6 +15,11 @@ class RemoteEnvStub(object):
     Args:
       channel: A grpc.Channel.
     """
+    self.GetSpaces = channel.unary_unary(
+        '/RemoteEnv/GetSpaces',
+        request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        response_deserializer=remote__env__pb2.Spaces.FromString,
+        )
     self.Reset = channel.unary_unary(
         '/RemoteEnv/Reset',
         request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -40,6 +45,13 @@ class RemoteEnvStub(object):
 class RemoteEnvServicer(object):
   # missing associated documentation comment in .proto file
   pass
+
+  def GetSpaces(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
 
   def Reset(self, request, context):
     # missing associated documentation comment in .proto file
@@ -72,6 +84,11 @@ class RemoteEnvServicer(object):
 
 def add_RemoteEnvServicer_to_server(servicer, server):
   rpc_method_handlers = {
+      'GetSpaces': grpc.unary_unary_rpc_method_handler(
+          servicer.GetSpaces,
+          request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+          response_serializer=remote__env__pb2.Spaces.SerializeToString,
+      ),
       'Reset': grpc.unary_unary_rpc_method_handler(
           servicer.Reset,
           request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,

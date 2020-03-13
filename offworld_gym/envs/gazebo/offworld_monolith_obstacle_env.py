@@ -34,6 +34,7 @@ from offworld_gym.envs.gazebo.utils import ImageUtils, GazeboUtils
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
+from offworld_gym.envs.gazebo.offworld_monolith_env import DEFAULT_MAX_DEPTH_VALUE, DEFAULT_IMAGE_OUT_SIZE
 
 #ros
 import rospy
@@ -42,6 +43,7 @@ from geometry_msgs.msg import Twist
 from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
+
 
 class OffWorldMonolithObstacleEnv(GazeboGymEnv):
     """Generic Simulated gym environment that replicates the real OffWorld Monolith Obstacle environment in Gazebo.  
@@ -61,7 +63,11 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
     _EPISODE_LENGTH = 100
     _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/offworld_monolith_environment.world`
 
-    def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
+    def __init__(self,
+                 channel_type=Channels.DEPTH_ONLY,
+                 random_init=True,
+                 clip_depth_value=DEFAULT_MAX_DEPTH_VALUE,
+                 image_out_size=DEFAULT_IMAGE_OUT_SIZE):
 
         super(OffWorldMonolithObstacleEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_obstacle_bringup.launch')
 
@@ -81,8 +87,11 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
         self.random_init = random_init
         self.step_count = 0
         self._current_state = None
+        self._clip_depth_value = clip_depth_value
+        self._image_out_w = image_out_size[0]
+        self._image_out_h = image_out_size[1]
 
-        self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
+        self.observation_space = spaces.Box(0.0, 1.0, shape=(self._image_out_w, self._image_out_h, channel_type.value))
         self.action_space = None
         self._monolith_space = self._get_state_vector('monolith')
         self._boulder_poses = [self._get_state_vector('boulder_' + str(i)) for i in range(0,14)]
@@ -113,7 +122,10 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
         while rgb_data is None and not rospy.is_shutdown():
             try:
                 rgb_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
-                rgb_img = ImageUtils.process_img_msg(rgb_data)
+                rgb_img = ImageUtils.process_img_msg(rgb_data,
+                                                     resized_width=self._image_out_w,
+                                                     resized_height=self._image_out_h,
+                                                     max_value_for_clip_and_normalize=255.0)
             except rospy.ROSException:
                 rospy.sleep(0.1)
             
@@ -122,7 +134,10 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
         while depth_data is None and not rospy.is_shutdown():
             try:
                 depth_data = rospy.wait_for_message('/camera/depth/image_raw', Image, timeout=5)
-                depth_img = ImageUtils.process_depth_msg(depth_data)
+                depth_img = ImageUtils.process_depth_msg(depth_data,
+                                                         resized_width=self._image_out_w,
+                                                         resized_height=self._image_out_h,
+                                                         max_value_for_clip_and_normalize=self._clip_depth_value)
             except rospy.ROSException:
                 rospy.sleep(0.1)
 
@@ -131,9 +146,9 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
         elif self.channel_type == Channels.RGB_ONLY:
             state = rgb_img
         elif self.channel_type == Channels.RGBD:
-            state =  np.concatenate((rgb_img, depth_img)) 
-        rospy.loginfo("State of the environment captured.")
-        return state
+            state = np.concatenate((rgb_img, depth_img))
+        rospy.logdebug("State of the environment captured.")
+        return np.reshape(state, self.observation_space.shape)
 
     def _move_rosbot(self, lin_x_speed, ang_z_speed, sleep_time=2.):
         """Moves the ROSBot.
@@ -316,14 +331,13 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
         
         Returns:
             None as only human mode is implemented.
-        """        
+        """
         if mode == 'human':
             self.plot(self._current_state)
         elif mode == 'array':
             return self._current_state or self._get_state()
         else:
             raise NotImplementedError(mode)
-        return None
         
     def plot(self, img, id=1, title="State"):
         """Plot an image in a non-blocking way.
@@ -343,6 +357,7 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
             plt.show(block=False)
             plt.pause(0.05)
 
+
 class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
     """Discrete version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.      
     
@@ -353,8 +368,13 @@ class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
         env = gym.make('OffWorldMonolithDiscreteSim-v0', channel_type=Channels.RGBD, random_init=True)
     """
 
-    def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithObstacleDiscreteEnv, self).__init__(channel_type=channel_type, random_init=random_init)
+    def __init__(self,
+                 channel_type=Channels.DEPTH_ONLY,
+                 random_init=True,
+                 clip_depth_value=DEFAULT_MAX_DEPTH_VALUE,
+                 image_out_size=DEFAULT_IMAGE_OUT_SIZE):
+        super(OffWorldMonolithObstacleDiscreteEnv, self).__init__(channel_type=channel_type, random_init=random_init,
+                                                                  clip_depth_value=clip_depth_value, image_out_size=image_out_size)
         self.action_space = spaces.Discrete(4)
         
     def _send_action_commands(self, action_type):
@@ -389,6 +409,11 @@ class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
+
+        # convert float if it's exactly an integer value, otherwise let it throw an error
+        if isinstance(action, (float, np.float32, np.float64)) and float(action).is_integer():
+            action = int(action)
+
         assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
         if isinstance(action, (int, np.int32, np.int64)):
@@ -410,7 +435,8 @@ class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
         
         return self._current_state, reward, done, {}
 
-class OffWorldMonolithObstacleContinousEnv(OffWorldMonolithObstacleEnv):
+
+class OffWorldMonolithObstacleContinuousEnv(OffWorldMonolithObstacleEnv):
     """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.      
     
     .. code:: python
@@ -420,8 +446,13 @@ class OffWorldMonolithObstacleContinousEnv(OffWorldMonolithObstacleEnv):
         env = gym.make('OffWorldMonolithContinousSim-v0', channel_type=Channels.RGBD, random_init=True)
     """
 
-    def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithObstacleContinousEnv, self).__init__(channel_type=channel_type, random_init=random_init)
+    def __init__(self,
+                 channel_type=Channels.DEPTH_ONLY,
+                 random_init=True,
+                 clip_depth_value=DEFAULT_MAX_DEPTH_VALUE,
+                 image_out_size=DEFAULT_IMAGE_OUT_SIZE):
+        super(OffWorldMonolithObstacleContinuousEnv, self).__init__(channel_type=channel_type, random_init=random_init,
+                                                                    clip_depth_value=clip_depth_value, image_out_size=image_out_size)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
 
