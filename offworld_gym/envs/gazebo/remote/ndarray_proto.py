@@ -17,4 +17,4 @@ def ndarray_to_proto(nda):
 def proto_to_ndarray(nda_proto):
     # nda_bytes = BytesIO(nda_proto.ndarray)
     # return np.load(nda_bytes, allow_pickle=True)
-    return cloudpickle.loads(nda_proto)
+    return cloudpickle.loads(nda_proto.ndarray)

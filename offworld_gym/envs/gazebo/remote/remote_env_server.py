@@ -98,8 +98,8 @@ if __name__ == '__main__':
 
         def Reset(self, request, context):
             response = Observation()
-            # response.observation = ndarray_to_proto(env.reset())
-            response.observation.ndarray = ndarray_to_proto(np.ones(shape=(5,)))
+            response.observation.ndarray = ndarray_to_proto(env.reset())
+            # response.observation.ndarray = ndarray_to_proto(np.ones(shape=(5,)))
             return response
 
         def Step(self, request: Action, context):

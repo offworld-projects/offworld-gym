@@ -32,6 +32,9 @@ if __name__ == '__main__':
         "OFFWORLD_ENV_RANDOM_INIT": "TRUE",
         "OFFWORLD_GYM_GRPC_SERVER_PORT": CONTAINER_GRPC_PORT,
     }
+    container_env_str = ""
+    for k, v in container_env.items():
+        container_env_str += f" -e {k}={v}"
 
     # A dictionary to configure volumes mounted inside the container.
     # The key is either the host path or a volume name, and the value is a dictionary with the keys:
@@ -43,10 +46,19 @@ if __name__ == '__main__':
             "mode": "rw"
         }
     }
+    container_volumes_str = ""
+    for k, v in container_volumes.items():
+        container_volumes_str += f" -v {k}:{v['bind']}:{v['mode']}"
 
     container_ports = {
         CONTAINER_GRPC_PORT_BINDING: None  # will be published to a random available host port
     }
+    container_ports_str = ""
+    for k, v in container_ports.items():
+        if v is None:
+            container_ports_str += f" -p {k}"
+        else:
+            container_ports_str += f" -p {k}:{v}"
 
     container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
@@ -54,19 +66,34 @@ if __name__ == '__main__':
     stub_command = "python3.6 -m http.server"
     container_instance = None
     try:
-        container_instance = client.containers.run(image=OFFWORLD_GYM_DOCKER_IMAGE,
-                              command=container_entrypoint,
-                              name=container_name,
-                              # hostname=container_name,
-                              detach=True,
-                              auto_remove=False,
-                              environment=container_env,
-                              volumes=container_volumes,
-                              ports=container_ports,
-                              stdout=True,
-                              stderr=True)
-        print(f"{container_instance.name} launched")
+        # container_instance = client.containers.run(image=OFFWORLD_GYM_DOCKER_IMAGE,
+        #                       command=stub_command,
+        #                       name=container_name,
+        #                       # hostname=container_name,
+        #                       detach=True,
+        #                       auto_remove=False,
+        #                       environment=container_env,
+        #                       volumes=container_volumes,
+        #                       ports=container_ports,
+        #                       runtime="nvidia",
+        #                       stdout=True,
+        #                       stderr=True)
+
+        command = f"docker run --name \'{container_name}\' -it -d --gpus all" \
+                  f"{container_env_str}{container_volumes_str}{container_ports_str} ros-gym {stub_command}"
+
+        print(f"command is:\n{command}\n")
+
+        container_id = subprocess.check_output(["/bin/bash", "-c", command]).decode("utf-8").strip()
+        print(f"container_id is {container_id}")
+        container_instance = client.containers.get(container_id=container_id)
         container_instance.reload()  # required to get auto-assigned ports, not needed if it was an already running container
+
+        print(f"{container_instance.name} launched")
+        time.sleep(3)
+        container_instance.reload()  # required to get auto-assigned ports, not needed if it was an already running container
+
+        print( container_instance.ports)
         host_published_grpc_port = container_instance.ports[CONTAINER_GRPC_PORT_BINDING][0]['HostPort']
         print(f"grpc port: {host_published_grpc_port}")
 
