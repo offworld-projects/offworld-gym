@@ -73,10 +73,16 @@ if __name__ == '__main__':
             return context
 
         def Render(self, request, context):
-            image = env.render(mode='array')
-            response = Image()
-            response.image = cloudpickle.dumps(np.asarray(image))
-            return response
+            try:
+                image = env.render(mode='array')
+                response = Image()
+                response.image = cloudpickle.dumps(np.asarray(image))
+                return response
+            except Exception as err:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                details = f"{err}\n{traceback.format_exc()}"
+                context.set_details(details)
+            return context
 
         def Shutdown(self, request, context):
             self._stop_event.set()
