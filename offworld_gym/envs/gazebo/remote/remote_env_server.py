@@ -45,15 +45,27 @@ if __name__ == '__main__':
             self._stop_event = stop_event
 
         def GetSpaces(self, request, context):
-            response = Spaces()
-            response.observation_space = cloudpickle.dumps(env.observation_space)
-            response.action_space = cloudpickle.dumps(env.action_space)
-            return response
+            try:
+                response = Spaces()
+                response.observation_space = cloudpickle.dumps(env.observation_space)
+                response.action_space = cloudpickle.dumps(env.action_space)
+                return response
+            except Exception as err:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                details = f"{err}\n{traceback.format_exc()}"
+                context.set_details(details)
+            return context
 
         def Reset(self, request, context):
-            response = Observation()
-            response.observation = cloudpickle.dumps(np.asarray(env.reset()))
-            return response
+            try:
+                response = Observation()
+                response.observation = cloudpickle.dumps(np.asarray(env.reset()))
+                return response
+            except Exception as err:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                details = f"{err}\n{traceback.format_exc()}"
+                context.set_details(details)
+            return context
 
         def Step(self, request: Action, context):
             try:

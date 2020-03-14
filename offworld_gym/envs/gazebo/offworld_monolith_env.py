@@ -331,7 +331,9 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         if mode == 'human':
             self.plot(self._current_state)
         elif mode == 'array':
-            return self._current_state or self._get_state()
+            if self._current_state is not None:
+                return self._current_state
+            return self._get_state()
         else:
             raise NotImplementedError(mode)
 
