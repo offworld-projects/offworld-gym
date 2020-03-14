@@ -1,21 +1,25 @@
+import os
+import time
+import threading
+import traceback
+from concurrent import futures
+
+import cloudpickle
+import grpc
+import numpy as np
+from google.protobuf.empty_pb2 import Empty
+
+from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
 from offworld_gym.envs.gazebo.remote.parse_env_args import parse_env_class_from_environ, \
     parse_channel_type_from_environ, parse_random_init_from_environ, parse_clip_depth_value_from_environ, \
     parse_image_out_size_from_environ
-from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Observation, ObservationRewardDone, Action, Image, Spaces
-from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2_grpc import RemoteEnvServicer, add_RemoteEnvServicer_to_server
-
-from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
-
-import os
-import grpc
-import threading
-import numpy as np
-import traceback
-import cloudpickle
-from concurrent import futures
-from google.protobuf.empty_pb2 import Empty
+from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Observation, ObservationRewardDone, Action, Image, \
+    Spaces
+from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2_grpc import RemoteEnvServicer, \
+    add_RemoteEnvServicer_to_server
 
 OFFWORLD_GYM_GRPC_SERVER_PORT = int(os.environ.get("OFFWORLD_GYM_GRPC_SERVER_PORT", 50051))
+MAX_TOLERABLE_GAZEBO_HANG_TIME_SECONDS = 20
 
 if __name__ == '__main__':
 
@@ -35,6 +39,16 @@ if __name__ == '__main__':
 
     env: GazeboGymEnv = env_class(channel_type=channel_type, random_init=random_init, clip_depth_value=clip_depth_value,
                                   image_out_size=image_out_size)
+
+    # There seems to be a race condition with the Gazebo simulator
+    # where rendering isn't functioning by the time the env init function returns.
+    # Wait until we get an image or timeout.
+    simulation_wait_state_time = time.time()
+    while env.reset().max() == 0:
+        if time.time() - simulation_wait_state_time > MAX_TOLERABLE_GAZEBO_HANG_TIME_SECONDS:
+            raise TimeoutError("Simulation seems to have never started, "
+                               "observations returned were always blank (max pixel value of 0).")
+        time.sleep(0.1)
 
     print("OffWorld Gym env initialized")
 
@@ -100,6 +114,7 @@ if __name__ == '__main__':
             self._stop_event.set()
             return Empty()
 
+
     # create a GRPC server
     grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
 
@@ -124,5 +139,3 @@ if __name__ == '__main__':
     grpc_server.stop(0)
     env.close()
     exit(0)
-
-

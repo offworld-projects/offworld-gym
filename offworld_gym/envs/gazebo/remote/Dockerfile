@@ -27,6 +27,8 @@ RUN git clone https://github.com/offworld-projects/offworld-gym.git \
 	&& export OFFWORLD_GYM_ROOT=`pwd`/.. \
 	&& ./install-real-and-sim.sh
 
+RUN echo hello there general kenobi
+
 RUN cd /offworld-gym \
 	&& git pull \
 	&& git checkout origin/docker-devel \

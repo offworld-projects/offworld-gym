@@ -1,23 +1,29 @@
-import docker
+import copy
+import logging
 import os
-import cv2
-import gym
-import uuid
 import subprocess
 import time
-import grpc
-import copy
-import cloudpickle
-import numpy as np
+import uuid
 from enum import Enum
+
+import cloudpickle
+import cv2
+import docker
+import grpc
+import gym
+import numpy as np
 from google.protobuf.empty_pb2 import Empty
+
+from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Action, Observation, ObservationRewardDone, \
+    Spaces, Image
 from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2_grpc import RemoteEnvStub
-from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Action, Observation, ObservationRewardDone, Spaces, Image
+
+logger = logging.getLogger(__name__)
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworld-gym")
 CONTAINER_INTERNAL_GRPC_PORT = 7676
 CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
-MAX_TOLERABLE_HANG_TIME_SECONDS = 10000000
+MAX_TOLERABLE_HANG_TIME_SECONDS = 15
 
 
 class EnvVersions(Enum):
@@ -58,7 +64,8 @@ def validate_env_config(env_config):
     try:
         _parse_int_tuple_from_string(str(env_config['image_out_size']))
     except ValueError:
-        print(f"image_out_size needs to be parsable as a tuple after being converted to a string.")
+        logger.error(f"Couldn\''t parse image_out_size as if it were an environmentt variable. "
+                     f"This is required by the dockerized gym server.")
         raise
 
 
@@ -84,10 +91,14 @@ class OffWorldDockerizedGym(gym.Env):
         try:
             subprocess.check_call(['bash', '-c', xhost_command])
         except subprocess.CalledProcessError:
-            print(f"The bash command \"{xhost_command}\" returned an error. Exiting.")
+            logger.error(f"The bash command \"{xhost_command}\" returned an error. Exiting.")
             exit(1)
 
         # Set up 'docker run' command to launch gazebo env in a container
+        self._launch_or_reset_docker_instance()
+
+    def _launch_or_reset_docker_instance(self):
+        self._clean_up_docker_instance()
 
         container_env = {
             "DISPLAY": os.environ['DISPLAY'],
@@ -129,16 +140,17 @@ class OffWorldDockerizedGym(gym.Env):
         container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo/remote/docker_entrypoint.sh"
-        debug_entrypoint = "python3 -m http.server"
+
         docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm --gpus all" \
-                  f"{container_env_str}{container_volumes_str}{container_ports_str} {OFFWORLD_GYM_DOCKER_IMAGE} {container_entrypoint}"
-        print(f"Docker run command is:\n{docker_run_command}\n")
+                             f"{container_env_str}{container_volumes_str}{container_ports_str} " \
+                             f"{OFFWORLD_GYM_DOCKER_IMAGE} {container_entrypoint}"
+        logger.debug(f"Docker run command is:\n{docker_run_command}\n")
         container_id = subprocess.check_output(["/bin/bash", "-c", docker_run_command]).decode("utf-8").strip()
-        print(f"container_id is {container_id}")
+        logger.info(f"container_id is {container_id}")
         self._container_instance = self._docker_client.containers.get(container_id=container_id)
-        print(f"{self._container_instance.name} launched")
+        logger.debug(f"{self._container_instance.name} launched")
         host_published_grpc_port = self._container_instance.ports[CONTAINER_INTERNAL_GRPC_PORT_BINDING][0]['HostPort']
-        print(f"Connecting on GRPC port: {host_published_grpc_port}")
+        logger.debug(f"Connecting on GRPC port: {host_published_grpc_port}")
         # open a gRPC channel
         channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
 
@@ -165,15 +177,22 @@ class OffWorldDockerizedGym(gym.Env):
         self.action_space = cloudpickle.loads(spaces_response.action_space)
         self.reset()
 
+    def _clean_up_docker_instance(self):
+        if self._container_instance is not None:
+            logger.debug(f"Removing container {self._container_instance.name}")
+            self._container_instance.remove(force=True)
+            logger.debug(f"Container {self._container_instance.name} removed")
+            self._container_instance = None
+
     def reset(self):
-        reset_response: Observation = self._grpc_stub.Reset(Empty())
+        reset_response: Observation = self._grpc_stub.Reset(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
         observation = np.asarray(cloudpickle.loads(reset_response.observation))
         return observation
 
     def step(self, action):
         request = Action()
         request.action = cloudpickle.dumps(np.asarray(action))
-        step_response: ObservationRewardDone = self._grpc_stub.Step(request)
+        step_response: ObservationRewardDone = self._grpc_stub.Step(request, timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
         observation = np.asarray(cloudpickle.loads(step_response.observation))
         reward = float(step_response.reward)
         done = bool(step_response.done)
@@ -181,13 +200,13 @@ class OffWorldDockerizedGym(gym.Env):
         return observation, reward, done, info
 
     def render(self, mode='human'):
-        render_response: Image = self._grpc_stub.Render(Empty())
+        render_response: Image = self._grpc_stub.Render(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
         env_image = np.asarray(cloudpickle.loads(render_response.image))
         if mode == 'human':
             if not self._cv2_windows_need_destroy:
                 self._cv2_windows_need_destroy = True
 
-            cv2.imshow(self._config['version'].name, env_image)
+            cv2.imshow(self._config['version'].value, env_image)
             cv2.waitKey(1)
         elif mode == 'array':
             return env_image
@@ -197,28 +216,22 @@ class OffWorldDockerizedGym(gym.Env):
     def close(self):
         if self._cv2_windows_need_destroy:
             cv2.destroyAllWindows()
-
-        if self._container_instance is not None:
-            print("Cleaning up container...")
-            print(f"Removing container {self._container_instance.name}")
-            self._container_instance.remove(force=True)
-            print(f"Container {self._container_instance.name} removed")
-            self._container_instance = None
+        self._clean_up_docker_instance()
 
     def __del__(self):
         self.close()
 
 
 if __name__ == '__main__':
-    env = OffWorldDockerizedGym()
-    print(f"action space: {env.action_space} observation_space: {env.observation_space}")
-    while True:
-        if env.reset().max() > 0:
-            sampled_action = env.action_space.sample()
-            print(sampled_action)
-            env.render()
-            env.step(sampled_action)
-            time.sleep(0.5)
+    logging.basicConfig(level=logging.DEBUG)
 
-    time.sleep(10)
-    env.close()
+    env = OffWorldDockerizedGym()
+    logger.info(f"action space: {env.action_space} observation_space: {env.observation_space}")
+    while True:
+        env.reset()
+        done = False
+        while not done:
+            sampled_action = env.action_space.sample()
+            env.render()
+            obs, rew, done, info = env.step(sampled_action)
+            time.sleep(0.03)
