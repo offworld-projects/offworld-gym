@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworld-gym")
 CONTAINER_INTERNAL_GRPC_PORT = 7676
 CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
-MAX_TOLERABLE_HANG_TIME_SECONDS = 15
+MAX_TOLERABLE_HANG_TIME_SECONDS = 20
 
 
 class EnvVersions(Enum):
@@ -122,7 +122,7 @@ class OffWorldDockerizedGym(gym.Env):
 
         container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
-        container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo/remote/docker_entrypoint.sh"
+        container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
 
         docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm --gpus all" \
                              f"{container_env_str}{container_volumes_str}{container_ports_str} " \
@@ -182,7 +182,7 @@ class OffWorldDockerizedGym(gym.Env):
 
     def render(self, mode='human'):
         render_response: Image = self._grpc_stub.Render(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
-        env_image = np.asarray(cloudpickle.loads(render_response.image))
+        env_image = np.asarray(cloudpickle.loads(render_response.image))[0]
         if mode == 'human':
             if not self._cv2_windows_need_destroy:
                 self._cv2_windows_need_destroy = True

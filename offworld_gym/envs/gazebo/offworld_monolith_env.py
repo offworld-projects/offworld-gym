@@ -14,9 +14,9 @@
 
 from offworld_gym import version
 
-__version__ = version.__version__
+__version__     = version.__version__
 
-# lib
+#lib
 from math import pi
 import time
 import numpy as np
@@ -25,7 +25,7 @@ import pdb
 from pyquaternion import Quaternion
 from matplotlib import pyplot as plt
 
-# gym
+#gym
 import gym
 from gym import utils, spaces
 from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
@@ -35,14 +35,13 @@ from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 
-# ros
+#ros
 import rospy
 from std_srvs.srv import Empty as Empty_srv
 from geometry_msgs.msg import Twist
 from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
-
 
 class OffWorldMonolithEnv(GazeboGymEnv):
     """Generic Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
@@ -60,12 +59,11 @@ class OffWorldMonolithEnv(GazeboGymEnv):
     """
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
-    _TIME_DILATION = 10.0  # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/gymbox.world`
+    _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/gymbox.world`
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
-        super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith',
-                                                  launch_file='env_bringup.launch')
+        super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
 
         assert isinstance(channel_type, Channels), "Channel type is not of Channels."
         rospy.loginfo("Environment has been initiated.")
@@ -84,7 +82,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         self.step_count = 0
         self._current_state = None
 
-        self.observation_space = spaces.Box(0, 255, shape=(1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
+        self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
         self.action_space = None
         self._monolith_space = self._get_state_vector('monolith')
         rospy.logdebug("----------------Monolith----------------")
@@ -132,7 +130,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         elif self.channel_type == Channels.RGB_ONLY:
             state = rgb_img
         elif self.channel_type == Channels.RGBD:
-            state = np.concatenate((rgb_img, depth_img))
+            state =  np.concatenate((rgb_img, depth_img))
         rospy.loginfo("State of the environment captured.")
         return state
 
@@ -152,7 +150,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         vel_cmd.angular.z = ang_z_speed
         self.vel_pub.publish(vel_cmd)
 
-        time.sleep(sleep_time / OffWorldMonolithEnv._TIME_DILATION)
+        time.sleep(sleep_time/OffWorldMonolithEnv._TIME_DILATION)
         vel_cmd = Twist()
         vel_cmd.linear.x = 0.0
         vel_cmd.angular.z = 0.0
@@ -188,8 +186,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         try:
             ms = self._get_model_state(name)
             if ms is not None:
-                quaternion = Quaternion(ms.pose.orientation.w, ms.pose.orientation.x, ms.pose.orientation.y,
-                                        ms.pose.orientation.z, )
+                quaternion = Quaternion(ms.pose.orientation.w,  ms.pose.orientation.x, ms.pose.orientation.y, ms.pose.orientation.z,)
                 yaw, _, _ = quaternion.yaw_pitch_roll
                 state = (ms.pose.position.x, ms.pose.position.y, ms.pose.position.z, yaw)
                 return state
@@ -248,8 +245,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             # random spawn location exlucing no-spawn 30cm radius around the monolith
             goal_state.pose.position.x = self._monolith_space[0]
             goal_state.pose.position.y = self._monolith_space[1]
-            while distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y),
-                                     self._monolith_space[0:2]) < 0.50:
+            while distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), self._monolith_space[0:2]) < 0.50:
                 goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
                 goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
             rospy.loginfo("Spawning at (%.2f, %.2f)" % (goal_state.pose.position.x, goal_state.pose.position.y))
@@ -342,7 +338,6 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             plt.show(block=False)
             plt.pause(0.05)
 
-
 class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
     """Discrete version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
 
@@ -354,7 +349,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithDiscreteEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
+        super(OffWorldMonolithDiscreteEnv, self).__init__(channel_type=channel_type, random_init=random_init)
         self.action_space = spaces.Discrete(4)
 
     def _send_action_commands(self, action_type):
@@ -389,8 +384,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
-        assert isinstance(action,
-                          (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
+        assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
         if isinstance(action, (int, np.int32, np.int64)):
             assert action >= 0 and action < 4, "Unrecognized value for the action"
@@ -411,7 +405,6 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
 
         return self._current_state, reward, done, {}
 
-
 class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
     """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
 
@@ -423,7 +416,7 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithContinuousEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
+        super(OffWorldMonolithContinuousEnv, self).__init__(channel_type=channel_type, random_init=random_init)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
 
