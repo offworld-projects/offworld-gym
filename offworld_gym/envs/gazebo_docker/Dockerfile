@@ -25,7 +25,9 @@ RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main"
 RUN git clone https://github.com/offworld-projects/offworld-gym.git \
 	&& cd offworld-gym/scripts \
 	&& export OFFWORLD_GYM_ROOT=`pwd`/.. \
-	&& ./install-real-and-sim.sh
+	&& ./install-real-and-sim.sh \
+	&& pip3.6 install --user docker
+	# adding this pip install here because we probably will want to separate docker env install from other env installs later
 
 RUN cd /offworld-gym \
 	&& git pull \

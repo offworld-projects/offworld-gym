@@ -208,7 +208,7 @@ class OffWorldDockerizedEnv(gym.Env):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    env = gym.make("OffWorldDockerMonolithContinuousSim-v0", config={})
+    env = gym.make("OffWorldDockerMonolithContinuousSim-v0", channel_type=Channels.RGB_ONLY)
     logger.info(f"action space: {env.action_space} observation_space: {env.observation_space}")
     while True:
         env.reset()

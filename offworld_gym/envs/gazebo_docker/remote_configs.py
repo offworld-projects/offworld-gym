@@ -1,4 +1,4 @@
-from offworld_gym.envs.gazebo_docker.remote_env import OffWorldDockerizedEnv, EnvVersions, with_base_config
+from offworld_gym.envs.gazebo_docker.remote_env import OffWorldDockerizedEnv, EnvVersions
 from offworld_gym.envs.common.channels import Channels
 
 
