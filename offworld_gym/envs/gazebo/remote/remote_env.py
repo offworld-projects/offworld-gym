@@ -153,8 +153,6 @@ class OffWorldDockerizedGym(gym.Env):
         logger.debug(f"Connecting on GRPC port: {host_published_grpc_port}")
         # open a gRPC channel
         channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
-
-        # create a stub (client)
         self._grpc_stub = RemoteEnvStub(channel)
 
         # Assure that the time this method returns, the docker env is fully initialized.
