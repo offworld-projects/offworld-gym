@@ -18,6 +18,9 @@ from offworld_gym.envs.common.channels import Channels
 import random
 import numpy as np
 
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 # create the envronment
 env = gym.make('OffWorldDockerMonolithContinuousSim-v0', channel_type=Channels.DEPTH_ONLY)
 env.seed(123)

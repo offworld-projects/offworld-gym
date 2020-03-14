@@ -11,6 +11,7 @@ import cv2
 import docker
 import grpc
 import gym
+import atexit
 import numpy as np
 from gym.utils import seeding
 from google.protobuf.empty_pb2 import Empty
@@ -124,6 +125,19 @@ class OffWorldDockerizedEnv(gym.Env):
                              f"{OFFWORLD_GYM_DOCKER_IMAGE} {container_entrypoint}"
         logger.debug(f"Docker run command is:\n{docker_run_command}\n")
         container_id = subprocess.check_output(["/bin/bash", "-c", docker_run_command]).decode("utf-8").strip()
+
+        # ensure cleanup at exit
+        def kill_container_if_it_still_exists():
+            try:
+                # bash command kills the container if it exists, otherwise return error code 1 without printing an error
+                kill_command = f"docker ps -q --filter \"id={container_id}\" | grep -q . && docker kill {container_id}"
+                removed_container = subprocess.check_output(['bash', '-c', kill_command]).decode("utf-8").strip()
+                print(f"Cleaned up container {removed_container}")
+            except subprocess.CalledProcessError:
+                pass
+
+        atexit.register(kill_container_if_it_still_exists)
+
         logger.info(f"container_id is {container_id}")
         self._container_instance = self._docker_client.containers.get(container_id=container_id)
         logger.debug(f"{self._container_instance.name} launched")
@@ -197,12 +211,9 @@ class OffWorldDockerizedEnv(gym.Env):
         return [seed]
 
     def close(self):
+        self._clean_up_docker_instance()
         if self._cv2_windows_need_destroy:
             cv2.destroyAllWindows()
-        self._clean_up_docker_instance()
-
-    def __del__(self):
-        self.close()
 
 
 if __name__ == '__main__':
