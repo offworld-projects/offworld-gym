@@ -64,6 +64,16 @@ if __name__ == '__main__':
                 context.set_details(details)
             return context
 
+        def SetSeed(self, request, context):
+            try:
+                env.seed(request.seed)
+                return Empty()
+            except Exception as err:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                details = f"{err}\n{traceback.format_exc()}"
+                context.set_details(details)
+            return context
+
         def Reset(self, request, context):
             try:
                 response = Observation()

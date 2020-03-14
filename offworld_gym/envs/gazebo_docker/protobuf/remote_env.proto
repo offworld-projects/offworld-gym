@@ -24,15 +24,15 @@ message Image {
     bytes image = 1;
 }
 
+message Seed {
+    float seed = 1;
+}
+
 service RemoteEnv {
-    rpc GetSpaces (google.protobuf.Empty) returns (Spaces) {
-    }
-    rpc Reset (google.protobuf.Empty) returns (Observation) {
-    }
-    rpc Step (Action) returns (ObservationRewardDone) {
-    }
-    rpc Render (google.protobuf.Empty) returns (Image) {
-    }
-    rpc Shutdown (google.protobuf.Empty) returns (google.protobuf.Empty) {
-    }
+    rpc GetSpaces (google.protobuf.Empty) returns (Spaces) {}
+    rpc SetSeed (Seed) returns (google.protobuf.Empty) {}
+    rpc Reset (google.protobuf.Empty) returns (Observation) {}
+    rpc Step (Action) returns (ObservationRewardDone) {}
+    rpc Render (google.protobuf.Empty) returns (Image) {}
+    rpc Shutdown (google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }

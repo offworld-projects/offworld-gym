@@ -12,8 +12,8 @@ register(
 
 # OffWorld Monolith Real with Discrete actions
 register(
-    id='OffWorldMonolithContinousReal-v0',
-    entry_point='offworld_gym.envs.real:OffWorldMonolithContinousEnv'
+    id='OffWorldMonolithContinuousReal-v0',
+    entry_point='offworld_gym.envs.real:OffWorldMonolithContinuousEnv'
 )
 
 # simulated environments
@@ -26,8 +26,8 @@ register(
 
 # OffWorld Monolith Simulated replica with continous actions
 register(
-    id='OffWorldMonolithContinousSim-v0',
-    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithContinousEnv'
+    id='OffWorldMonolithContinuousSim-v0',
+    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithContinuousEnv'
 )
 
 
@@ -39,6 +39,33 @@ register(
 
 # OffWorld Monolith Simulated replica with continous actions
 register(
-    id='OffWorldMonolithObstacleContinousSim-v0',
-    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithObstacleContinousEnv'
+    id='OffWorldMonolithObstacleContinuousSim-v0',
+    entry_point='offworld_gym.envs.gazebo:OffWorldMonolithObstacleContinuousEnv'
+)
+
+# Dockerized Simulated Environments
+
+# OffWorld Monolith Simulated replica with discrete actions
+register(
+    id='OffWorldDockerMonolithDiscreteSim-v0',
+    entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithDiscreteEnv'
+)
+
+# OffWorld Monolith Simulated replica with continous actions
+register(
+    id='OffWorldDockerMonolithContinuousSim-v0',
+    entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithContinuousEnv'
+)
+
+
+# OffWorld Monolith Simulated replica with discrete actions
+register(
+    id='OffWorldDockerMonolithObstacleDiscreteSim-v0',
+    entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithObstacleDiscreteEnv'
+)
+
+# OffWorld Monolith Simulated replica with continous actions
+register(
+    id='OffWorldDockerMonolithObstacleContinuousSim-v0',
+    entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithObstacleContinuousEnv'
 )

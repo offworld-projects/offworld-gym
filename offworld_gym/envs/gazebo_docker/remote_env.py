@@ -12,10 +12,12 @@ import docker
 import grpc
 import gym
 import numpy as np
+from gym.utils import seeding
 from google.protobuf.empty_pb2 import Empty
+from offworld_gym.envs.common.channels import Channels
 
 from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Action, Observation, ObservationRewardDone, \
-    Spaces, Image
+    Spaces, Image, Seed
 from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteEnvStub
 
 logger = logging.getLogger(__name__)
@@ -33,14 +35,6 @@ class EnvVersions(Enum):
     OBSTACLE_DISCRETE = "OffWorldMonolithObstacleDiscreteEnv"
 
 
-class Channels(Enum):
-    """Channel Types of the camera
-    """
-    DEPTH_ONLY = 1
-    RGB_ONLY = 3
-    RGBD = 4
-
-
 OFFWORLD_GYM_CONFIG_DEFAULTS = {
     "version": EnvVersions.MONOLITH_CONTINUOUS,
     "channel_type": Channels.RGB_ONLY,  # options are DEPTH_ONLY, RGB_ONLY, RGBD
@@ -56,15 +50,16 @@ def validate_env_config(env_config):
 
 def with_base_config(base_config, overrides_config):
     config = copy.deepcopy(base_config)
-    config.update(overrides_config)
+    if overrides_config is not None:
+        config.update(overrides_config)
     return config
 
 
-class OffWorldDockerizedGym(gym.Env):
+class OffWorldDockerizedEnv(gym.Env):
 
     def __init__(self, config=None):
         config = with_base_config(base_config=OFFWORLD_GYM_CONFIG_DEFAULTS,
-                                  overrides_config=config if config is not None else {})
+                                  overrides_config=config)
         validate_env_config(env_config=config)
         self._config = config
         self._docker_client = docker.from_env()
@@ -194,6 +189,13 @@ class OffWorldDockerizedGym(gym.Env):
         else:
             raise NotImplementedError(mode)
 
+    def seed(self, seed=None):
+        self.np_random, seed = seeding.np_random(seed)
+        seed_request = Seed()
+        seed_request.seed = seed
+        self._grpc_stub.SetSeed(seed_request)
+        return [seed]
+
     def close(self):
         if self._cv2_windows_need_destroy:
             cv2.destroyAllWindows()
@@ -206,7 +208,7 @@ class OffWorldDockerizedGym(gym.Env):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    env = OffWorldDockerizedGym()
+    env = gym.make("OffWorldDockerMonolithContinuousSim-v0", config={})
     logger.info(f"action space: {env.action_space} observation_space: {env.observation_space}")
     while True:
         env.reset()

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x10remote_env.proto\x1a\x1bgoogle/protobuf/empty.proto\"9\n\x06Spaces\x12\x19\n\x11observation_space\x18\x01 \x01(\x0c\x12\x14\n\x0c\x61\x63tion_space\x18\x02 \x01(\x0c\"J\n\x15ObservationRewardDone\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\"\n\x0bObservation\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\x0c\"\x16\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\x32\x81\x02\n\tRemoteEnv\x12.\n\tGetSpaces\x12\x16.google.protobuf.Empty\x1a\x07.Spaces\"\x00\x12/\n\x05Reset\x12\x16.google.protobuf.Empty\x1a\x0c.Observation\"\x00\x12)\n\x04Step\x12\x07.Action\x1a\x16.ObservationRewardDone\"\x00\x12*\n\x06Render\x12\x16.google.protobuf.Empty\x1a\x06.Image\"\x00\x12<\n\x08Shutdown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x10remote_env.proto\x1a\x1bgoogle/protobuf/empty.proto\"9\n\x06Spaces\x12\x19\n\x11observation_space\x18\x01 \x01(\x0c\x12\x14\n\x0c\x61\x63tion_space\x18\x02 \x01(\x0c\"J\n\x15ObservationRewardDone\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\"\n\x0bObservation\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\x0c\"\x16\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\"\x14\n\x04Seed\x12\x0c\n\x04seed\x18\x01 \x01(\x02\x32\xad\x02\n\tRemoteEnv\x12.\n\tGetSpaces\x12\x16.google.protobuf.Empty\x1a\x07.Spaces\"\x00\x12*\n\x07SetSeed\x12\x05.Seed\x1a\x16.google.protobuf.Empty\"\x00\x12/\n\x05Reset\x12\x16.google.protobuf.Empty\x1a\x0c.Observation\"\x00\x12)\n\x04Step\x12\x07.Action\x1a\x16.ObservationRewardDone\"\x00\x12*\n\x06Render\x12\x16.google.protobuf.Empty\x1a\x06.Image\"\x00\x12<\n\x08Shutdown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -201,11 +201,43 @@ _IMAGE = _descriptor.Descriptor(
   serialized_end=268,
 )
 
+
+_SEED = _descriptor.Descriptor(
+  name='Seed',
+  full_name='Seed',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='seed', full_name='Seed.seed', index=0,
+      number=1, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=270,
+  serialized_end=290,
+)
+
 DESCRIPTOR.message_types_by_name['Spaces'] = _SPACES
 DESCRIPTOR.message_types_by_name['ObservationRewardDone'] = _OBSERVATIONREWARDDONE
 DESCRIPTOR.message_types_by_name['Observation'] = _OBSERVATION
 DESCRIPTOR.message_types_by_name['Action'] = _ACTION
 DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
+DESCRIPTOR.message_types_by_name['Seed'] = _SEED
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 Spaces = _reflection.GeneratedProtocolMessageType('Spaces', (_message.Message,), {
@@ -243,6 +275,13 @@ Image = _reflection.GeneratedProtocolMessageType('Image', (_message.Message,), {
   })
 _sym_db.RegisterMessage(Image)
 
+Seed = _reflection.GeneratedProtocolMessageType('Seed', (_message.Message,), {
+  'DESCRIPTOR' : _SEED,
+  '__module__' : 'remote_env_pb2'
+  # @@protoc_insertion_point(class_scope:Seed)
+  })
+_sym_db.RegisterMessage(Seed)
+
 
 
 _REMOTEENV = _descriptor.ServiceDescriptor(
@@ -251,8 +290,8 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=271,
-  serialized_end=528,
+  serialized_start=293,
+  serialized_end=594,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetSpaces',
@@ -264,9 +303,18 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(
+    name='SetSeed',
+    full_name='RemoteEnv.SetSeed',
+    index=1,
+    containing_service=None,
+    input_type=_SEED,
+    output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
+    serialized_options=None,
+  ),
+  _descriptor.MethodDescriptor(
     name='Reset',
     full_name='RemoteEnv.Reset',
-    index=1,
+    index=2,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=_OBSERVATION,
@@ -275,7 +323,7 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='Step',
     full_name='RemoteEnv.Step',
-    index=2,
+    index=3,
     containing_service=None,
     input_type=_ACTION,
     output_type=_OBSERVATIONREWARDDONE,
@@ -284,7 +332,7 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='Render',
     full_name='RemoteEnv.Render',
-    index=3,
+    index=4,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=_IMAGE,
@@ -293,7 +341,7 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   _descriptor.MethodDescriptor(
     name='Shutdown',
     full_name='RemoteEnv.Shutdown',
-    index=4,
+    index=5,
     containing_service=None,
     input_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
     output_type=google_dot_protobuf_dot_empty__pb2._EMPTY,
