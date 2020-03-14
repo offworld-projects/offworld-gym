@@ -27,10 +27,12 @@ RUN git clone https://github.com/offworld-projects/offworld-gym.git \
 	&& export OFFWORLD_GYM_ROOT=`pwd`/.. \
 	&& ./install-real-and-sim.sh
 
+RUN echo hello
+
 RUN cd /offworld-gym \
 	&& git pull \
 	&& git checkout origin/docker-devel \
-	&& chmod +x /offworld-gym/offworld_gym/envs/gazebo/remote/docker_entrypoint.sh
+	&& chmod +x /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
 
 ENV PATH "/root/.local/bin:$PATH"
 

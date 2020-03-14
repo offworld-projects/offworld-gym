@@ -412,7 +412,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         return self._current_state, reward, done, {}
 
 
-class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
+class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
     """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
 
     .. code:: python
@@ -423,7 +423,7 @@ class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithContinousEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
+        super(OffWorldMonolithContinuousEnv, self).__init__(channel_type=Channels.DEPTH_ONLY, random_init=True)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
 

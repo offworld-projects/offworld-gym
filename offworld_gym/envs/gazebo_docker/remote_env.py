@@ -14,9 +14,9 @@ import gym
 import numpy as np
 from google.protobuf.empty_pb2 import Empty
 
-from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Action, Observation, ObservationRewardDone, \
+from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Action, Observation, ObservationRewardDone, \
     Spaces, Image
-from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2_grpc import RemoteEnvStub
+from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteEnvStub
 
 logger = logging.getLogger(__name__)
 
