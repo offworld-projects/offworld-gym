@@ -61,37 +61,3 @@ def parse_random_init_from_environ():
         raise EnvironmentError(f"The env variable OFFWORLD_ENV_RANDOM_INIT is set to an unrecognized value: {env_type}"
                                f"\nAcceptable values are {list(USABLE_RANDOM_INIT_VALS.keys())}")
     return random_init
-
-
-def parse_clip_depth_value_from_environ():
-    clip_depth_value = None
-    try:
-        clip_depth_value = float(os.environ["OFFWORLD_ENV_CLIP_DEPTH_VALUE"])
-        if clip_depth_value < 0.0:
-            raise ValueError
-    except (KeyError, ValueError):
-        raise EnvironmentError(
-            "The env variable OFFWORLD_ENV_CLIP_DEPTH_VALUE needs to be specified to a scalar value >= 0."
-            f"\nIt's current value is {clip_depth_value}")
-    return clip_depth_value
-
-
-def _parse_int_tuple_from_string(tuple_str):
-    tuple_str = ''.join(ch for ch in tuple_str if ch.isdigit() or ch == ',')
-    return tuple(map(int, tuple_str.split(',')))
-
-
-def parse_image_out_size_from_environ():
-    image_out_size_str = None
-    try:
-        image_out_size_str = os.environ["OFFWORLD_ENV_IMAGE_OUT_SIZE"]
-        image_out_size = _parse_int_tuple_from_string(image_out_size_str)
-        for s in image_out_size:
-            if s < 1:
-                raise ValueError
-    except (KeyError, ValueError):
-        raise EnvironmentError(
-            "The env variable OFFWORLD_ENV_IMAGE_OUT_SIZE needs to be specified to a tuple of positive ints, "
-            "ex: \"(320, 240)\""
-            f"\nIt's current value is {image_out_size_str}")
-    return image_out_size

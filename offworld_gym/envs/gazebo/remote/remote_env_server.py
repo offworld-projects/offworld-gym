@@ -11,8 +11,7 @@ from google.protobuf.empty_pb2 import Empty
 
 from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
 from offworld_gym.envs.gazebo.remote.parse_env_args import parse_env_class_from_environ, \
-    parse_channel_type_from_environ, parse_random_init_from_environ, parse_clip_depth_value_from_environ, \
-    parse_image_out_size_from_environ
+    parse_channel_type_from_environ, parse_random_init_from_environ
 from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2 import Observation, ObservationRewardDone, Action, Image, \
     Spaces
 from offworld_gym.envs.gazebo.remote.protobuf.remote_env_pb2_grpc import RemoteEnvServicer, \
@@ -26,19 +25,14 @@ if __name__ == '__main__':
     env_class = parse_env_class_from_environ()
     channel_type = parse_channel_type_from_environ()
     random_init = parse_random_init_from_environ()
-    clip_depth_value = parse_clip_depth_value_from_environ()
-    image_out_size = parse_image_out_size_from_environ()
 
     print(f"Starting env with "
           f"class: {env_class}, "
           f" type: {channel_type}, "
           f"random_init: {random_init}, "
-          f"clip_depth_value: {clip_depth_value}, "
-          f"image_out_size: {image_out_size} "
           f"...\n")
 
-    env: GazeboGymEnv = env_class(channel_type=channel_type, random_init=random_init, clip_depth_value=clip_depth_value,
-                                  image_out_size=image_out_size)
+    env: GazeboGymEnv = env_class(channel_type=channel_type, random_init=random_init)
 
     # There seems to be a race condition with the Gazebo simulator
     # where rendering isn't functioning by the time the env init function returns.

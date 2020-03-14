@@ -45,28 +45,13 @@ OFFWORLD_GYM_CONFIG_DEFAULTS = {
     "version": EnvVersions.MONOLITH_CONTINUOUS,
     "channel_type": Channels.RGB_ONLY,  # options are DEPTH_ONLY, RGB_ONLY, RGBD
     "random_init": True,
-    "clip_depth_value": 3.0,  # positive int or None, if not None, clips to this value and normalizes to [0, 1.0]
-    "image_out_size": (240, 240)  # observation images resized to this
 }
-
-
-def _parse_int_tuple_from_string(tuple_str):
-    tuple_str = ''.join(ch for ch in tuple_str if ch.isdigit() or ch == ',')
-    return tuple(map(int, tuple_str.split(',')))
 
 
 def validate_env_config(env_config):
     assert isinstance(env_config['version'], EnvVersions)
     assert isinstance(env_config['channel_type'], Channels)
     assert isinstance(env_config['random_init'], bool)
-    assert np.isscalar(env_config['clip_depth_value']) and env_config['clip_depth_value'] > 0
-    assert np.shape(env_config['image_out_size']) == (2,) and all(elem >= 1 for elem in env_config['image_out_size'])
-    try:
-        _parse_int_tuple_from_string(str(env_config['image_out_size']))
-    except ValueError:
-        logger.error(f"Couldn\''t parse image_out_size as if it were an environmentt variable. "
-                     f"This is required by the dockerized gym server.")
-        raise
 
 
 def with_base_config(base_config, overrides_config):
@@ -106,8 +91,6 @@ class OffWorldDockerizedGym(gym.Env):
             "OFFWORLD_ENV_TYPE": self._config['version'].value,
             "OFFWORLD_ENV_CHANNEL_TYPE": self._config['channel_type'].name.upper(),
             "OFFWORLD_ENV_RANDOM_INIT": str(self._config['random_init']).upper(),
-            "OFFWORLD_ENV_CLIP_DEPTH_VALUE": str(float(self._config['clip_depth_value'])),
-            "OFFWORLD_ENV_IMAGE_OUT_SIZE": f"\"{self._config['image_out_size']}\""
         }
         container_env_str = ""
         for k, v in container_env.items():
