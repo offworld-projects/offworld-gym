@@ -447,7 +447,7 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
 
         rosbot_state = self._get_state_vector('rosbot')
         dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
-        info = {"rosbot_state": rosbot_state, "dst": dst}
+        info = {"rosbot_state": rosbot_state, "monolith_space": self._monolith_space, "dst": dst}
 
         reward, done = self._calculate_reward()
 
