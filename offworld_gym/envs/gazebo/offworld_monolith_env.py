@@ -246,8 +246,13 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             goal_state.pose.position.x = self._monolith_space[0]
             goal_state.pose.position.y = self._monolith_space[1]
             while distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), self._monolith_space[0:2]) < 0.50:
-                goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
-                goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
+                # goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
+                # goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
+
+                # TODO: undo reducing the spawn area if it does not solve reward distribution issues
+                goal_state.pose.position.x = np.random.uniform(-1.55, 1.75)
+                goal_state.pose.position.y = np.random.uniform(-1.45, 0.95)
+
             rospy.loginfo("Spawning at (%.2f, %.2f)" % (goal_state.pose.position.x, goal_state.pose.position.y))
             goal_state.pose.position.z = 0.20
 
