@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\x10remote_env.proto\x1a\x1bgoogle/protobuf/empty.proto\"9\n\x06Spaces\x12\x19\n\x11observation_space\x18\x01 \x01(\x0c\x12\x14\n\x0c\x61\x63tion_space\x18\x02 \x01(\x0c\"J\n\x15ObservationRewardDone\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\"\"\n\x0bObservation\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\x0c\"\x16\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\"\x14\n\x04Seed\x12\x0c\n\x04seed\x18\x01 \x01(\x03\x32\xad\x02\n\tRemoteEnv\x12.\n\tGetSpaces\x12\x16.google.protobuf.Empty\x1a\x07.Spaces\"\x00\x12*\n\x07SetSeed\x12\x05.Seed\x1a\x16.google.protobuf.Empty\"\x00\x12/\n\x05Reset\x12\x16.google.protobuf.Empty\x1a\x0c.Observation\"\x00\x12)\n\x04Step\x12\x07.Action\x1a\x16.ObservationRewardDone\"\x00\x12*\n\x06Render\x12\x16.google.protobuf.Empty\x1a\x06.Image\"\x00\x12<\n\x08Shutdown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
+  serialized_pb=b'\n\x10remote_env.proto\x1a\x1bgoogle/protobuf/empty.proto\"9\n\x06Spaces\x12\x19\n\x11observation_space\x18\x01 \x01(\x0c\x12\x14\n\x0c\x61\x63tion_space\x18\x02 \x01(\x0c\"\\\n\x19ObservationRewardDoneInfo\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\x12\x0e\n\x06reward\x18\x02 \x01(\x02\x12\x0c\n\x04\x64one\x18\x03 \x01(\x08\x12\x0c\n\x04info\x18\x04 \x01(\x0c\"\"\n\x0bObservation\x12\x13\n\x0bobservation\x18\x01 \x01(\x0c\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\x0c\"\x16\n\x05Image\x12\r\n\x05image\x18\x01 \x01(\x0c\"\x14\n\x04Seed\x12\x0c\n\x04seed\x18\x01 \x01(\x03\x32\xb1\x02\n\tRemoteEnv\x12.\n\tGetSpaces\x12\x16.google.protobuf.Empty\x1a\x07.Spaces\"\x00\x12*\n\x07SetSeed\x12\x05.Seed\x1a\x16.google.protobuf.Empty\"\x00\x12/\n\x05Reset\x12\x16.google.protobuf.Empty\x1a\x0c.Observation\"\x00\x12-\n\x04Step\x12\x07.Action\x1a\x1a.ObservationRewardDoneInfo\"\x00\x12*\n\x06Render\x12\x16.google.protobuf.Empty\x1a\x06.Image\"\x00\x12<\n\x08Shutdown\x12\x16.google.protobuf.Empty\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3'
   ,
   dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -64,31 +64,38 @@ _SPACES = _descriptor.Descriptor(
 )
 
 
-_OBSERVATIONREWARDDONE = _descriptor.Descriptor(
-  name='ObservationRewardDone',
-  full_name='ObservationRewardDone',
+_OBSERVATIONREWARDDONEINFO = _descriptor.Descriptor(
+  name='ObservationRewardDoneInfo',
+  full_name='ObservationRewardDoneInfo',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='observation', full_name='ObservationRewardDone.observation', index=0,
+      name='observation', full_name='ObservationRewardDoneInfo.observation', index=0,
       number=1, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='reward', full_name='ObservationRewardDone.reward', index=1,
+      name='reward', full_name='ObservationRewardDoneInfo.reward', index=1,
       number=2, type=2, cpp_type=6, label=1,
       has_default_value=False, default_value=float(0),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='done', full_name='ObservationRewardDone.done', index=2,
+      name='done', full_name='ObservationRewardDoneInfo.done', index=2,
       number=3, type=8, cpp_type=7, label=1,
       has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='info', full_name='ObservationRewardDoneInfo.info', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -105,7 +112,7 @@ _OBSERVATIONREWARDDONE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=108,
-  serialized_end=182,
+  serialized_end=200,
 )
 
 
@@ -135,8 +142,8 @@ _OBSERVATION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=184,
-  serialized_end=218,
+  serialized_start=202,
+  serialized_end=236,
 )
 
 
@@ -166,8 +173,8 @@ _ACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=220,
-  serialized_end=244,
+  serialized_start=238,
+  serialized_end=262,
 )
 
 
@@ -197,8 +204,8 @@ _IMAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=246,
-  serialized_end=268,
+  serialized_start=264,
+  serialized_end=286,
 )
 
 
@@ -228,12 +235,12 @@ _SEED = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=270,
-  serialized_end=290,
+  serialized_start=288,
+  serialized_end=308,
 )
 
 DESCRIPTOR.message_types_by_name['Spaces'] = _SPACES
-DESCRIPTOR.message_types_by_name['ObservationRewardDone'] = _OBSERVATIONREWARDDONE
+DESCRIPTOR.message_types_by_name['ObservationRewardDoneInfo'] = _OBSERVATIONREWARDDONEINFO
 DESCRIPTOR.message_types_by_name['Observation'] = _OBSERVATION
 DESCRIPTOR.message_types_by_name['Action'] = _ACTION
 DESCRIPTOR.message_types_by_name['Image'] = _IMAGE
@@ -247,12 +254,12 @@ Spaces = _reflection.GeneratedProtocolMessageType('Spaces', (_message.Message,),
   })
 _sym_db.RegisterMessage(Spaces)
 
-ObservationRewardDone = _reflection.GeneratedProtocolMessageType('ObservationRewardDone', (_message.Message,), {
-  'DESCRIPTOR' : _OBSERVATIONREWARDDONE,
+ObservationRewardDoneInfo = _reflection.GeneratedProtocolMessageType('ObservationRewardDoneInfo', (_message.Message,), {
+  'DESCRIPTOR' : _OBSERVATIONREWARDDONEINFO,
   '__module__' : 'remote_env_pb2'
-  # @@protoc_insertion_point(class_scope:ObservationRewardDone)
+  # @@protoc_insertion_point(class_scope:ObservationRewardDoneInfo)
   })
-_sym_db.RegisterMessage(ObservationRewardDone)
+_sym_db.RegisterMessage(ObservationRewardDoneInfo)
 
 Observation = _reflection.GeneratedProtocolMessageType('Observation', (_message.Message,), {
   'DESCRIPTOR' : _OBSERVATION,
@@ -290,8 +297,8 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   serialized_options=None,
-  serialized_start=293,
-  serialized_end=594,
+  serialized_start=311,
+  serialized_end=616,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetSpaces',
@@ -326,7 +333,7 @@ _REMOTEENV = _descriptor.ServiceDescriptor(
     index=3,
     containing_service=None,
     input_type=_ACTION,
-    output_type=_OBSERVATIONREWARDDONE,
+    output_type=_OBSERVATIONREWARDDONEINFO,
     serialized_options=None,
   ),
   _descriptor.MethodDescriptor(

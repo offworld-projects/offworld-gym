@@ -17,7 +17,7 @@ from gym.utils import seeding
 from google.protobuf.empty_pb2 import Empty
 from offworld_gym.envs.common.channels import Channels
 
-from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Action, Observation, ObservationRewardDone, \
+from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Action, Observation, ObservationRewardDoneInfo, \
     Spaces, Image, Seed
 from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteEnvStub
 
@@ -182,11 +182,11 @@ class OffWorldDockerizedEnv(gym.Env):
     def step(self, action):
         request = Action()
         request.action = cloudpickle.dumps(np.asarray(action))
-        step_response: ObservationRewardDone = self._grpc_stub.Step(request, timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
+        step_response: ObservationRewardDoneInfo = self._grpc_stub.Step(request, timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
         observation = np.asarray(cloudpickle.loads(step_response.observation))
         reward = float(step_response.reward)
         done = bool(step_response.done)
-        info = {}
+        info = cloudpickle.loads(step_response.info)
         return observation, reward, done, info
 
     def render(self, mode='human'):
@@ -196,7 +196,7 @@ class OffWorldDockerizedEnv(gym.Env):
             if not self._cv2_windows_need_destroy:
                 self._cv2_windows_need_destroy = True
 
-            cv2.imshow(self._config['version'].value, env_image)
+            cv2.imshow(self._container_instance.name, env_image)
             cv2.waitKey(1)
         elif mode == 'array':
             return env_image

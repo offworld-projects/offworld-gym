@@ -12,7 +12,7 @@ from google.protobuf.empty_pb2 import Empty
 from offworld_gym.envs.gazebo.gazebo_env import GazeboGymEnv
 from offworld_gym.envs.gazebo_docker.parse_env_args import parse_env_class_from_environ, \
     parse_channel_type_from_environ, parse_random_init_from_environ
-from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Observation, ObservationRewardDone, Action, Image, \
+from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Observation, ObservationRewardDoneInfo, Action, Image, \
     Spaces
 from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteEnvServicer, \
     add_RemoteEnvServicer_to_server
@@ -91,10 +91,11 @@ if __name__ == '__main__':
                 if action.shape == ():
                     action = float(action)
                 obs, rew, done, info = env.step(action=action)
-                response = ObservationRewardDone()
+                response = ObservationRewardDoneInfo()
                 response.observation = cloudpickle.dumps(np.asarray(obs))
                 response.reward = float(rew)
                 response.done = bool(done)
+                response.info = cloudpickle.dumps(info)
                 return response
             except Exception as err:
                 context.set_code(grpc.StatusCode.INTERNAL)

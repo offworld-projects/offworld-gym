@@ -33,7 +33,7 @@ class RemoteEnvStub(object):
     self.Step = channel.unary_unary(
         '/RemoteEnv/Step',
         request_serializer=remote__env__pb2.Action.SerializeToString,
-        response_deserializer=remote__env__pb2.ObservationRewardDone.FromString,
+        response_deserializer=remote__env__pb2.ObservationRewardDoneInfo.FromString,
         )
     self.Render = channel.unary_unary(
         '/RemoteEnv/Render',
@@ -114,7 +114,7 @@ def add_RemoteEnvServicer_to_server(servicer, server):
       'Step': grpc.unary_unary_rpc_method_handler(
           servicer.Step,
           request_deserializer=remote__env__pb2.Action.FromString,
-          response_serializer=remote__env__pb2.ObservationRewardDone.SerializeToString,
+          response_serializer=remote__env__pb2.ObservationRewardDoneInfo.SerializeToString,
       ),
       'Render': grpc.unary_unary_rpc_method_handler(
           servicer.Render,

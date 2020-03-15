@@ -444,6 +444,11 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
         self._move_rosbot(action[0], action[1], 1.0)
 
         self._current_state = self._get_state()
+
+        rosbot_state = self._get_state_vector('rosbot')
+        dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
+        info = {"rosbot_state": rosbot_state, "dst": dst}
+
         reward, done = self._calculate_reward()
 
         if done:
@@ -452,4 +457,4 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
         # pause physics now, speeds up simulation
         GazeboUtils.pause_physics()
 
-        return self._current_state, reward, done, {}
+        return self._current_state, reward, done, info
