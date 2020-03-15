@@ -175,6 +175,12 @@ class OffWorldDockerizedEnv(gym.Env):
             self._container_instance = None
 
     def reset(self):
+
+        # TODO: remove reseeding if not critically necessary
+        seed = Seed()
+        seed.seed = np.random.randint(2000)
+        self._grpc_stub.SetSeed(seed, timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
+
         reset_response: Observation = self._grpc_stub.Reset(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
         observation = np.asarray(cloudpickle.loads(reset_response.observation))
         return observation
