@@ -389,6 +389,9 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
+        # convert float if it's exactly an integer value, otherwise let it throw an error
+        if isinstance(action, (float, np.float32, np.float64)) and float(action).is_integer():
+            action = int(action)
         assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
         if isinstance(action, (int, np.int32, np.int64)):
