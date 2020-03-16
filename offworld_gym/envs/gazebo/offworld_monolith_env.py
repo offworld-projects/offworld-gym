@@ -246,12 +246,8 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             goal_state.pose.position.x = self._monolith_space[0]
             goal_state.pose.position.y = self._monolith_space[1]
             while distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), self._monolith_space[0:2]) < 0.50:
-                # goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
-                # goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
-
-                # TODO: undo reducing the spawn area if it does not solve reward distribution issues
-                goal_state.pose.position.x = np.random.uniform(-1.55, 1.75)
-                goal_state.pose.position.y = np.random.uniform(-1.45, 0.95)
+                goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
+                goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
 
             rospy.loginfo("Spawning at (%.2f, %.2f)" % (goal_state.pose.position.x, goal_state.pose.position.y))
             goal_state.pose.position.z = 0.20
@@ -403,6 +399,11 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         self._send_action_commands(action)
 
         self._current_state = self._get_state()
+
+        rosbot_state = self._get_state_vector('rosbot')
+        dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
+        info = {"rosbot_state": rosbot_state, "monolith_space": self._monolith_space, "dst": dst}
+
         reward, done = self._calculate_reward()
 
         if done:
@@ -411,7 +412,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         # pause physics now, speeds up simulation
         GazeboUtils.pause_physics()
 
-        return self._current_state, reward, done, {}
+        return self._current_state, reward, done, info
 
 class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
     """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
