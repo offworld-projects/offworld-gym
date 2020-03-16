@@ -208,7 +208,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         return state
 
 
-class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
+class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
     """Real Gym environment with a rosbot and a monolith on an uneven terrain with continous action space.
 
     A RL agent learns to reach the goal(monolith) in shortest time.
@@ -226,7 +226,7 @@ class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
     """ 
     
     def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithContinousEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode, channel_type)
+        super(OffWorldMonolithContinuousEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode, channel_type)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
         self.environment_name = 'OffWorldMonolithContinousReal-v0'
