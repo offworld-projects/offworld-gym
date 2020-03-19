@@ -30,6 +30,7 @@ message Seed {
 }
 
 service RemoteEnv {
+    rpc HeartBeat (google.protobuf.Empty) returns (google.protobuf.Empty) {}
     rpc GetSpaces (google.protobuf.Empty) returns (Spaces) {}
     rpc SetSeed (Seed) returns (google.protobuf.Empty) {}
     rpc Reset (google.protobuf.Empty) returns (Observation) {}

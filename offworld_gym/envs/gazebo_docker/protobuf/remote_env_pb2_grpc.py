@@ -15,6 +15,11 @@ class RemoteEnvStub(object):
     Args:
       channel: A grpc.Channel.
     """
+    self.HeartBeat = channel.unary_unary(
+        '/RemoteEnv/HeartBeat',
+        request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+        response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+        )
     self.GetSpaces = channel.unary_unary(
         '/RemoteEnv/GetSpaces',
         request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
@@ -50,6 +55,13 @@ class RemoteEnvStub(object):
 class RemoteEnvServicer(object):
   # missing associated documentation comment in .proto file
   pass
+
+  def HeartBeat(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
 
   def GetSpaces(self, request, context):
     # missing associated documentation comment in .proto file
@@ -96,6 +108,11 @@ class RemoteEnvServicer(object):
 
 def add_RemoteEnvServicer_to_server(servicer, server):
   rpc_method_handlers = {
+      'HeartBeat': grpc.unary_unary_rpc_method_handler(
+          servicer.HeartBeat,
+          request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+          response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+      ),
       'GetSpaces': grpc.unary_unary_rpc_method_handler(
           servicer.GetSpaces,
           request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
