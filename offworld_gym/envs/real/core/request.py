@@ -74,6 +74,23 @@ class MonolithDiscreteActionRequest(Request):
         self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
         self.algorithm_mode = algorithm_mode.value if isinstance(algorithm_mode, AlgorithmMode) else algorithm_mode
 
+class MonolithContinousActionRequest(Request):
+    """Environment action request model
+
+    Attributes:
+        URI: String constant containing uri to access action api.
+        web_token: String with the server's web token.
+        channel_type: Channels type indicating type of channel for observation.
+        action_type: FourDiscreteMotionActions type value indicating type of action.
+    """
+    URI = "/owgym/monolithcontinous/action"
+
+    def __init__(self, web_token, action, channel_type=Channels.DEPTH_ONLY, algorithm_mode=AlgorithmMode.TRAIN):
+        Request.__init__(self, web_token)
+        self.action = action
+        self.channel_type = channel_type.value if isinstance(channel_type, Channels) else channel_type
+        self.algorithm_mode = algorithm_mode.value if isinstance(algorithm_mode, AlgorithmMode) else algorithm_mode
+
 class MonolithDiscreteResetRequest(Request):
     """Environment reset request model
 
@@ -136,7 +153,8 @@ class DisconnectRequest(Request):
         web_token: String with the server's web token.
     """
 
-    URI = "/owgym/disconnect"
+    URI_DISCRETE = "/owgym/monolithdiscrete/disconnect"
+    URI_CONTINOUS = "/owgym/monolithcontinous/disconnect"
     def __init__(self, web_token, channel_type):
         Request.__init__(self, web_token)
         self.channel_type = channel_type
