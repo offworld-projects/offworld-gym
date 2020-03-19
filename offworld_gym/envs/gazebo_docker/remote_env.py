@@ -12,6 +12,8 @@ import docker
 import grpc
 import gym
 import atexit
+import threading
+import weakref
 import numpy as np
 from gym.utils import seeding
 from google.protobuf.empty_pb2 import Empty
@@ -27,6 +29,7 @@ OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworl
 CONTAINER_INTERNAL_GRPC_PORT = 7676
 CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
 MAX_TOLERABLE_HANG_TIME_SECONDS = 20
+HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS = 2
 
 
 class EnvVersions(Enum):
@@ -56,6 +59,23 @@ def with_base_config(base_config, overrides_config):
     return config
 
 
+def _heart_beat_to_container_worker(grpc_port, weak_ref_to_parent_env):
+    channel = grpc.insecure_channel(f'localhost:{grpc_port}')
+    grpc_stub = RemoteEnvStub(channel)
+
+    while True:
+        if weak_ref_to_parent_env() is None:
+            # exit if parent env is garbage collected or otherwise deleted
+            logger.debug(f"heartbeat thread exiting after parent env was destroyed")
+            return
+        try:
+            grpc_stub.HeartBeat(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
+        except grpc.RpcError as rpc_error:
+            logger.debug(f"heartbeat thread exiting after catching grpc error:\n{rpc_error}")
+            return
+        time.sleep(HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS)
+
+
 class OffWorldDockerizedEnv(gym.Env):
 
     def __init__(self, config=None):
@@ -70,16 +90,16 @@ class OffWorldDockerizedEnv(gym.Env):
         # Run "xhost local:" command to enable XServer to be written from localhost over network
         xhost_command = "xhost local:"
         try:
-            subprocess.check_call(['bash', '-c', xhost_command])
+            subprocess.check_output(['bash', '-c', xhost_command])
         except subprocess.CalledProcessError:
-            logger.error(f"The bash command \"{xhost_command}\" returned an error. Exiting.")
-            exit(1)
+            logger.warning(f"The bash command \"{xhost_command}\" failed. "
+                        f"Installing \'xhost\' may be required for OffWorldDockerizedEnv to render properly. "
+                        f"Further issues may be caused by this.")
 
         # Set up 'docker run' command to launch gazebo env in a container
-        self._launch_or_reset_docker_instance()
+        self._launch_docker_instance()
 
-    def _launch_or_reset_docker_instance(self):
-        self._clean_up_docker_instance()
+    def _launch_docker_instance(self):
 
         container_env = {
             "DISPLAY": os.environ['DISPLAY'],
@@ -155,7 +175,7 @@ class OffWorldDockerizedEnv(gym.Env):
         while not connected:
             time.sleep(0.1)
             try:
-                spaces_response: Spaces = self._grpc_stub.GetSpaces(Empty())
+                spaces_response: Spaces = self._grpc_stub.GetSpaces(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
                 connected = True
             except grpc.RpcError as rpc_error:
                 if rpc_error.code() != grpc.StatusCode.UNAVAILABLE or \
@@ -165,6 +185,12 @@ class OffWorldDockerizedEnv(gym.Env):
 
         self.observation_space = cloudpickle.loads(spaces_response.observation_space)
         self.action_space = cloudpickle.loads(spaces_response.action_space)
+
+        self._heart_beat_thread = threading.Thread(target=_heart_beat_to_container_worker,
+                                             args=(host_published_grpc_port, weakref.ref(self)))
+        self._heart_beat_thread.daemon = True
+        self._heart_beat_thread.start()
+
         self.reset()
 
     def _clean_up_docker_instance(self):

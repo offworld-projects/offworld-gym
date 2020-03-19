@@ -18,7 +18,9 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteE
     add_RemoteEnvServicer_to_server
 
 OFFWORLD_GYM_GRPC_SERVER_PORT = int(os.environ.get("OFFWORLD_GYM_GRPC_SERVER_PORT", 50051))
-MAX_TOLERABLE_GAZEBO_HANG_TIME_SECONDS = 20
+MAX_TOLERABLE_GAZEBO_START_UP_HANG_TIME_SECONDS = 20
+HEART_BEAT_WAIT_TOLERANCE_SECONDS = 10
+
 
 if __name__ == '__main__':
 
@@ -39,7 +41,7 @@ if __name__ == '__main__':
     # Wait until we get an image or timeout.
     simulation_wait_state_time = time.time()
     while env.reset().max() == 0:
-        if time.time() - simulation_wait_state_time > MAX_TOLERABLE_GAZEBO_HANG_TIME_SECONDS:
+        if time.time() - simulation_wait_state_time > MAX_TOLERABLE_GAZEBO_START_UP_HANG_TIME_SECONDS:
             raise TimeoutError("Simulation seems to have never started, "
                                "observations returned were always blank (max pixel value of 0).")
         time.sleep(0.1)
@@ -51,6 +53,27 @@ if __name__ == '__main__':
 
         def __init__(self, stop_event):
             self._stop_event = stop_event
+            self.time_of_last_heart_beat = time.time()
+
+            def _heart_beat_check_worker():
+                # exits if a heartbeat from the launching env stops being received
+                while True:
+                    time.sleep(HEART_BEAT_WAIT_TOLERANCE_SECONDS)
+                    time_since_last_heat_beat = time.time() - self.time_of_last_heart_beat
+
+                    if time_since_last_heat_beat > HEART_BEAT_WAIT_TOLERANCE_SECONDS:
+                        print(f"Time since last heartbeat ({time_since_last_heat_beat}) seconds has surpassed the max"
+                              f" heart beat wait time ({HEART_BEAT_WAIT_TOLERANCE_SECONDS}) seconds. Killing server...")
+                        os._exit(1)
+
+            heart_beat_thread = threading.Thread(target=_heart_beat_check_worker)
+            heart_beat_thread.daemon = True
+            heart_beat_thread.start()
+
+        def HeartBeat(self, request, context):
+            self._has_ever_received_heartbeat = True
+            self.time_of_last_heart_beat = time.time()
+            return Empty()
 
         def GetSpaces(self, request, context):
             try:
@@ -120,8 +143,8 @@ if __name__ == '__main__':
             return Empty()
 
 
-    # create a GRPC server
-    grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    # create a GRPC server, one thread worker for env commands, one for heartbeat
+    grpc_server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))
 
     # Stop event for server handler threads to signal this thread that it's time to shutdown
     stop_event = threading.Event()
