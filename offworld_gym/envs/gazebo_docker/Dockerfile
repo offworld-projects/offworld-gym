@@ -29,10 +29,19 @@ RUN git clone https://github.com/offworld-projects/offworld-gym.git \
 	&& pip3.6 install --user docker
 	# adding this pip install here because we probably will want to separate docker env install from other env installs later
 
+RUN echo tofdsffffddhfdfgggfgfffgffdggfdfdfdfdggggggffddffgfddhgfdfdgfgfgfgffdfdfdgffdfdgfgfffddgfgfgffdfdfdsfdfdfdgfgfdfdfdfdfdgffdsafdfdfdgfgfdgfghjk
+
 RUN cd /offworld-gym \
 	&& git pull \
 	&& git checkout origin/docker-devel \
 	&& chmod +x /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
+
+
+COPY offworld_monolith_env.py /offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py
+COPY remote_env_server.py /offworld-gym/offworld_gym/envs/gazebo_docker/remote_env_server.py
+COPY rosbot.launch /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/launch/rosbot.launch
+COPY env_bringup.launch /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/launch/env_bringup.launch
+COPY gymbox.world /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/gymbox.world
 
 ENV PATH "/root/.local/bin:$PATH"
 

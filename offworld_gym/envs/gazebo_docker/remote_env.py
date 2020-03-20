@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworld-gym")
 CONTAINER_INTERNAL_GRPC_PORT = 7676
 CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
-MAX_TOLERABLE_HANG_TIME_SECONDS = 20
+MAX_TOLERABLE_HANG_TIME_SECONDS = 20000
 HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS = 2
 
 
@@ -139,7 +139,7 @@ class OffWorldDockerizedEnv(gym.Env):
         container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
-
+        debug_entrypoint = "python3.6 -m http.server"
         docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm --gpus all" \
                              f"{container_env_str}{container_volumes_str}{container_ports_str} " \
                              f"{OFFWORLD_GYM_DOCKER_IMAGE} {container_entrypoint}"
