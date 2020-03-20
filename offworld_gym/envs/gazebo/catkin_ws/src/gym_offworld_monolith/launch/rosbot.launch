@@ -2,9 +2,9 @@
 <launch>
   <arg name="pos_x" default="0"/>
   <arg name="pos_y" default="0"/>
-  <arg name="pos_z" default="0"/>
+  <arg name="pos_z" default="0.2"/>
 
-  <rosparam command="load" file="$(find joint_state_controller)/joint_state_controller.yaml" />
+<!--   <rosparam command="load" file="$(find joint_state_controller)/joint_state_controller.yaml" /> -->
 <!--   <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" output="screen" args="joint_state_controller" /> -->
 
   <param name="robot_description" command="$(find xacro)/scripts/xacro '$(find rosbot_description)/urdf/rosbot.xacro' --inorder"/>

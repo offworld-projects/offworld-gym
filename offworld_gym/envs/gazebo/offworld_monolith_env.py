@@ -39,9 +39,12 @@ from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 import rospy
 from std_srvs.srv import Empty as Empty_srv
 from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
 from gazebo_msgs.srv import GetModelState
 from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
+from rosgraph_msgs.msg import Clock
+
 
 class OffWorldMonolithEnv(GazeboGymEnv):
     """Generic Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
@@ -59,13 +62,42 @@ class OffWorldMonolithEnv(GazeboGymEnv):
     """
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
-    _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/gymbox.world`
+    _TIME_DILATION = 10.0  # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/gymbox.world`
+    _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
         super(OffWorldMonolithEnv, self).__init__(package_name='gym_offworld_monolith', launch_file='env_bringup.launch')
 
         assert isinstance(channel_type, Channels), "Channel type is not of Channels."
+
+        before_ros_init = time.time()
+
+        # Avoid race condition with rosbot launch by waiting for it fully init and start publishing it's odometry
+        self._odom_called = False
+        def odom_call(msg):
+            self._odom_called = True
+        GazeboUtils.unpause_physics()
+        print("waiting for rosbot model to init...")
+        self.vel_sub = rospy.Subscriber('odom', Odometry, odom_call)
+        while not self._odom_called:
+            if time.time() - before_ros_init > self._MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS:
+                raise GymException("ROS took too long to for the rosbot diff_drive_controller to publish to /odom")
+            time.sleep(0.1)
+
+        # be certain that /clock is being published, so we can use it to track sim-time
+        print("waiting for publications to /clock...")
+        self._latest_clock_message: Clock = None
+
+        def update_sim_time_from_clock(msg: Clock):
+            self._latest_clock_message = msg
+        self.clock_sub = rospy.Subscriber('/clock', Clock, update_sim_time_from_clock)
+        while self._latest_clock_message is None:
+            if time.time() - before_ros_init > self._MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS:
+                raise GymException("ROS took too long to publish to /clock")
+            time.sleep(0.1)
+
+        GazeboUtils.pause_physics()
         rospy.loginfo("Environment has been initiated.")
 
         # gazebo
@@ -91,6 +123,14 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.logdebug("Pose z: {}".format(str(self._monolith_space[2])))
         rospy.logdebug("----------------------------------------")
         rospy.loginfo("Environment has been started.")
+
+    def _sim_time_sleep(self, sleep_seconds):
+        before_sleep_sim_time_secs = self._latest_clock_message.clock.secs + self._latest_clock_message.clock.nsecs/1e+9
+        while True:
+            time.sleep(0.0001)
+            cur_sim_time_sec = self._latest_clock_message.clock.secs + self._latest_clock_message.clock.nsecs/1e+9
+            if cur_sim_time_sec - before_sleep_sim_time_secs > sleep_seconds:
+                break
 
     def seed(self, seed=None):
         """Calls ``gym`` strong random seed generator.
@@ -144,17 +184,23 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             lin_x_speed: Float value indicating linear speed in x-direction.
             ang_z_speed: Float value indicating angular speed about z-direction.
             sleep_time: Float value indicating sleep time between velocity command and stopping.
+        Returns:
+            The real time factor for the move (sim-time elapsed/wall-time elapsed)
         """
         vel_cmd = Twist()
         vel_cmd.linear.x = lin_x_speed
         vel_cmd.angular.z = ang_z_speed
         self.vel_pub.publish(vel_cmd)
 
-        time.sleep(sleep_time/OffWorldMonolithEnv._TIME_DILATION)
-        vel_cmd = Twist()
-        vel_cmd.linear.x = 0.0
-        vel_cmd.angular.z = 0.0
-        # self.vel_pub.publish(vel_cmd)
+        GazeboUtils.unpause_physics()
+        wall_start = time.time()
+        self._sim_time_sleep(sleep_time)  # action duration is in sim-time, so simulation speed has no affect on env dynamics
+        wall_stop = time.time()
+        GazeboUtils.pause_physics()
+
+        wall_sleep_time = wall_stop - wall_start
+        real_time_factor = sleep_time / wall_sleep_time
+        return real_time_factor
 
     def _get_model_state(self, name):
         """Get model state object.
@@ -290,13 +336,15 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             the robot
         """
         GazeboUtils.pause_physics()
+        vel_cmd = Twist()
+        vel_cmd.linear.x = 0.0
+        vel_cmd.angular.z = 0.0
+        self.vel_pub.publish(vel_cmd)
 
         if self.random_init:
             self._move_to_random_position('rosbot')
         else:
             self._move_to_original_position('rosbot')
-
-        GazeboUtils.unpause_physics()
 
         state = self._get_state()
         return state
@@ -358,15 +406,17 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
 
         Args:
             action_type: FourDiscreteMotionActions instance.
+        Returns:
+            The real time factor for the move (sim-time elapsed/wall-time elapsed)
         """
         if action_type == FourDiscreteMotionActions.LEFT:
-            self._move_rosbot(0.07, 1.25, 4)
+            return self._move_rosbot(0.07, 1.25, 4)
         elif action_type == FourDiscreteMotionActions.RIGHT:
-            self._move_rosbot(0.07, -1.25, 4)
+            return self._move_rosbot(0.07, -1.25, 4)
         elif action_type == FourDiscreteMotionActions.FORWARD:
-            self._move_rosbot(0.1, 0.0)
+            return self._move_rosbot(0.1, 0.0)
         elif action_type == FourDiscreteMotionActions.BACKWARD:
-            self._move_rosbot(-0.1, 0.0)
+            return self._move_rosbot(-0.1, 0.0)
 
     def step(self, action):
         """Take an action in the environment.
@@ -378,10 +428,8 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
             A numpy array with rgb/depth/rgbd encoding of the state observation.
             An integer with reward from the environment.
             A boolean flag which is true when an episode is complete.
-            No info given for fair learning.
+            Info containing the ratio of simulation-time / wall-time taken by the step
         """
-        # unpause physics before interaction with the environment
-        GazeboUtils.unpause_physics()
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
@@ -396,23 +444,17 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
 
         rospy.loginfo("Step: %d" % self.step_count)
         rospy.loginfo(action)
-        self._send_action_commands(action)
+        real_time_factor_for_move = self._send_action_commands(action)
 
         self._current_state = self._get_state()
-
-        rosbot_state = self._get_state_vector('rosbot')
-        dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
-        info = {"rosbot_state": rosbot_state, "monolith_space": self._monolith_space, "dst": dst}
-
+        info = {"real_time_factor_for_move": real_time_factor_for_move}
         reward, done = self._calculate_reward()
 
         if done:
             self.step_count = 0
 
-        # pause physics now, speeds up simulation
-        GazeboUtils.pause_physics()
-
         return self._current_state, reward, done, info
+
 
 class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
     """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
@@ -439,10 +481,8 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
             A numpy array with rgb/depth/rgbd encoding of the state observation.
             An integer with reward from the environment.
             A boolean flag which is true when an episode is complete.
-            No info given for fair learning.
+            Info containing the ratio of simulation-time / wall-time taken by the step
         """
-        # unpause physics before interaction with the environment
-        GazeboUtils.unpause_physics()
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
@@ -450,20 +490,13 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
         action = np.clip(action, self.action_limit[0], self.action_limit[1])
         rospy.loginfo("Step: %d" % self.step_count)
         rospy.loginfo(action)
-        self._move_rosbot(action[0], action[1], 1.0)
+        real_time_factor_for_move = self._move_rosbot(action[0], action[1], 1.0)
 
         self._current_state = self._get_state()
-
-        rosbot_state = self._get_state_vector('rosbot')
-        dst = distance.euclidean(rosbot_state[0:3], self._monolith_space[0:3])
-        info = {"rosbot_state": rosbot_state, "monolith_space": self._monolith_space, "dst": dst}
-
+        info = {"real_time_factor_for_move": real_time_factor_for_move}
         reward, done = self._calculate_reward()
 
         if done:
             self.step_count = 0
-
-        # pause physics now, speeds up simulation
-        GazeboUtils.pause_physics()
 
         return self._current_state, reward, done, info
