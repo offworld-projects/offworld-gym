@@ -63,6 +63,7 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
     _EPISODE_LENGTH = 100
     _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/offworld_monolith_environment.world`
     _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
+    _WALL_BOUNDARIES = {"x_max": 1.90, "x_min": -1.75, "y_max": 1.10, "y_min": -1.60}
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
@@ -264,7 +265,10 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
             done = False
 
         # check boundaries
-        if rosbot_state[0] < -1.65 or rosbot_state[0] > 1.80 or rosbot_state[1] < -1.50 or rosbot_state[1] > 1.00:
+        if rosbot_state[0] < self._WALL_BOUNDARIES['x_min'] or \
+                rosbot_state[0] > self._WALL_BOUNDARIES['x_max'] or \
+                rosbot_state[1] < self._WALL_BOUNDARIES['y_min'] or \
+                rosbot_state[1] > self._WALL_BOUNDARIES['y_max']:
             reward = 0.0
             done = True
 
@@ -294,8 +298,10 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
             goal_state.pose.position.x = self._monolith_space[0]
             goal_state.pose.position.y = self._monolith_space[1]
             while True:
-                goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
-                goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
+                goal_state.pose.position.x = np.random.uniform(low=self._WALL_BOUNDARIES['x_min'] + 0.08,
+                                                               high=self._WALL_BOUNDARIES['x_max'] - 0.08)
+                goal_state.pose.position.y = np.random.uniform(low=self._WALL_BOUNDARIES['y_min'] + 0.08,
+                                                               high=self._WALL_BOUNDARIES['y_max'] - 0.08)
                 flag = distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), self._monolith_space[0:2]) > 0.50
                 for pos in self._boulder_poses:
                     flag = flag and distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), (pos[0], pos[1])) > 0.30
@@ -486,8 +492,6 @@ class OffWorldMonolithObstacleContinuousEnv(OffWorldMonolithObstacleEnv):
             A boolean flag which is true when an episode is complete.
             Info containing the ratio of simulation-time / wall-time taken by the step
         """
-        # unpause physics before interaction with the environment
-        GazeboUtils.unpause_physics()
         self.step_count += 1
 
         assert action is not None, "Action cannot be None."
@@ -503,8 +507,5 @@ class OffWorldMonolithObstacleContinuousEnv(OffWorldMonolithObstacleEnv):
 
         if done:
             self.step_count = 0
-
-        # pause physics now, speeds up simulation
-        GazeboUtils.pause_physics()
 
         return self._current_state, reward, done, info
