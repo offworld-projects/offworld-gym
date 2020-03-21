@@ -61,7 +61,7 @@ class OffWorldMonolithObstacleEnv(GazeboGymEnv):
     """
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
-    _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/offworld_monolith_environment.world`
+    _STEP_DURATION_SECONDS_IN_SIM = 0.3
     _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
     _WALL_BOUNDARIES = {"x_max": 1.90, "x_min": -1.75, "y_max": 1.10, "y_min": -1.60}
 
@@ -419,13 +419,13 @@ class OffWorldMonolithObstacleDiscreteEnv(OffWorldMonolithObstacleEnv):
             The real time factor for the move (sim-time elapsed/wall-time elapsed)
         """
         if action_type == FourDiscreteMotionActions.LEFT:
-            return self._move_rosbot(0.07, 1.25, 4)
+            return self._move_rosbot(0.07, 1.25, 4 * self._STEP_DURATION_SECONDS_IN_SIM)
         elif action_type == FourDiscreteMotionActions.RIGHT:
-            return self._move_rosbot(0.07, -1.25, 4)
+            return self._move_rosbot(0.07, -1.25, 4 * self._STEP_DURATION_SECONDS_IN_SIM)
         elif action_type == FourDiscreteMotionActions.FORWARD:
-            return self._move_rosbot(0.1, 0.0)
+            return self._move_rosbot(0.1, 0.0, 2 * self._STEP_DURATION_SECONDS_IN_SIM)
         elif action_type == FourDiscreteMotionActions.BACKWARD:
-            return self._move_rosbot(-0.1, 0.0)
+            return self._move_rosbot(-0.1, 0.0, 2 * self._STEP_DURATION_SECONDS_IN_SIM)
 
     def step(self, action):
         """Take an action in the environment.
@@ -499,7 +499,7 @@ class OffWorldMonolithObstacleContinuousEnv(OffWorldMonolithObstacleEnv):
         action = np.clip(action, self.action_limit[0], self.action_limit[1])
         rospy.loginfo("Step: %d" % self.step_count)
         rospy.loginfo(action)
-        real_time_factor_for_move = self._move_rosbot(action[0], action[1], 1.0)
+        real_time_factor_for_move = self._move_rosbot(action[0], action[1], self._STEP_DURATION_SECONDS_IN_SIM)
 
         self._current_state = self._get_state()
         info = {"real_time_factor_for_move": real_time_factor_for_move}
