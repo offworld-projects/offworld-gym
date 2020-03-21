@@ -167,7 +167,7 @@ class SecuredBridge(metaclass=Singleton):
         """Perform an action on the robot
 
         Args:
-            action_type: FourDiscreteMotionActions type value with the action to execute.
+            action: Two dimensional action value with the action to execute.
             channel_type: Channels type value, determines observation's channel.
             algorithm_mode: Whether algorithm is being run in train or test modde.
 
@@ -178,13 +178,13 @@ class SecuredBridge(metaclass=Singleton):
         """
         start_time = time.time()
         self._action_counter += 1
-        logger.debug("Start executing action {}, count : {}.".format(action_type.name, str(self._action_counter)))
+        logger.debug("Start executing action {}, count : {}.".format(np.array2string(action), str(self._action_counter)))
         
-        req = MonolithDiscreteActionRequest(self._web_token, action_type=action_type, channel_type=channel_type, algorithm_mode=algorithm_mode)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteActionRequest.URI)
+        req = MonolithContinousActionRequest(self._web_token, action=action.tolist(), channel_type=channel_type, algorithm_mode=algorithm_mode)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithContinousActionRequest.URI)
 
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
-
+        
         try:
             response_json = json.loads(response.text)
         except:            
@@ -285,11 +285,12 @@ class SecuredBridge(metaclass=Singleton):
         
         return state
     
-    def disconnect(self, channel_type):
+    def disconnect(self, channel_type, discrete=True):
         """Disconnect from the backend.
         """
         logger.debug("Disconnecting from the server.") 
 
+        uri = DisconnectRequest.URI_DISCRETE if discrete else DisconnectRequest.URI_CONTINOUS
         req = DisconnectRequest(self._web_token, channel_type=channel_type)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, ResetRequest.URI)
+        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, uri)
         response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
