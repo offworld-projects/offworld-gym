@@ -26,9 +26,15 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteE
 logger = logging.getLogger(__name__)
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworld-gym")
+
 CONTAINER_INTERNAL_GRPC_PORT = 7676
 CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
-MAX_TOLERABLE_HANG_TIME_SECONDS = 20
+
+GAZEBO_SERVER_INTERNAL_PORT = 11345
+CONTAINER_INTERNAL_GAZEBO_PORT_BINDING = f'{GAZEBO_SERVER_INTERNAL_PORT}/tcp'
+
+
+MAX_TOLERABLE_HANG_TIME_SECONDS = 200000
 HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS = 2
 
 
@@ -127,7 +133,8 @@ class OffWorldDockerizedEnv(gym.Env):
             container_volumes_str += f" -v {k}:{v['bind']}:{v['mode']}"
 
         container_ports = {
-            CONTAINER_INTERNAL_GRPC_PORT_BINDING: None  # will be published to a random available host port
+            CONTAINER_INTERNAL_GRPC_PORT_BINDING: None,  # will be published to a random available host port
+            CONTAINER_INTERNAL_GAZEBO_PORT_BINDING: None
         }
         container_ports_str = ""
         for k, v in container_ports.items():
@@ -139,7 +146,6 @@ class OffWorldDockerizedEnv(gym.Env):
         container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
-
         docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm --gpus all" \
                              f"{container_env_str}{container_volumes_str}{container_ports_str} " \
                              f"{OFFWORLD_GYM_DOCKER_IMAGE} {container_entrypoint}"
@@ -162,6 +168,8 @@ class OffWorldDockerizedEnv(gym.Env):
         self._container_instance = self._docker_client.containers.get(container_id=container_id)
         logger.debug(f"{self._container_instance.name} launched")
         host_published_grpc_port = self._container_instance.ports[CONTAINER_INTERNAL_GRPC_PORT_BINDING][0]['HostPort']
+        host_published_gazebo_port = self._container_instance.ports[CONTAINER_INTERNAL_GAZEBO_PORT_BINDING][0]['HostPort']
+        print(f"gazebo port si {host_published_gazebo_port}")
         logger.debug(f"Connecting on GRPC port: {host_published_grpc_port}")
         # open a gRPC channel
         channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
