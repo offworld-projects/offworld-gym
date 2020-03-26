@@ -34,7 +34,7 @@ GAZEBO_SERVER_INTERNAL_PORT = 11345
 CONTAINER_INTERNAL_GAZEBO_PORT_BINDING = f'{GAZEBO_SERVER_INTERNAL_PORT}/tcp'
 
 
-MAX_TOLERABLE_HANG_TIME_SECONDS = 200000
+MAX_TOLERABLE_HANG_TIME_SECONDS = 20
 HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS = 2
 
 
@@ -169,7 +169,7 @@ class OffWorldDockerizedEnv(gym.Env):
         logger.debug(f"{self._container_instance.name} launched")
         host_published_grpc_port = self._container_instance.ports[CONTAINER_INTERNAL_GRPC_PORT_BINDING][0]['HostPort']
         host_published_gazebo_port = self._container_instance.ports[CONTAINER_INTERNAL_GAZEBO_PORT_BINDING][0]['HostPort']
-        print(f"gazebo port si {host_published_gazebo_port}")
+        logger.debug(f"host gazebo port is {host_published_gazebo_port}")
         logger.debug(f"Connecting on GRPC port: {host_published_grpc_port}")
         # open a gRPC channel
         channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
@@ -209,11 +209,6 @@ class OffWorldDockerizedEnv(gym.Env):
             self._container_instance = None
 
     def reset(self):
-
-        # TODO: remove reseeding if not critically necessary
-        seed = Seed()
-        seed.seed = np.random.randint(2000)
-        self._grpc_stub.SetSeed(seed, timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
 
         reset_response: Observation = self._grpc_stub.Reset(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
         observation = np.asarray(cloudpickle.loads(reset_response.observation))
