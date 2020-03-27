@@ -215,7 +215,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         """Closes the environment.
         """
         self._closed = True
-        self.secured_bridge.disco(self._channel_type)
+        self.secured_bridge.disconnect(self._channel_type, True)
 
 
 class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
