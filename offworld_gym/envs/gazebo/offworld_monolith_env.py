@@ -62,7 +62,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
     """
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
-    _STEP_DURATION_SECONDS_IN_SIM = 0.3
+    _STEP_DURATION_SECONDS_IN_SIM = 1.0
     _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
     _WALL_BOUNDARIES = {"x_max": 1.90, "x_min": -1.75, "y_max": 1.10, "y_min": -1.60}
 
@@ -416,13 +416,13 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
             The real time factor for the move (sim-time elapsed/wall-time elapsed)
         """
         if action_type == FourDiscreteMotionActions.LEFT:
-            return self._move_rosbot(0.07, 1.25, 4 * self._STEP_DURATION_SECONDS_IN_SIM)
+            return self._move_rosbot(0.07, 1.25, 4 * 0.3 * self._STEP_DURATION_SECONDS_IN_SIM)
         elif action_type == FourDiscreteMotionActions.RIGHT:
-            return self._move_rosbot(0.07, -1.25, 4 * self._STEP_DURATION_SECONDS_IN_SIM)
+            return self._move_rosbot(0.07, -1.25, 4 * 0.3 * self._STEP_DURATION_SECONDS_IN_SIM)
         elif action_type == FourDiscreteMotionActions.FORWARD:
-            return self._move_rosbot(0.1, 0.0, 2 * self._STEP_DURATION_SECONDS_IN_SIM)
+            return self._move_rosbot(0.1, 0.0, 2 * 0.3 * self._STEP_DURATION_SECONDS_IN_SIM)
         elif action_type == FourDiscreteMotionActions.BACKWARD:
-            return self._move_rosbot(-0.1, 0.0, 2 * self._STEP_DURATION_SECONDS_IN_SIM)
+            return self._move_rosbot(-0.1, 0.0, 2 * 0.3 * self._STEP_DURATION_SECONDS_IN_SIM)
 
     def step(self, action):
         """Take an action in the environment.
