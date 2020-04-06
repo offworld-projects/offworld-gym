@@ -25,7 +25,7 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteE
 
 logger = logging.getLogger(__name__)
 
-OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworld-gym")
+OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworldai/offworld-gym")
 
 CONTAINER_INTERNAL_GRPC_PORT = 7676
 CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
