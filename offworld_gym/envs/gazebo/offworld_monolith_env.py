@@ -60,6 +60,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
     _PROXIMITY_THRESHOLD = 0.50
     _EPISODE_LENGTH = 100
     _TIME_DILATION = 10.0 # Has to match `<real_time_factor>` in `offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/worlds/gymbox.world`
+    _WALL_BOUNDARIES = {"x_max": 1.90, "x_min": -1.75, "y_max": 1.10, "y_min": -1.60}
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
@@ -216,7 +217,10 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             done = False
         
         # check boundaries
-        if rosbot_state[0] < -1.65 or rosbot_state[0] > 1.80 or rosbot_state[1] < -1.50 or rosbot_state[1] > 1.00:
+        if rosbot_state[0] < self._WALL_BOUNDARIES['x_min'] or \
+                rosbot_state[0] > self._WALL_BOUNDARIES['x_max'] or \
+                rosbot_state[1] < self._WALL_BOUNDARIES['y_min'] or \
+                rosbot_state[1] > self._WALL_BOUNDARIES['y_max']:
             reward = 0.0
             done = True
 
@@ -246,8 +250,11 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             goal_state.pose.position.x = self._monolith_space[0]
             goal_state.pose.position.y = self._monolith_space[1]
             while distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), self._monolith_space[0:2]) < 0.50:
-                goal_state.pose.position.x = np.random.uniform(-1.75, 1.90)
-                goal_state.pose.position.y = np.random.uniform(-1.60, 1.10)
+                goal_state.pose.position.x = np.random.uniform(low=self._WALL_BOUNDARIES['x_min'] + 0.08,
+                                                               high=self._WALL_BOUNDARIES['x_max'] - 0.08)
+                goal_state.pose.position.y = np.random.uniform(low=self._WALL_BOUNDARIES['y_min'] + 0.08,
+                                                               high=self._WALL_BOUNDARIES['y_max'] - 0.08)
+
             rospy.loginfo("Spawning at (%.2f, %.2f)" % (goal_state.pose.position.x, goal_state.pose.position.y))
             goal_state.pose.position.z = 0.20
                 
