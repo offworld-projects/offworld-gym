@@ -143,7 +143,10 @@ class SecuredBridge(metaclass=Singleton):
             elif response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
             else:
-                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                if response.text is None or response.text == '':
+                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                else:
+                    raise GymException(response.text)
 
         if 'testing' in response_json:
             raise GymException(response_json["message"])
@@ -193,7 +196,10 @@ class SecuredBridge(metaclass=Singleton):
             elif response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
             else:
-                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                if response.text is None or response.text == '':
+                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                else:
+                    raise GymException(response.text)
 
         if 'testing' in response_json:
             raise GymException(response_json["message"])
@@ -237,7 +243,10 @@ class SecuredBridge(metaclass=Singleton):
             elif response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
             else:
-                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                if response.text is None or response.text == '':
+                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                else:
+                    raise GymException(response.text)
             
         state = json.loads(response_json['state'])
 
@@ -273,7 +282,10 @@ class SecuredBridge(metaclass=Singleton):
             elif response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
             else:
-                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                if response.text is None or response.text == '':
+                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                else:
+                    raise GymException(response.text)
             
         state = json.loads(response_json['state'])
 
