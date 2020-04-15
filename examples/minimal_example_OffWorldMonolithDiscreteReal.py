@@ -19,14 +19,17 @@ from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 from offworld_gym.envs.real.real_env import AlgorithmMode, LearningType
 
 # create the envronment and establish connection
-env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Demo of a minimal example 01',
+env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Demo of a minimal example 0gfdgfdgf1gfd',
                resume_experiment=False, channel_type=Channels.RGBD,
                learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
 env.metadata = {'render.modes': []}
-
+env.reset()
 # send a command to the robot
-state, reward, done, _ = env.step(FourDiscreteMotionActions.FORWARD)
-
+while True:
+    done = False
+    while not done:
+        state, reward, done, _ = env.step(env.action_space.sample())
+    env.reset()
 # parse the telemetry
 print("Step reward:", reward)
 print("Episode has ended:", done)
