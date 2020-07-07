@@ -14,7 +14,9 @@ import gym
 import atexit
 import threading
 import weakref
+import socket
 import numpy as np
+from termcolor import colored
 from gym.utils import seeding
 from google.protobuf.empty_pb2 import Empty
 from offworld_gym.envs.common.channels import Channels
@@ -33,6 +35,8 @@ CONTAINER_INTERNAL_GRPC_PORT_BINDING = f'{CONTAINER_INTERNAL_GRPC_PORT}/tcp'
 GAZEBO_SERVER_INTERNAL_PORT = 11345
 CONTAINER_INTERNAL_GAZEBO_PORT_BINDING = f'{GAZEBO_SERVER_INTERNAL_PORT}/tcp'
 
+GAZEBO_WEB_SERVER_INTERNAL_PORT = 8080
+CONTAINER_INTERNAL_GAZEBO_WEB_PORT_BINDING = f'{GAZEBO_WEB_SERVER_INTERNAL_PORT}/tcp'
 
 MAX_TOLERABLE_HANG_TIME_SECONDS = 20
 HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS = 2
@@ -108,7 +112,7 @@ class OffWorldDockerizedEnv(gym.Env):
     def _launch_docker_instance(self):
 
         container_env = {
-            "DISPLAY": os.environ['DISPLAY'],
+            # "DISPLAY": os.environ['DISPLAY'],
             "OFFWORLD_GYM_GRPC_SERVER_PORT": CONTAINER_INTERNAL_GRPC_PORT,
             "OFFWORLD_ENV_TYPE": self._config['version'].value,
             "OFFWORLD_ENV_CHANNEL_TYPE": self._config['channel_type'].name.upper(),
@@ -123,10 +127,10 @@ class OffWorldDockerizedEnv(gym.Env):
         # "bind" The path to mount the volume inside the container
         # "mode" Either rw to mount the volume read/write, or ro to mount it read-only.
         container_volumes = {
-            "/tmp/.X11-unix": {
-                "bind": "/tmp/.X11-unix",
-                "mode": "rw"
-            }
+            # "/tmp/.X11-unix": {
+            #     "bind": "/tmp/.X11-unix",
+            #     "mode": "rw"
+            # }
         }
         container_volumes_str = ""
         for k, v in container_volumes.items():
@@ -134,7 +138,8 @@ class OffWorldDockerizedEnv(gym.Env):
 
         container_ports = {
             CONTAINER_INTERNAL_GRPC_PORT_BINDING: None,  # will be published to a random available host port
-            CONTAINER_INTERNAL_GAZEBO_PORT_BINDING: None
+            CONTAINER_INTERNAL_GAZEBO_PORT_BINDING: None,
+            CONTAINER_INTERNAL_GAZEBO_WEB_PORT_BINDING: None,
         }
         container_ports_str = ""
         for k, v in container_ports.items():
@@ -146,7 +151,7 @@ class OffWorldDockerizedEnv(gym.Env):
         container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
-        docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm --gpus all" \
+        docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm" \
                              f"{container_env_str}{container_volumes_str}{container_ports_str} " \
                              f"{OFFWORLD_GYM_DOCKER_IMAGE} {container_entrypoint}"
         logger.debug(f"Docker run command is:\n{docker_run_command}\n")
@@ -169,8 +174,11 @@ class OffWorldDockerizedEnv(gym.Env):
         logger.debug(f"{self._container_instance.name} launched")
         host_published_grpc_port = self._container_instance.ports[CONTAINER_INTERNAL_GRPC_PORT_BINDING][0]['HostPort']
         host_published_gazebo_port = self._container_instance.ports[CONTAINER_INTERNAL_GAZEBO_PORT_BINDING][0]['HostPort']
+        host_published_gazebo_web_port = self._container_instance.ports[CONTAINER_INTERNAL_GAZEBO_WEB_PORT_BINDING][0]['HostPort']
         logger.debug(f"host gazebo port is {host_published_gazebo_port}")
+        logger.info(colored(f"For visualization of simulation, visit gzweb server at http://{socket.gethostbyname(socket.gethostname())}:{host_published_gazebo_web_port}", "green"))
         logger.debug(f"Connecting on GRPC port: {host_published_grpc_port}")
+
         # open a gRPC channel
         channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
         self._grpc_stub = RemoteEnvStub(channel)
@@ -254,10 +262,10 @@ class OffWorldDockerizedEnv(gym.Env):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    env = gym.make("OffWorldDockerMonolithContinuousSim-v0", channel_type=Channels.RGB_ONLY)
+    env = gym.make("OffWorldDockerMonolithDiscreteSim-v0", channel_type=Channels.RGB_ONLY)
     logger.info(f"action space: {env.action_space} observation_space: {env.observation_space}")
     while True:
-        env.reset()
+        obs = env.reset()
         done = False
         while not done:
             sampled_action = env.action_space.sample()
