@@ -245,15 +245,15 @@ class OffWorldDockerizedEnv(gym.Env):
             elif self._config['channel_type'] == Channels.DEPTH_ONLY:
                 images_to_show.append(('depth', env_image))
             elif self._config['channel_type'] == Channels.RGBD:
-                rgb_image = env_image[:3]
-                depth_image = env_image[3]
+                rgb_image = env_image[:, :, :3]
+                depth_image = env_image[:, :, 3]
                 images_to_show.append(('rgb', rgb_image))
                 images_to_show.append(('depth', depth_image))
             else:
                 raise NotImplementedError(f"Unknown Channel type for rendering: {self._config['channel_type']}")
 
-            for image in images_to_show:
-                cv2.imshow(self._container_instance.name, image)
+            for image_name, image in images_to_show:
+                cv2.imshow(f"{self._container_instance.name} {image_name}", image)
             cv2.waitKey(1)
         elif mode == 'array':
             return env_image

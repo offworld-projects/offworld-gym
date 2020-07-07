@@ -73,14 +73,6 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 
-#
-#COPY docker_entrypoint.sh /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
-#RUN chmod +x /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
-
-#COPY rosbot_description /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description
-#COPY gym_offworld_monolith /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith
-#COPY offworld_monolith_env.py /offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py
-
 # 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
-RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description /gzweb/http/client/assets/ \
-    && cp /gzweb/http/client/assets/meshes/astra.dae /gzweb/http/client/assets/meshes/astra_minimal.dae
+RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
+    && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae

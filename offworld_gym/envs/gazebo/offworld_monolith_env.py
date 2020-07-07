@@ -80,7 +80,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             self._odom_called = True
         GazeboUtils.unpause_physics()
         print("waiting for rosbot model to init...")
-        self.vel_sub = rospy.Subscriber('odom', Odometry, odom_call)
+        self.vel_sub = rospy.Subscriber('odom', Odometry, odom_call, queue_size=1)
         while not self._odom_called:
             if time.time() - before_ros_init > self._MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS:
                 raise GymException("ROS took too long to for the rosbot diff_drive_controller to publish to /odom")
@@ -89,13 +89,33 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         # be certain that /clock is being published, so we can use it to track sim-time
         print("waiting for publications to /clock...")
         self._latest_clock_message: Clock = None
-
         def update_sim_time_from_clock(msg: Clock):
             self._latest_clock_message = msg
-        self.clock_sub = rospy.Subscriber('/clock', Clock, update_sim_time_from_clock)
+        self.clock_sub = rospy.Subscriber('/clock', Clock, update_sim_time_from_clock, queue_size=1)
+
+        self._latest_depth_img = None
+        def update_depth_img(msg):
+            self._latest_depth_img = msg
+        self.depth_sub = rospy.Subscriber('/camera/depth/image_raw', Image, update_depth_img, queue_size=1)
+
+        self._latest_rgb_img = None
+        def update_rgb_img(msg):
+            self._latest_rgb_img = msg
+        self.depth_sub = rospy.Subscriber('/camera/rgb/image_raw', Image, update_rgb_img, queue_size=1)
+
         while self._latest_clock_message is None:
             if time.time() - before_ros_init > self._MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS:
                 raise GymException("ROS took too long to publish to /clock")
+            time.sleep(0.1)
+
+        while self._latest_depth_img is None:
+            if time.time() - before_ros_init > self._MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS:
+                raise GymException("ROS took too long to publish to /camera/depth/image_raw")
+            time.sleep(0.1)
+
+        while self._latest_depth_img is None:
+            if time.time() - before_ros_init > self._MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS:
+                raise GymException("ROS took too long to publish to /camera/rgb/image_raw")
             time.sleep(0.1)
 
         GazeboUtils.pause_physics()
@@ -148,23 +168,8 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         Returns:
             Numpy array with the state of the environment as captured by the robot's rgbd sensor.
         """
-        rgb_data = None
-        rgb_img = None
-        while rgb_data is None and not rospy.is_shutdown():
-            try:
-                rgb_data = rospy.wait_for_message('/camera/rgb/image_raw', Image, timeout=5)
-                rgb_img = ImageUtils.process_img_msg(rgb_data)
-            except rospy.ROSException:
-                rospy.sleep(0.1)
-
-        depth_data = None
-        depth_img = None
-        while depth_data is None and not rospy.is_shutdown():
-            try:
-                depth_data = rospy.wait_for_message('/camera/depth/image_raw', Image, timeout=5)
-                depth_img = ImageUtils.process_depth_msg(depth_data)
-            except rospy.ROSException:
-                rospy.sleep(0.1)
+        rgb_img = ImageUtils.process_img_msg(self._latest_rgb_img)
+        depth_img = ImageUtils.process_depth_msg(self._latest_depth_img)
 
         if self.channel_type == Channels.DEPTH_ONLY:
             state = depth_img
