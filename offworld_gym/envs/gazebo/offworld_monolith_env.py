@@ -176,7 +176,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         elif self.channel_type == Channels.RGB_ONLY:
             state = rgb_img
         elif self.channel_type == Channels.RGBD:
-            state =  np.concatenate((rgb_img, depth_img))
+            state = np.concatenate((rgb_img, depth_img), axis=-1)
         rospy.loginfo("State of the environment captured.")
         return state
 
