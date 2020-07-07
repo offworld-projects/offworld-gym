@@ -7,4 +7,5 @@ tlslite-ng
 gym>=0.12.0
 pyquaternion==0.9.5
 numpy
+cv2
 termcolor

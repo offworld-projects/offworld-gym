@@ -13,18 +13,22 @@
 # without warranties or conditions of any kind, express or implied.
 
 import gym
+import logging
+
 import offworld_gym
 from offworld_gym.envs.common.channels import Channels
-import random
-import numpy as np
 
-# create the envronment
+logging.basicConfig(level=logging.DEBUG)
+
+# create the environment
 env = gym.make('OffWorldMonolithContinousSim-v0', channel_type=Channels.DEPTH_ONLY)
-env.seed(123)
+env.seed(42)
 
-input("Press Enter to continue...\n")
-
-for i in range(50):
-    action = np.array([random.uniform(-0.7, 0.7), random.uniform(-2.4, 2.4)])
-    obs = env.step(action)
-    print(obs)
+logging.info(f"action space: {env.action_space} observation_space: {env.observation_space}")
+while True:
+    env.reset()
+    done = False
+    while not done:
+        sampled_action = env.action_space.sample()
+        env.render()
+        obs, rew, done, info = env.step(sampled_action)

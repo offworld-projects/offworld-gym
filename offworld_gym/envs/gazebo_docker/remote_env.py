@@ -95,7 +95,7 @@ class OffWorldDockerizedEnv(gym.Env):
         self._config = config
         self._docker_client = docker.from_env()
         self._container_instance = None
-        self._cv2_windows_need_destroy = False
+        self._cv2_windows_need_destroy_on_close = False
 
         # Run "xhost local:" command to enable XServer to be written from localhost over network
         xhost_command = "xhost local:"
@@ -236,10 +236,24 @@ class OffWorldDockerizedEnv(gym.Env):
         render_response: Image = self._grpc_stub.Render(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
         env_image = np.asarray(cloudpickle.loads(render_response.image))[0]
         if mode == 'human':
-            if not self._cv2_windows_need_destroy:
-                self._cv2_windows_need_destroy = True
+            if not self._cv2_windows_need_destroy_on_close:
+                self._cv2_windows_need_destroy_on_close = True
 
-            cv2.imshow(self._container_instance.name, env_image)
+            images_to_show = []
+            if self._config['channel_type'] == Channels.RGB_ONLY:
+                images_to_show.append(('rgb', env_image))
+            elif self._config['channel_type'] == Channels.DEPTH_ONLY:
+                images_to_show.append(('depth', env_image))
+            elif self._config['channel_type'] == Channels.RGBD:
+                rgb_image = env_image[:3]
+                depth_image = env_image[3]
+                images_to_show.append(('rgb', rgb_image))
+                images_to_show.append(('depth', depth_image))
+            else:
+                raise NotImplementedError(f"Unknown Channel type for rendering: {self._config['channel_type']}")
+
+            for image in images_to_show:
+                cv2.imshow(self._container_instance.name, image)
             cv2.waitKey(1)
         elif mode == 'array':
             return env_image
@@ -255,7 +269,7 @@ class OffWorldDockerizedEnv(gym.Env):
 
     def close(self):
         self._clean_up_docker_instance()
-        if self._cv2_windows_need_destroy:
+        if self._cv2_windows_need_destroy_on_close:
             cv2.destroyAllWindows()
 
 
