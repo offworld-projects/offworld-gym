@@ -245,7 +245,7 @@ class OffWorldDockerizedEnv(gym.Env):
             elif self._config['channel_type'] == Channels.DEPTH_ONLY:
                 images_to_show.append(('depth', env_image))
             elif self._config['channel_type'] == Channels.RGBD:
-                rgb_image = env_image[:, :, :3]
+                rgb_image = env_image[:, :, :3]/255
                 depth_image = env_image[:, :, 3]
                 images_to_show.append(('rgb', rgb_image))
                 images_to_show.append(('depth', depth_image))
@@ -276,7 +276,7 @@ class OffWorldDockerizedEnv(gym.Env):
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    env = gym.make("OffWorldDockerMonolithDiscreteSim-v0", channel_type=Channels.RGB_ONLY)
+    env = gym.make("OffWorldDockerMonolithDiscreteSim-v0", channel_type=Channels.RGBD)
     logger.info(f"action space: {env.action_space} observation_space: {env.observation_space}")
     while True:
         obs = env.reset()
