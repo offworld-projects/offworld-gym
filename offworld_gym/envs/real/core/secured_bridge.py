@@ -143,6 +143,9 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
+            reward = int(response_json['reward'])
+            state = json.loads(response_json['state'])
+            done = bool(response_json['done'])
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:            
@@ -155,10 +158,6 @@ class SecuredBridge(metaclass=Singleton):
 
         if 'testing' in response_json:
             raise GymException(response_json["message"])
-
-        reward = int(response_json['reward'])
-        state = json.loads(response_json['state'])
-        done = bool(response_json['done'])
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
@@ -195,6 +194,9 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
+            reward = int(response_json['reward'])
+            state = json.loads(response_json['state'])
+            done = bool(response_json['done'])
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:            
@@ -207,10 +209,6 @@ class SecuredBridge(metaclass=Singleton):
 
         if 'testing' in response_json:
             raise GymException(response_json["message"])
-
-        reward = int(response_json['reward'])
-        state = json.loads(response_json['state'])
-        done = bool(response_json['done'])
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
@@ -241,6 +239,7 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
+            state = json.loads(response_json['state'])
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:
@@ -251,8 +250,6 @@ class SecuredBridge(metaclass=Singleton):
                 raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
                 raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
-            
-        state = json.loads(response_json['state'])
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
@@ -280,6 +277,7 @@ class SecuredBridge(metaclass=Singleton):
         try:
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
+            state = json.loads(response_json['state'])
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:
@@ -290,8 +288,6 @@ class SecuredBridge(metaclass=Singleton):
                 raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
                 raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
-
-        state = json.loads(response_json['state'])
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
