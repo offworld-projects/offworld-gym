@@ -72,17 +72,24 @@ def with_base_config(base_config, overrides_config):
 def _heart_beat_to_container_worker(grpc_port, weak_ref_to_parent_env):
     channel = grpc.insecure_channel(f'localhost:{grpc_port}')
     grpc_stub = RemoteEnvStub(channel)
-
+    ever_made_successful_hearbeat = False
+    hb_loop_start_time = time.time()
     while True:
         if weak_ref_to_parent_env() is None:
             # exit if parent env is garbage collected or otherwise deleted
-            logger.debug(f"heartbeat thread exiting after parent env was destroyed")
+            logger.debug("heartbeat thread exiting after parent env was destroyed.")
             return
         try:
-            grpc_stub.HeartBeat(Empty(), timeout=MAX_TOLERABLE_HANG_TIME_SECONDS)
+            grpc_stub.HeartBeat(Empty(), timeout=1.0)
+            ever_made_successful_hearbeat = True
         except grpc.RpcError as rpc_error:
-            logger.debug(f"heartbeat thread exiting after catching grpc error:\n{rpc_error}")
-            return
+            time_in_hb_loop = time.time() - hb_loop_start_time
+            if ever_made_successful_hearbeat:
+                logger.debug(f"heartbeat thread exiting after catching grpc error:\n{rpc_error}")
+                return
+            elif time_in_hb_loop > MAX_TOLERABLE_HANG_TIME_SECONDS:
+                logger.debug(f"heartbeat thread exiting after taking too long ({time_in_hb_loop} seconds) without successfully sending a single first hearbeat. Latest heartbeat grpc error: {rpc_error}")
+                return
         time.sleep(HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS)
 
 
@@ -283,5 +290,6 @@ if __name__ == '__main__':
         done = False
         while not done:
             sampled_action = env.action_space.sample()
-            env.render()
+            #env.render()
+            print(sampled_action)
             obs, rew, done, info = env.step(sampled_action)
