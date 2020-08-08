@@ -19,7 +19,7 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteE
 
 OFFWORLD_GYM_GRPC_SERVER_PORT = int(os.environ.get("OFFWORLD_GYM_GRPC_SERVER_PORT", 50051))
 MAX_TOLERABLE_GAZEBO_START_UP_HANG_TIME_SECONDS = 20
-HEART_BEAT_WAIT_TOLERANCE_SECONDS = 10
+HEART_BEAT_WAIT_TOLERANCE_SECONDS = 90
 
 
 if __name__ == '__main__':
@@ -59,6 +59,7 @@ if __name__ == '__main__':
                 # exits if a heartbeat from the launching env stops being received
                 while True:
                     time.sleep(HEART_BEAT_WAIT_TOLERANCE_SECONDS)
+                    HEART_BEAT_WAIT_TOLERANCE_SECONDS = 10  # TODO: Figure out why on some machine the very first heartbeat takes 75 seconds to arrive
                     time_since_last_heat_beat = time.time() - self.time_of_last_heart_beat
 
                     if time_since_last_heat_beat > HEART_BEAT_WAIT_TOLERANCE_SECONDS:
