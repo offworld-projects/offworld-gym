@@ -19,7 +19,7 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteE
 
 OFFWORLD_GYM_GRPC_SERVER_PORT = int(os.environ.get("OFFWORLD_GYM_GRPC_SERVER_PORT", 50051))
 MAX_TOLERABLE_GAZEBO_START_UP_HANG_TIME_SECONDS = 20
-HEART_BEAT_WAIT_TOLERANCE_SECONDS = 90
+HEART_BEAT_WAIT_TOLERANCE_SECONDS = 150
 
 
 if __name__ == '__main__':
