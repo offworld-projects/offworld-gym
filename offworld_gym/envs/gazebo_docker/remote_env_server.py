@@ -57,6 +57,7 @@ if __name__ == '__main__':
 
             def _heart_beat_check_worker():
                 # exits if a heartbeat from the launching env stops being received
+                global HEART_BEAT_WAIT_TOLERANCE_SECONDS
                 while True:
                     time.sleep(HEART_BEAT_WAIT_TOLERANCE_SECONDS)
                     HEART_BEAT_WAIT_TOLERANCE_SECONDS = 10  # TODO: Figure out why on some machine the very first heartbeat takes 75 seconds to arrive
