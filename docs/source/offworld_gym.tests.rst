@@ -20,7 +20,6 @@ offworld\_gym.tests.test\_cv module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

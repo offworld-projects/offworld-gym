@@ -1,7 +1,7 @@
 OffWorldMonolithDiscreteReal-v0
 ===============================
 
-.. autoclass:: offworld_gym.envs.real.offworld_monolith_env.OffWorldMonolithContinousEnv
+.. autoclass:: offworld_gym.envs.real.OffWorldMonolithDiscreteEnv
    :members:
    :undoc-members:
    :show-inheritance:
@@ -13,7 +13,7 @@ OffWorldMonolithDiscreteReal-v0
 OffWorldMonolithContinousReal-v0
 ================================
 
-.. autoclass:: offworld_gym.envs.real.offworld_monolith_env.OffWorldMonolithContinousEnv
+.. autoclass:: offworld_gym.envs.real.OffWorldMonolithContinuousEnv
    :members:
    :undoc-members:
    :show-inheritance:

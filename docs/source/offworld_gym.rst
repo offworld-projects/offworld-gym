@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    offworld_gym.envs
    offworld_gym.tests
@@ -27,7 +28,6 @@ offworld\_gym.version module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

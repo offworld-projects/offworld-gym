@@ -2,13 +2,20 @@
 Building sphinx documentation
 *****************************
 
-To rebuild this documentation, enter ``docs`` directory, then run
+Install the necessary components:
+
+.. code:: bash
+
+    pip3 install Sphinx sphinx-rtd-theme matplotlib psutil rospkg
+
+
+To rebuild this documentation, enter the ``docs`` directory, run
 
 .. code:: bash
 
     sphinx-apidoc -f -o source ..
 
-to generate API documentation, and finally run
+to generate API documentation, then run
 
 .. code:: bash
 

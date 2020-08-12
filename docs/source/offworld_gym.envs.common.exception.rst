@@ -12,7 +12,6 @@ offworld\_gym.envs.common.exception.gym\_exception module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

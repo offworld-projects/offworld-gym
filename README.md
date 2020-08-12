@@ -46,8 +46,6 @@ You can now install the `offworld_gym` library. Please follow the instructions i
 
 
 ## Installation
-There are two installation options: **real-only** (OS agnostic, no ROS dependencies) and **real-and-sim** (requires Ubuntu 16.04 and ROS Kinetic).  
-
 Please check the [Installation](https://gym.offworld.ai/docs/installation.html) section of the documentation for the instructions.
 
 

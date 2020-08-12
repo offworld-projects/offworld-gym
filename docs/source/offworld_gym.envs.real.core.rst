@@ -20,7 +20,6 @@ offworld\_gym.envs.real.core.secured\_bridge module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

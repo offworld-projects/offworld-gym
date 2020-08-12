@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    offworld_gym.envs.common.exception
 
@@ -50,7 +51,6 @@ offworld\_gym.envs.common.oops module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

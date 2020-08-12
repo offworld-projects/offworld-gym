@@ -41,11 +41,11 @@ from keras.models import Model, load_model
 from keras.layers import Dense, Activation, Flatten, Conv2D, Input, MaxPooling2D, LeakyReLU, BatchNormalization
 from keras.optimizers import Adam
 
-from rl.agents.dqn import DQNAgent
-from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
-from rl.memory import SequentialMemory
-from rl.processors import Processor
-from rl.callbacks import ModelIntervalCheckpoint, TerminateTrainingOnFileExists, SaveDQNTrainingState, Visualizer
+from kerasrl.agents.dqn import DQNAgent
+from kerasrl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
+from kerasrl.memory import SequentialMemory
+from kerasrl.processors import Processor
+from kerasrl.callbacks import ModelIntervalCheckpoint, TerminateTrainingOnFileExists, SaveDQNTrainingState, Visualizer
 
 from utils import TB_RL, GetLogPath
 
@@ -75,21 +75,21 @@ def convBNRELU(input1, filters=8, kernel_size = 5, strides = 1, id1=0, use_batch
     elu_name = 'elu_%d' % (id1 + 1)
     leaky_relu_name = 'leaky_relu_%d' % (id1 + 1)
     out = Conv2D(filters = filters, kernel_size = kernel_size, strides = strides, name = cname)(input1)
-    
+
     if use_batch_norm == True:
         out = BatchNormalization(name=bname)(out)
-    
+
     if use_leaky_relu:
         out = LeakyReLU(leaky_epsilon, name=leaky_relu_name)(out)
     else:
         out = Activation('relu')(out)
-    
+
     return out
 
 def create_network():
     input_image_size = env.observation_space.shape[1:]
     img_input = Input(shape=input_image_size, name='img_input')
-        
+
     x = img_input
     for i in range(2):
         x = convBNRELU(x, filters=4, kernel_size=5, strides=2, id1=i, use_batch_norm=False, use_leaky_relu=True)
@@ -100,16 +100,16 @@ def create_network():
     x = Activation('relu')(x)
     x = Dense(16)(x)
     x = Activation('relu')(x)
-        
+
     x = Dense(nb_actions)(x)
     output = Activation('linear')(x)
     model = Model(inputs=[img_input], outputs=output)
     print(model.summary())
-        
+
     return model
 
 class RosbotProcessor(Processor):
-    
+
     def process_observation(self, observation):
         '''
         observations are [image(240, 320, 3), config(4,)]
@@ -132,7 +132,7 @@ class RosbotProcessor(Processor):
 
 
 def train():
-    
+
     # waiting for the ROS messages to clear
     time.sleep(5)
 
@@ -146,7 +146,7 @@ def train():
             if choice == 'y':
                 last_episode = np.max([int(os.path.basename(s).replace("episode-", "")) for s in glob.glob("%s/episode-*" % STATE_PATH)])
                 LAST_STATE_PATH = "%s/episode-%d" % (STATE_PATH, last_episode)
-                print("Resuming training from %s" % LAST_STATE_PATH) 
+                print("Resuming training from %s" % LAST_STATE_PATH)
                 resume_training = True
                 break
             elif choice == 'n':
@@ -188,8 +188,8 @@ def train():
         (memory, memory.actions, memory.rewards, memory.terminals, memory.observations) = pickle.load(open("%s/memory.pkl" % LAST_STATE_PATH, "rb"))
     else:
         model = create_network()
-        memory = SequentialMemory(limit=memory_size, window_length=window_length)    
-   
+        memory = SequentialMemory(limit=memory_size, window_length=window_length)
+
     # create the agent
     dqn = DQNAgent(processor=processor, model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=learning_warmup_nb_steps,
                    enable_double_dqn=True, target_model_update=target_model_update, policy=policy, gamma=0.95)
@@ -199,7 +199,7 @@ def train():
     if resume_training:
         callback_tb = pickle.load(open("%s/tb_callback.pkl" % STATE_PATH, "rb"))
         (episode_nr, step_nr) = pickle.load(open("%s/parameters.pkl" % LAST_STATE_PATH, "rb"))
-    else:    
+    else:
         loggerpath, _ = GetLogPath(path=LOG_PATH, developerTestingFlag=False)
         callback_tb = TB_RL(None, loggerpath)
         tbfile = open("%s/tb_callback.pkl" % STATE_PATH, "wb")
@@ -210,16 +210,16 @@ def train():
 
     # other callbacks
     callback_poisonpill = TerminateTrainingOnFileExists(dqn, '/tmp/killrlreal')
-    callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1) 
+    callback_modelinterval = ModelIntervalCheckpoint('%s/dqn_%s_step_{step:02d}.h5f' % (MODEL_PATH, NAME), model_checkpoint_interval, verbose=1)
     callback_save_state = SaveDQNTrainingState(save_state_interval, STATE_PATH, memory, dqn, snapshot_limit=40)
     state_visualizer = Visualizer()
     cbs = [callback_modelinterval, callback_tb, callback_save_state, callback_poisonpill, state_visualizer]
 
     # train the agent
     input("Press Enter to continue...\n")
-    dqn.fit(env, callbacks=cbs, action_repetition=1, nb_steps=total_nb_steps, visualize=False, 
+    dqn.fit(env, callbacks=cbs, action_repetition=1, nb_steps=total_nb_steps, visualize=False,
                 verbose=verbose_level, log_interval=log_interval, resume_episode_nr=episode_nr, resume_step_nr=step_nr)
 
 
-if __name__ == "__main__":        
+if __name__ == "__main__":
     train()
