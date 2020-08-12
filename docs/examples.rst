@@ -83,7 +83,7 @@ Keras RL relies on somewhat older packages, the easiest way to get everything yo
 .. code:: bash
 
     ./scripts/owgym-kerasrl-virtualenv.sh
-    source assets/owgym-kerasrl/bin/deactivate
+    source assets/owgym-kerasrl/bin/activate
     python examples/ddqn_OffWorldMonolithDiscreteReal.py
 
 
@@ -132,7 +132,7 @@ Same as in the section above, running this example requires a few additional ins
 .. code:: bash
 
     ./scripts/owgym-kerasrl-virtualenv.sh
-    source assets/owgym-kerasrl/bin/deactivate
+    source assets/owgym-kerasrl/bin/activate
     python examples/ddqn_OffWorldMonolithDiscreteSim.py
 
 The ``SaveDQNTrainingState`` callback will store model and memory snapshots every 100 episodes in the ``sim_agent_state`` directory. In case your process stops you can just restart the python script, confirm that you wish to resume learning from the latest snapshot, and the learning will continue. Since we are storing the DQN replay buffer alongside the model, the script saves only the 3 last snapshots by default to save some storage space. Feel free to change that parameter or set it to `None` if you would like to keep all the snapshots. You can also stop training manually by calling ``touch /tmp/killrlsim`` or pressing Ctrl+C (this sometimes fails so it is better user the ``touch`` method).
