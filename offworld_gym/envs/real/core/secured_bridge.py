@@ -240,10 +240,11 @@ class SecuredBridge(metaclass=Singleton):
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
+            
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
-        except Exception as err:
             
+        except Exception as err:
             if response is not None and response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
             elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
@@ -278,10 +279,11 @@ class SecuredBridge(metaclass=Singleton):
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
+            
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
-        except Exception as err:
             
+        except Exception as err:     
             if response is not None and response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
             elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
