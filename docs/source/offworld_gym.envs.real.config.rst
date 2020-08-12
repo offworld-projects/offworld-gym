@@ -12,7 +12,6 @@ offworld\_gym.envs.real.config.settings module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    offworld_gym.envs.real.config
    offworld_gym.envs.real.core
@@ -27,7 +28,6 @@ offworld\_gym.envs.real.real\_env module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

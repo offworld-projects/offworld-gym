@@ -10,10 +10,10 @@ OffWorldMonolithDiscreteSim-v0
    :noindex:
 
 
-OffWorldMonolithContinousSim-v0
-===============================
+OffWorldMonolithContinuousSim-v0
+================================
 
-.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_env.OffWorldMonolithContinousEnv
+.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_env.OffWorldMonolithContinuousEnv
    :members:
    :undoc-members:
    :show-inheritance:
@@ -34,14 +34,13 @@ OffWorldMonolithObstacleDiscreteSim-v0
    :noindex:
 
 
-OffWorldMonolithObstacleContinousSim-v0
-=======================================
+OffWorldMonolithObstacleContinuousSim-v0
+========================================
 
-.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_obstacle_env.OffWorldMonolithObstacleContinousEnv
+.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_obstacle_env.OffWorldMonolithObstacleContinuousEnv
    :members:
    :undoc-members:
    :show-inheritance:
    :special-members:
    :private-members:
    :noindex:
-

@@ -27,11 +27,11 @@ import tensorflow
 from keras import backend as K
 backend = K.backend()
 
-from rl.callbacks import Callback
+from kerasrl.callbacks import Callback
 
 def GetLogPath(path=None, developerTestingFlag=True):
     """Setup a path where log files will be stored
-    
+
     Path format .\[path]\YY-mm-dd\HH-MM-SS\
     """
     if path is None:
@@ -246,7 +246,7 @@ class TB_convs(Callback):
         self.writer = tensorflow.summary.FileWriter(self.log_dir, self.sess.graph)
         #write initial values
         feed_dict = self.gen_feed_dict()
-            
+
         #pdb.set_trace()
         result = self.sess.run([self.merged], feed_dict=feed_dict)
         summary_str = result[0]
@@ -286,7 +286,7 @@ class TB_RL(TB_convs):
 
         if 'fault' in logs:
             self.wasFault = np.any(logs['fault'])
-        
+
         if not self.wasFault:
             self.totalSteps += 1
 

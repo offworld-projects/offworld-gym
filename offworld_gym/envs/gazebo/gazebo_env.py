@@ -35,6 +35,11 @@ from gym.utils import seeding
 from offworld_gym.envs.common.exception.gym_exception import GymException
 
 #ros
+gazebo_gym_python_dependencies: str = os.environ.get("GAZEBO_GYM_PYTHON_DEPENDENCIES", None)
+if gazebo_gym_python_dependencies is not None:
+    for dependency in gazebo_gym_python_dependencies.split(":"):
+        sys.path.append(dependency)
+
 import rospy
 import rospkg
 
@@ -73,8 +78,12 @@ class GazeboGymEnv(gym.Env, metaclass=ABCMeta):
             rospack = rospkg.RosPack()
             if rospack.get_path(self.package_name) is None:
                 raise GymException("The ROS package does not exist.")
-        
-            self.roslaunch_process = subprocess.Popen(['roslaunch', os.path.join(rospack.get_path(self.package_name), "launch", self.launch_file)])
+
+            ros_env = os.environ.copy()
+            if ros_env.get("ROSLAUNCH_PYTHONPATH_OVERRIDE", None) is not None:
+                ros_env["PYTHONPATH"] = ros_env["ROSLAUNCH_PYTHONPATH_OVERRIDE"]
+
+            self.roslaunch_process = subprocess.Popen(['roslaunch', os.path.join(rospack.get_path(self.package_name), "launch", self.launch_file)], env=ros_env)
             self.roslaunch_wait_thread = threading.Thread(target=self._process_waiter, args=(1,))
             self.roslaunch_wait_thread.start()
         except OSError:

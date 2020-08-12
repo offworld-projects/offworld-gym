@@ -60,16 +60,19 @@ class SecuredBridge(metaclass=Singleton):
 
         req = TokenRequest(os.environ[token_var])
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, TokenRequest.URI)
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
+        response = None
         try:
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
-        except:
-            if response.status_code == HTTPStatus.NOT_FOUND:
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
+            raise GymException(f"A request error occurred:\n{err}")
+        except Exception as err:
+            if response is not None and response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
-                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
         logger.debug("Web Token  : {}".format(response_json['web_token']))
         return response_json['web_token']
 
@@ -97,17 +100,20 @@ class SecuredBridge(metaclass=Singleton):
         # Share the experiment details with the server
         req = SetUpRequest(self._web_token, experiment_name, resume_experiment, learning_type, algorithm_mode, environment_name)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, SetUpRequest.URI)
-        set_up_response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
 
+        set_up_response = None
         try:
+            set_up_response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             set_up_response_json = json.loads(set_up_response.text)
-        except:
-            if set_up_response.status_code == HTTPStatus.NOT_FOUND:
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
+            raise GymException(f"A request error occurred:\n{err}")
+        except Exception as err:
+            if set_up_response is not None and set_up_response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
-            elif set_up_response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            elif set_up_response is not None and set_up_response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
-                raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
+                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
         logger.debug("Heartbeat  : {}".format(set_up_response_json['heartbeat']))
         self._web_token = set_up_response_json['web_token']
 
@@ -133,27 +139,25 @@ class SecuredBridge(metaclass=Singleton):
         req = MonolithDiscreteActionRequest(self._web_token, action_type=action_type, channel_type=channel_type, algorithm_mode=algorithm_mode)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteActionRequest.URI)
 
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
-
+        response = None
         try:
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
-        except:            
-            if response.status_code == HTTPStatus.NOT_FOUND:
+            reward = int(response_json['reward'])
+            state = json.loads(response_json['state'])
+            done = bool(response_json['done'])
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
+            raise GymException(f"A request error occurred:\n{err}")
+        except Exception as err:            
+            if response is not None and response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
-                if response.text is None or response.text == '':
-                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
-                else:
-                    raise GymException(response.text)
+                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
 
         if 'testing' in response_json:
             raise GymException(response_json["message"])
-
-        reward = int(response_json['reward'])
-        state = json.loads(response_json['state'])
-        done = bool(response_json['done'])
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
@@ -186,27 +190,25 @@ class SecuredBridge(metaclass=Singleton):
         req = MonolithContinousActionRequest(self._web_token, action=action.tolist(), channel_type=channel_type, algorithm_mode=algorithm_mode)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithContinousActionRequest.URI)
 
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate) 
-        
+        response = None
         try:
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
-        except:            
-            if response.status_code == HTTPStatus.NOT_FOUND:
+            reward = int(response_json['reward'])
+            state = json.loads(response_json['state'])
+            done = bool(response_json['done'])
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
+            raise GymException(f"A request error occurred:\n{err}")
+        except Exception as err:            
+            if response is not None and response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
-                if response.text is None or response.text == '':
-                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
-                else:
-                    raise GymException(response.text)
+                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
 
         if 'testing' in response_json:
             raise GymException(response_json["message"])
-
-        reward = int(response_json['reward'])
-        state = json.loads(response_json['state'])
-        done = bool(response_json['done'])
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
@@ -232,23 +234,23 @@ class SecuredBridge(metaclass=Singleton):
         
         req = MonolithDiscreteResetRequest(self._web_token, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
 
+        response = None
         try:
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
-        except:
+            state = json.loads(response_json['state'])
             
-            if response.status_code == HTTPStatus.NOT_FOUND:
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
+            raise GymException(f"A request error occurred:\n{err}")
+            
+        except Exception as err:
+            if response is not None and response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
-                if response.text is None or response.text == '':
-                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
-                else:
-                    raise GymException(response.text)
-            
-        state = json.loads(response_json['state'])
+                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
@@ -271,23 +273,23 @@ class SecuredBridge(metaclass=Singleton):
         
         req = MonolithDiscreteResetRequest(self._web_token, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
 
+        response = None
         try:
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
-        except:
+            state = json.loads(response_json['state'])
             
-            if response.status_code == HTTPStatus.NOT_FOUND:
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
+            raise GymException(f"A request error occurred:\n{err}")
+            
+        except Exception as err:     
+            if response is not None and response.status_code == HTTPStatus.NOT_FOUND:
                 raise GymException("The robot is not available. The environment is possibly under MAINTENANCE.")
-            elif response.status_code == HTTPStatus.UNAUTHORIZED:
-                raise GymException("An error has occured. Most likely your time slot has ended. Please try again.")
+            elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
+                raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
-                if response.text is None or response.text == '':
-                    raise GymException("A server error has occured. Please contact the support team: gym.beta@offworld.ai.")
-                else:
-                    raise GymException(response.text)
-            
-        state = json.loads(response_json['state'])
+                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
 
         state = np.asarray(state)
         state = np.reshape(state, (1, state.shape[0], state.shape[1], state.shape[2]))
@@ -305,4 +307,10 @@ class SecuredBridge(metaclass=Singleton):
         uri = DisconnectRequest.URI_DISCRETE if discrete else DisconnectRequest.URI_CONTINOUS
         req = DisconnectRequest(self._web_token, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, uri)
-        response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)        
+        try:
+            response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)
+        except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
+            raise GymException(f"A request error occurred:\n{err}")
+        except Exception as err:
+            raise GymException(
+                f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")

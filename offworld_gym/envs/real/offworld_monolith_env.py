@@ -173,6 +173,11 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         logger.info("Step count: {}".format(str(self.step_count)))
         
         assert action is not None, "Action cannot be None."
+
+        # convert float if it's exactly an integer value, otherwise let it throw an error
+        if isinstance(action, (float, np.float32, np.float64)) and float(action).is_integer():
+            action = int(action)
+
         assert isinstance(action, (FourDiscreteMotionActions, int, np.int32, np.int64)), "Action type is not recognized."
 
         if self._closed:
@@ -210,10 +215,10 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         """Closes the environment.
         """
         self._closed = True
-        self.secured_bridge.disco(self._channel_type)
+        self.secured_bridge.disconnect(self._channel_type, True)
 
 
-class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
+class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
     """Real Gym environment with a rosbot and a monolith on an uneven terrain with continous action space.
 
     A RL agent learns to reach the goal(monolith) in shortest time.
@@ -231,7 +236,7 @@ class OffWorldMonolithContinousEnv(OffWorldMonolithEnv):
     """ 
     
     def __init__(self, experiment_name, resume_experiment, learning_type, algorithm_mode=AlgorithmMode.TRAIN, channel_type=Channels.DEPTH_ONLY):
-        super(OffWorldMonolithContinousEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode, channel_type)
+        super(OffWorldMonolithContinuousEnv, self).__init__(experiment_name, resume_experiment, learning_type, algorithm_mode, channel_type)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.5, -2.5], [0.5, 2.5]])
         self.environment_name = 'OffWorldMonolithContinousReal-v0'

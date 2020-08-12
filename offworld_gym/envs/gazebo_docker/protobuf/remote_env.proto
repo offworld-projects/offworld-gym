@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+message Spaces {
+    bytes observation_space = 1;
+    bytes action_space = 2;
+}
+
+message ObservationRewardDoneInfo {
+    bytes observation = 1;
+    float reward = 2;
+    bool done = 3;
+    bytes info = 4;
+}
+
+message Observation {
+    bytes observation = 1;
+}
+message Action {
+    bytes action = 1;
+}
+
+message Image {
+    bytes image = 1;
+}
+
+message Seed {
+    int64 seed = 1;
+}
+
+service RemoteEnv {
+    rpc HeartBeat (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+    rpc GetSpaces (google.protobuf.Empty) returns (Spaces) {}
+    rpc SetSeed (Seed) returns (google.protobuf.Empty) {}
+    rpc Reset (google.protobuf.Empty) returns (Observation) {}
+    rpc Step (Action) returns (ObservationRewardDoneInfo) {}
+    rpc Render (google.protobuf.Empty) returns (Image) {}
+    rpc Shutdown (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}

@@ -36,7 +36,6 @@ offworld\_gym.envs.gazebo.utils module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

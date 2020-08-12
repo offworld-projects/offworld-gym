@@ -1,8 +1,8 @@
 Custom Keras callbacks
 ----------------------
 
-.. autoclass:: rl.callbacks.SaveDQNTrainingState
+.. autoclass:: kerasrl.callbacks.SaveDQNTrainingState
    :members:
 
-.. autoclass:: rl.callbacks.TerminateTrainingOnFileExists
+.. autoclass:: kerasrl.callbacks.TerminateTrainingOnFileExists
    :members:
