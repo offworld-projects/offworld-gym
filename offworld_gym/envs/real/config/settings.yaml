@@ -6,7 +6,7 @@ application:
       log_folder: "logs"
     gym_server:
       protocol: https
-      server_ip: "137.27.196.190"
+      server_ip: "75.140.90.211"
       secured_port: 8443
     user:
       api_token: "OFFWORLD_GYM_ACCESS_TOKEN"
