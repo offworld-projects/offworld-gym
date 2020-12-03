@@ -208,6 +208,11 @@ class OffWorldDockerizedEnv(gym.Env):
 
         self.observation_space = cloudpickle.loads(spaces_response.observation_space)
         self.action_space = cloudpickle.loads(spaces_response.action_space)
+        
+        #_np_random is None when it is dumped using cloudpickle in the container. Cloudpickle ignores the None variables(maybe) when dumping.
+        # after loading from the dump, here we define the variable _np_random again.
+        self.observation_space._np_random = None
+        self.action_space._np_random = None
 
         self._heart_beat_thread = threading.Thread(target=_heart_beat_to_container_worker,
                                              args=(host_published_grpc_port, weakref.ref(self)))
