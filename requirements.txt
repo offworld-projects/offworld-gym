@@ -9,3 +9,4 @@ pyquaternion==0.9.5
 numpy
 opencv-python-headless
 termcolor
+matplotlib==3.0.3
