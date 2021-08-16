@@ -26,8 +26,9 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Action, Obse
 from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteEnvStub
 
 logger = logging.getLogger(__name__)
-logger.setLevel(level)
 level = logging.DEBUG
+logger.setLevel(level)
+
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworldai/offworld-gym")
 
