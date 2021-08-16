@@ -26,7 +26,7 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Action, Obse
 from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteEnvStub
 
 logger = logging.getLogger(__name__)
-level = logging.DEBUG
+# level = logging.DEBUG
 # logger.setLevel(level)
 
 
@@ -86,7 +86,7 @@ def _heart_beat_to_container_worker(grpc_port, weak_ref_to_parent_env):
             return
         try:
             before = time.time() 
-            grpc_stub.HeartBeat(Empty(), timeout=1.0) # if interupted, change timeout from 1.0 to 10.0
+            grpc_stub.HeartBeat(Empty(), timeout=3.0) 
             logger.debug(f"heartbeat interval : {time.time() - before}")
             ever_made_successful_hearbeat = True
             if ever_made_successful_hearbeat: attempts = 0
