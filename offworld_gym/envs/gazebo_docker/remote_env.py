@@ -26,6 +26,8 @@ from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2 import Action, Obse
 from offworld_gym.envs.gazebo_docker.protobuf.remote_env_pb2_grpc import RemoteEnvStub
 
 logger = logging.getLogger(__name__)
+logger.setLevel(level)
+level = logging.DEBUG
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworldai/offworld-gym")
 
@@ -74,20 +76,28 @@ def _heart_beat_to_container_worker(grpc_port, weak_ref_to_parent_env):
     grpc_stub = RemoteEnvStub(channel)
     ever_made_successful_hearbeat = False
     hb_loop_start_time = time.time()
-    while True:
+    attempts = 0 
+    while attempts < 3:
+        logger.debug(f"\n Attempts to call client heartbeat service {attempts} times.")
         if weak_ref_to_parent_env() is None:
             # exit if parent env is garbage collected or otherwise deleted
             logger.debug("heartbeat thread exiting after parent env was destroyed.")
             return
         try:
-            grpc_stub.HeartBeat(Empty(), timeout=1.0)
+            before = time.time() 
+            grpc_stub.HeartBeat(Empty(), timeout=1.0) # if interupted, change timeout from 1.0 to 10.0
+            logger.debug(f"heartbeat interval : {time.time() - before}")
             ever_made_successful_hearbeat = True
+            if ever_made_successful_hearbeat: attempts = 0
         except grpc.RpcError as rpc_error:
+            attempts += 1
             time_in_hb_loop = time.time() - hb_loop_start_time
-            if ever_made_successful_hearbeat:
+            if ever_made_successful_hearbeat and attempts > 2:
                 logger.debug(f"heartbeat thread exiting after catching grpc error:\n{rpc_error}")
+                # print client side message here, in case next clause does not meet
+                print(f"No heartbeat from the client in {time.time() - before} seconds, killing the server.")
                 return
-            elif time_in_hb_loop > MAX_TOLERABLE_HANG_TIME_SECONDS:
+            elif time_in_hb_loop > MAX_TOLERABLE_HANG_TIME_SECONDS and attempts > 2:
                 logger.debug(f"heartbeat thread exiting after taking too long ({time_in_hb_loop} seconds) without successfully sending a single first hearbeat. Latest heartbeat grpc error: {rpc_error}")
                 return
         time.sleep(HEART_BEAT_TO_CONTAINER_INTERVAL_SECONDS)
