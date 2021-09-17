@@ -7,5 +7,7 @@ tlslite-ng
 gym>=0.12.0
 pyquaternion==0.9.5
 numpy
+scipy
 opencv-python-headless
 termcolor
+matplotlib
