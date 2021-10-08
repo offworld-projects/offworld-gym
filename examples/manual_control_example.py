@@ -21,7 +21,6 @@ def on_press(key):
     if len(keys) > 0:
         keys.pop(0)
     if key not in key_mapping:
-        key_mapping[key] = 42
         print("Please press arrow keys to control or esc key to exit.")
     else:
         keys.append(key_mapping[key])  
