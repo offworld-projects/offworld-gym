@@ -30,6 +30,14 @@ def on_release(key):
         return False
 
 if __name__ == "__main__":
+
+    print(
+    """
+    This example allows you to manually control the OffWorld Gym robot.
+    Use the arrow keys ← ↑ → ↓ to issue the commands and [Esc] to exit
+    You can monitor the robot via the overhead cameras at https://gym.offworld.ai/cameras
+    """)
+
     key_mapping = { Key.up: 2, Key.down: 3, Key.left: 0, Key.right: 1, Key.esc: -1}
     
     keys = [] # current key buffer
