@@ -57,8 +57,9 @@ class SecuredBridge(metaclass=Singleton):
 
         if os.environ[token_var] is None or os.environ[token_var] == '':
             raise ValueError("Api-token is null or empty.")
-
-        req = TokenRequest(os.environ[token_var])
+        
+        client_version = __version__
+        req = TokenRequest(os.environ[token_var], client_version)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, TokenRequest.URI)
         response = None
         try:
@@ -146,6 +147,8 @@ class SecuredBridge(metaclass=Singleton):
             reward = int(response_json['reward'])
             state = json.loads(response_json['state'])
             done = bool(response_json['done'])
+            if response is not None and bool(response_json['is_success']) == False:
+                raise GymException(str(response_json['message']))
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:            
@@ -197,6 +200,8 @@ class SecuredBridge(metaclass=Singleton):
             reward = int(response_json['reward'])
             state = json.loads(response_json['state'])
             done = bool(response_json['done'])
+            if response is not None and bool(response_json['is_success']) == False:
+                raise GymException(str(response_json['message']))
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:            
@@ -240,6 +245,8 @@ class SecuredBridge(metaclass=Singleton):
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
+            if response is not None and bool(response_json['is_success']) == False:
+                raise GymException(str(response_json['message']))
             
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
@@ -279,6 +286,8 @@ class SecuredBridge(metaclass=Singleton):
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
+            if response is not None and bool(response_json['is_success']) == False:
+                raise GymException(str(response_json['message']))
             
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
