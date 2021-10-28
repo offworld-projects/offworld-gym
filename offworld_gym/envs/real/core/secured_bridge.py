@@ -64,7 +64,10 @@ class SecuredBridge(metaclass=Singleton):
         response = None
         try:
             response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
-            response_json = json.loads(response.text)
+            if response.status_code != HTTPStatus.BAD_REQUEST and response.status_code != HTTPStatus.INTERNAL_SERVER_ERROR:
+                response_json = json.loads(response.text)
+            else:
+                raise Exception(json.loads(response.text)['errors'][0])
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:
@@ -73,7 +76,7 @@ class SecuredBridge(metaclass=Singleton):
             elif response is not None and response.status_code == HTTPStatus.UNAUTHORIZED:
                 raise GymException("Unauthorized. Most likely your time slot has ended. Please try again.")
             else:
-                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai.\n{err}")
+                raise GymException(f"A server error has occurred. Please contact the support team: gym.beta@offworld.ai. {str(err)}")
         logger.debug("Web Token  : {}".format(response_json['web_token']))
         return response_json['web_token']
 

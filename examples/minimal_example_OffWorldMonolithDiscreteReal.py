@@ -25,7 +25,7 @@ from offworld_gym.envs.real.real_env import AlgorithmMode, LearningType
 
 # create the envronment and establish connection
 env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Random agent demo',
-               resume_experiment=False, channel_type=Channels.RGBD,
+               resume_experiment=True, channel_type=Channels.RGBD,
                learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
 
 # initialize figure for drawing RGB and D inputs
