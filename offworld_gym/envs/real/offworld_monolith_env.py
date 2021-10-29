@@ -191,10 +191,11 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         
         self._last_state = state
 
-        if done:
-            logger.debug('Environment episode is complete.')
-            self.step_count = 0
         logger.info('Environment step is complete.')
+        if done:
+            logger.info('Environment episode is complete: {} steps, reward = {}'.format(self.step_count, reward))
+            self.step_count = 0
+
         return state, reward, done, {}
 
     def reset(self):
@@ -207,6 +208,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
         if self._closed:
             raise GymException("The environment has been closed.")
 
+        logger.info("Resetting the episode and moving to a random initial position...")
         state = self.secured_bridge.monolith_discrete_perform_reset(self._channel_type)
         logger.info("Environment reset complete")
         return state
@@ -268,10 +270,11 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
         
         self._last_state = state
 
-        if done:
-            logger.debug('Environment episode is complete.')
-            self.step_count = 0
         logger.info('Environment step is complete.')
+        if done:
+            logger.info('Environment episode is complete: {} steps, reward = {}'.format(self.step_count, reward))
+            self.step_count = 0
+
         return state, reward, done, {}
 
     def reset(self):
@@ -284,6 +287,7 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
         if self._closed:
             raise GymException("The environment has been closed.")
 
+        logger.info("Resetting the episode and moving to a random initial position...")
         state = self.secured_bridge.monolith_continous_perform_reset(self._channel_type)
         logger.info("Environment reset complete")
         return state
