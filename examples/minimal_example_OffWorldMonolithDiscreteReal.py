@@ -33,6 +33,8 @@ fig, (ax1, ax2) = plt.subplots(1, 2);
 plt.ion();
 plt.show();
 
+# env.reset()
+
 # send a command to the robot
 while True:
     done = False
