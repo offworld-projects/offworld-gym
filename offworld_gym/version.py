@@ -12,4 +12,4 @@
 # distributed under the License is distributed on an "AS IS" basis,
 # without warranties or conditions of any kind, express or implied.
 
-__version__ = '1.0.0'
+__version__ = '1.1.1'

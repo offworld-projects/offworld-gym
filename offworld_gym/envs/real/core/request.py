@@ -29,8 +29,9 @@ class TokenRequest:
         api_token: String with the user's api token.
     """
     URI = "/owgym/initiate"
-    def __init__(self, api_token):
+    def __init__(self, api_token, client_version):
         self.api_token = api_token
+        self.client_version = client_version
 
     def to_json(self):
         return json.dumps(self.to_dict())
