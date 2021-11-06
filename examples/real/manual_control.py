@@ -21,8 +21,8 @@ key_actions = {'up': 2, 'down': 3, 'left': 0, 'right': 1}
 key_symbols = {'up': '↑', 'down': '↓', 'left': '←', 'right': '→'}
 
 # create the envronment and establish connection
-env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='keyboard_manual_control',
-               resume_experiment=True, channel_type=Channels.DEPTH_ONLY,
+env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Manual control',
+               resume_experiment=False, channel_type=Channels.DEPTH_ONLY,
                learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
 
 def press(key):

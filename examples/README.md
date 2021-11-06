@@ -16,7 +16,7 @@
 | ---            | ---                    | ---               | ---  |
 | Random agent   | Monolith Discrete      | -                 | [`examples/sim/random_monolith_discrete_sim.py`](https://github.com/offworld-projects/offworld-gym/blob/main/examples/sim/random_monolith_discrete_sim.py) |
 | Random agent   | Monolith Continuous    | -                 | [`examples/sim/random_monolith_continuous_sim.py`](https://github.com/offworld-projects/offworld-gym/blob/main/examples/sim/random_monolith_continuous_sim.py) |
-| Double DQN     | Monolith Discrete      | Keras RL          | [`examples/sim/ddqn_kerasrl_monolith_discrete_sim.py`](https://github.com/offworld-projects/offworld-gym/blob/main/examples/real/ddqn_kerasrl_monolith_discrete_sim.py) |
+| Double DQN     | Monolith Discrete      | Keras RL          | [`examples/sim/ddqn_kerasrl_monolith_discrete_sim.py`](https://github.com/offworld-projects/offworld-gym/blob/main/examples/sim/ddqn_kerasrl_monolith_discrete_sim.py) |
 
 
 ### Additional dependecies
