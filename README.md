@@ -12,7 +12,7 @@ When testing your next RL algorithm on Atari, why not also gauge its applicabili
 
 Install the library, change your `gym.make('CartPole-v0')` to `gym.make('OffWorldMonolith-v0', ...)` and you are all set to run your RL algorithm on a **real robot**, for free!
 
-![OffWorld Monolith environment](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/offworld-gym-monolith-v2.png)  
+![OffWorld Monolith environment](./docs/images/offworld-gym-monolith-v2.png)  
 Environment 1: OffWorld Monolith
 
 
@@ -20,10 +20,10 @@ Environment 1: OffWorld Monolith
 ## Evironments
 | Real | Description |
 | --- | --- |
-| ![OffWorldMonolithDiscreteReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithDiscreteReal.png) `OffWorldMonolithDiscreteReal-v0`  | Wheeled robot on an uneven terrain. Four **discrete actions**: left, right, forward, back. State space is RGB and/or Depth camera image. Sim version is available as `OffWorldMonolithDiscreteSim-v0`. |
-| ![OffWorldMonolithContinousReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithContinuousReal.png) `OffWorldMonolithContinousReal-v0`  | Wheeled robot on an uneven terrain. Two **continuous actions**: angular velocity, linear velocity. State space is RGB and/or Depth camera image. Sim version is available as `OffWorldMonolithContinousSim-v0`. |
-| ![OffWorldMonolithObstacleDiscreteReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithObstacleDiscreteReal.png) `OffWorldMonolithObstacleDiscreteReal-v0`  | Wheeled robot on an uneven terrain with **obstacles**. Four **discrete actions**: left, right, forward, back. State space is RGB and/or Depth camera image. Sim version is available **already now** as `OffWorldMonolithObstacleDiscreteSim-v0`. |
-| ![OffWorldMonolithObstacleContinousReal-v0](https://github.com/offworld-projects/offworld-gym/blob/develop/docs/images/OffWorldMonolithObstacleContinuousReal.png) `OffWorldMonolithObstacleContinousReal-v0`  | Wheeled robot on an uneven terrain with **obstacles**. Two **continuous actions**: angular velocity, linear velocity. State space is RGB and/or Depth camera image. Sim version is available **already now** as `OffWorldMonolithObstacleContinousSim-v0`. |
+| ![OffWorldMonolithDiscreteReal-v0](./docs/images/OffWorldMonolithDiscreteReal.png) `OffWorldMonolithDiscreteReal-v0`  | Wheeled robot on an uneven terrain. Four **discrete actions**: left, right, forward, back. State space is RGB and/or Depth camera image. Sim version is available as `OffWorldMonolithDiscreteSim-v0`. |
+| ![OffWorldMonolithContinousReal-v0](./docs/images/OffWorldMonolithContinuousReal.png) `OffWorldMonolithContinousReal-v0`  | Wheeled robot on an uneven terrain. Two **continuous actions**: angular velocity, linear velocity. State space is RGB and/or Depth camera image. Sim version is available as `OffWorldMonolithContinousSim-v0`. |
+| ![OffWorldMonolithObstacleDiscreteReal-v0](./docs/images/OffWorldMonolithObstacleDiscreteReal.png) `OffWorldMonolithObstacleDiscreteReal-v0`  | Wheeled robot on an uneven terrain with **obstacles**. Four **discrete actions**: left, right, forward, back. State space is RGB and/or Depth camera image. Sim version is available **already now** as `OffWorldMonolithObstacleDiscreteSim-v0`. |
+| ![OffWorldMonolithObstacleContinousReal-v0](./docs/images/OffWorldMonolithObstacleContinuousReal.png) `OffWorldMonolithObstacleContinousReal-v0`  | Wheeled robot on an uneven terrain with **obstacles**. Two **continuous actions**: angular velocity, linear velocity. State space is RGB and/or Depth camera image. Sim version is available **already now** as `OffWorldMonolithObstacleContinousSim-v0`. |
 
 
 
