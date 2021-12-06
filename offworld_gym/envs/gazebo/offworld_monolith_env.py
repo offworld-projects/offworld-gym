@@ -133,6 +133,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         self.channel_type = channel_type
         self.random_init = random_init
         self.step_count = 0
+        self._backward_step_counter == 0
         self._current_state = None
 
         self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
@@ -248,7 +249,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
             rospy.logerr("An error occured while creating the state vector.")
             return None
 
-    def _calculate_reward(self):
+    def _calculate_reward(self, action):
         """Calculates the reward at every step.
 
         Returns:
@@ -260,12 +261,37 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         rospy.logdebug("Distance between the rosbot and the monolith is : {}".format(str(dst)))
 
         # check distance to the monolith
-        if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
-            reward = 1.0
-            done = True
-        else:
-            reward = 0.0
-            done = False
+
+        # for discrete action space
+        if self.action_space == spaces.Discrete(4): 
+            if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
+                if self._backward_step_counter == 0 and action == FourDiscreteMotionActions.BACKWARD:
+                    reward = 0.0 # give another chance, not ending the episode yet
+                    done = False 
+                    self._backward_step_counter += 1
+                elif self._backward_step_counter == 1 and action == FourDiscreteMotionActions.BACKWARD:
+                    reward = 0.0 # 2nd time backward, ending the episode 
+                    done = True
+                    self._backward_step_counter == 0
+                else:
+                    reward = 1.0 # end the episode
+                    done = True
+                    self._backward_step_counter == 0
+        # for continuous action space
+        else: 
+            if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
+                if self._backward_step_counter == 0 and action[0] <= 0.0:
+                    reward = 0.0 # give another chance, not ending the episode yet
+                    done = False 
+                    self._backward_step_counter += 1
+                elif self._backward_step_counter == 1 and action[0] <= 0.0:
+                    reward = 0.0 # 2nd time backward, ending the episode 
+                    done = True
+                    self._backward_step_counter == 0
+                else:
+                    reward = 1.0 # end the episode
+                    done = True
+                    self._backward_step_counter == 0
 
         # check boundaries
         if rosbot_state[0] < self._WALL_BOUNDARIES['x_min'] or \
@@ -459,7 +485,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
 
         self._current_state = self._get_state()
         info = {"real_time_factor_for_move": real_time_factor_for_move}
-        reward, done = self._calculate_reward()
+        reward, done = self._calculate_reward(action)
 
         if done:
             self.step_count = 0
@@ -505,7 +531,7 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
 
         self._current_state = self._get_state()
         info = {"real_time_factor_for_move": real_time_factor_for_move}
-        reward, done = self._calculate_reward()
+        reward, done = self._calculate_reward(action)
 
         if done:
             self.step_count = 0
