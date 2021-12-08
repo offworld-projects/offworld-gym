@@ -25,6 +25,7 @@ import pdb
 from pyquaternion import Quaternion
 from matplotlib import pyplot as plt
 
+
 #gym
 import gym
 from gym import utils, spaces
@@ -45,6 +46,10 @@ from gazebo_msgs.msg import ModelState
 from sensor_msgs.msg import Image
 from rosgraph_msgs.msg import Clock
 
+# import logging
+# logger = logging.getLogger(__name__)
+# level = logging.DEBUG
+# logger.setLevel(level)
 
 class OffWorldMonolithEnv(GazeboGymEnv):
     """Generic Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
@@ -133,7 +138,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         self.channel_type = channel_type
         self.random_init = random_init
         self.step_count = 0
-        self._backward_step_counter == 0
+        self._backward_step_counter = 0
         self._current_state = None
 
         self.observation_space = spaces.Box(0, 255, shape = (1, ImageUtils.IMG_H, ImageUtils.IMG_W, channel_type.value))
@@ -277,6 +282,10 @@ class OffWorldMonolithEnv(GazeboGymEnv):
                     reward = 1.0 # end the episode
                     done = True
                     self._backward_step_counter == 0
+            else:
+                reward = 0.0 
+                done = False 
+               
         # for continuous action space
         else: 
             if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
@@ -292,6 +301,11 @@ class OffWorldMonolithEnv(GazeboGymEnv):
                     reward = 1.0 # end the episode
                     done = True
                     self._backward_step_counter == 0
+            else:
+                reward = 0.0 
+                done = False 
+
+        rospy.loginfo(f"\n New reward logic")
 
         # check boundaries
         if rosbot_state[0] < self._WALL_BOUNDARIES['x_min'] or \

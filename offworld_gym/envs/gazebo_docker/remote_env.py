@@ -149,6 +149,10 @@ class OffWorldDockerizedEnv(gym.Env):
             #     "bind": "/tmp/.X11-unix",
             #     "mode": "rw"
             # }
+            "/home/felix/benchmark/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py": {
+                "bind": "/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py",
+                "mode": "rw",
+            }
         }
         container_volumes_str = ""
         for k, v in container_volumes.items():
@@ -169,6 +173,7 @@ class OffWorldDockerizedEnv(gym.Env):
         container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
 
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
+        # container_entrypoint = "/bin/bash"
         docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm" \
                              f"{container_env_str}{container_volumes_str}{container_ports_str} " \
                              f"{OFFWORLD_GYM_DOCKER_IMAGE} {container_entrypoint}"
