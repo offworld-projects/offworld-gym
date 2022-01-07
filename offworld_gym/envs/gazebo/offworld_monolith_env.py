@@ -65,7 +65,7 @@ class OffWorldMonolithEnv(GazeboGymEnv):
         observation_space: Gym data structure that encapsulates an observation.
         action_space: Gym data structure that encapsulates an action.
     """
-    _PROXIMITY_THRESHOLD = 0.50
+    _PROXIMITY_THRESHOLD = 0.40
     _EPISODE_LENGTH = 100
     _STEP_DURATION_SECONDS_IN_SIM = 1.0
     _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
