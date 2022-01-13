@@ -149,7 +149,7 @@ class OffWorldDockerizedEnv(gym.Env):
             #     "bind": "/tmp/.X11-unix",
             #     "mode": "rw"
             # }
-            "/home/felix/benchmark/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py": {
+            "/home/felixlu/benchmark/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py": {
                 "bind": "/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py",
                 "mode": "rw",
             }
