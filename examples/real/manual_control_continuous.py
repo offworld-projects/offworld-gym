@@ -2,6 +2,7 @@
 from __future__ import print_function
 import sys, select, termios, tty
 import threading
+import numpy as np
 
 import gym
 import offworld_gym
@@ -137,10 +138,12 @@ if __name__=="__main__":
     settings = termios.tcgetattr(sys.stdin)
 
     # create the envronment and establish connection
-    # env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Manual control',
-    #             resume_experiment=False, channel_type=Channels.DEPTH_ONLY,
-    #             learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
-    env = gym.make("OffWorldDockerMonolithContinuousSim-v0", channel_type=Channels.DEPTH_ONLY)
+    env = gym.make('OffWorldMonolithContinuousReal-v0', experiment_name='Manual control Continuous',
+                resume_experiment=False, channel_type=Channels.DEPTH_ONLY,
+                learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
+    # env = gym.make("OffWorldDockerMonolithContinuousSim-v0", channel_type=Channels.DEPTH_ONLY)
+
+    print(env.action_space)
 
     speed, turn, rate, key_timeout  = 0.1, 1.0, 0.0, 0.1
 
@@ -168,13 +171,13 @@ if __name__=="__main__":
                     th = moveBindings[key][3]
                     pub_thread.update(x, y, z, th, speed, turn)
                     linear_x, angular_z = pub_thread.run()
-                    action = [linear_x, angular_z]
+                    action = np.array([linear_x, angular_z])
                     state, reward, done, _ = env.step(action)
 
                     # print out action outcome
-                    print("currently:\tspeed %s\tturn %s " % (linear_x, angular_z))
+                    print("\ncurrently:\tspeed %s\tturn %s " % (linear_x, angular_z))
                     print("Step reward:", reward)
-                    print("Episode has ended:", done, "\n")
+                    print("Episode has ended:", done)
                 elif key in speedBindings.keys():
                     speed = speed * speedBindings[key][0]
                     turn = turn * speedBindings[key][1]
