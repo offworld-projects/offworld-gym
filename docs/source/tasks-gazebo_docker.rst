@@ -10,8 +10,8 @@ OffWorldDockerMonolithDiscreteSim-v0
    :noindex:
 
 
-OffWorldDockerMonolithContinousSim-v0
-=====================================
+OffWorldDockerMonolithContinuousSim-v0
+======================================
 
 .. autoclass:: offworld_gym.envs.gazebo_docker.OffWorldDockerMonolithContinuousEnv
    :members:
@@ -31,11 +31,11 @@ OffWorldDockerMonolithObstacleDiscreteSim-v0
    :show-inheritance:
    :special-members:
    :private-members:
-   :noindex:
+   :noindex:f
 
 
-OffWorldDockerMonolithObstacleContinousSim-v0
-=============================================
+OffWorldDockerMonolithObstacleContinuousSim-v0
+==============================================
 
 .. autoclass:: offworld_gym.envs.gazebo_docker.OffWorldDockerMonolithObstacleContinuousEnv
    :members:
