@@ -3,5 +3,5 @@ services:
     build:
       context: ./
       dockerfile: ./Dockerfile
-      image: offworldai/offworld-gym:latest
+    image: offworldai/offworld-gym:latest
 
