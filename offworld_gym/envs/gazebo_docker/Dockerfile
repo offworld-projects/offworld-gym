@@ -10,9 +10,6 @@ RUN apt-get update \
 	&& apt-get install -y apt-utils lsb-release software-properties-common \
 	&& apt-get clean all
 
-RUN add-apt-repository ppa:deadsnakes/ppa \
-	&& apt-get update \
-	&& apt-get install -y python3.6 python3.6-dev psmisc
 
 RUN apt-get install -y nano net-tools xvfb tmux glew-utils mesa-utils
 
@@ -32,7 +29,7 @@ RUN git clone -b fix/new-reward-logic-for-monolith https://github.com/offworld-p
 
 RUN cd /offworld-gym \
 	&& git pull \
-	&& git checkout origin/docker-devel \
+	&& git checkout origin/main \
 	&& chmod +x /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
 
 ENV PATH "/root/.local/bin:$PATH"
