@@ -149,10 +149,10 @@ class OffWorldDockerizedEnv(gym.Env):
             #     "bind": "/tmp/.X11-unix",
             #     "mode": "rw"
             # }
-            "/home/felixlu/benchmark/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py": {
-                "bind": "/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py",
-                "mode": "rw",
-            }
+            # "/home/felixlu/benchmark/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py": {
+            #     "bind": "/offworld-gym/offworld_gym/envs/gazebo/offworld_monolith_env.py",
+            #     "mode": "rw",
+            # }
         }
         container_volumes_str = ""
         for k, v in container_volumes.items():

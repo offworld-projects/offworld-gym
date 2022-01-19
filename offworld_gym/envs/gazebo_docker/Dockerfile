@@ -23,7 +23,7 @@ RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main"
 	&& rosdep init \
 	&& rosdep update
 
-RUN git clone https://github.com/offworld-projects/offworld-gym.git \
+RUN git clone -b fix/new-reward-logic-for-monolith https://github.com/offworld-projects/offworld-gym.git \
 	&& cd offworld-gym/scripts \
 	&& export OFFWORLD_GYM_ROOT=`pwd`/.. \
 	&& ./install-real-and-sim.sh \

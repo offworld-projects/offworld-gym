@@ -1,0 +1,7 @@
+services:
+  ow_gym_sim:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      image: offworldai/offworld-gym:latest
+
