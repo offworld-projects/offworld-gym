@@ -48,15 +48,16 @@ pip install --user --upgrade imageio
 cd $OFFWORLD_GYM_ROOT
 pip install --user -e .
 
-# Installing Python3.6
-cd /tmp
-wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
-tar -xvf Python-3.6.3.tgz
-cd /tmp/Python-3.6.3
-./configure --enable-shared
-make
-make install 
+# # Installing Python3.6
+# cd /tmp
+# wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
+# tar -xvf Python-3.6.3.tgz
+# cd /tmp/Python-3.6.3
+# ./configure --enable-shared
+# make
+# make install 
 
+# Installing Python3.6
 sudo add-apt-repository ppa:jonathonf/python-3.6
 sudo apt update
 sudo apt install python3.6
