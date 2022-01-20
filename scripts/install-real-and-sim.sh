@@ -38,7 +38,7 @@ pip install --user --upgrade defusedxml
 pip install --user --upgrade rospkg
 pip install --user --upgrade matplotlib
 pip install --user --upgrade netifaces
-pip install --user --upgrade regex
+# pip install --user --upgrade regex
 pip install --user --upgrade psutil
 pip install --user --upgrade gym
 pip install --user --upgrade python-socketio==4.6.0 
@@ -57,41 +57,41 @@ pip install --user -e .
 # make
 # make install 
 
-# # Installing Python3.6
-# sudo add-apt-repository ppa:deadsnakes/ppa -y
-# sudo apt-get update
-# sudo apt-get install -y python3.6 python3.6-dev
+# Installing Python3.6
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt-get update
+sudo apt-get install -y python3.7 python3.7-dev
 
 # Installing Python3.6
-sudo apt-get update
-sudo apt-get install -y python3.6 python3.6-dev
+# sudo apt-get update
+# sudo apt-get install -y python3.6 python3.6-dev
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3/bin
-curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
+curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.7
 
-pip3.6 install --user --upgrade setuptools      
-pip3.6 install --user --upgrade pip
-pip3.6 install --user --upgrade numpy
-pip3.6 install --user --upgrade scipy
-# pip3.6 install --user --upgrade tensorflow-gpu==1.14.0
-# pip3.6 install --user --upgrade keras==2.2.4
-pip3.6 install --user --upgrade opencv-python
-pip3.6 install --user --upgrade catkin_pkg
-pip3.6 install --user --upgrade empy
-pip3.6 install --user --upgrade requests
-pip3.6 install --user --upgrade defusedxml 
-pip3.6 install --user --upgrade rospkg
-pip3.6 install --user --upgrade matplotlib
-pip3.6 install --user --upgrade netifaces
-pip3.6 install --user --upgrade regex
-pip3.6 install --user --upgrade psutil
-pip3.6 install --user --upgrade gym
-pip3.6 install --user --upgrade python-socketio
-pip3.6 install --user --upgrade scikit-image
-pip3.6 install --user --upgrade pyquaternion
-pip3.6 install --user --upgrade imageio
+pip3.7 install --user --upgrade setuptools      
+pip3.7 install --user --upgrade pip
+pip3.7 install --user --upgrade numpy
+pip3.7 install --user --upgrade scipy
+# pip3.7 install --user --upgrade tensorflow-gpu==1.14.0
+# pip3.7 install --user --upgrade keras==2.2.4
+pip3.7 install --user --upgrade opencv-python
+pip3.7 install --user --upgrade catkin_pkg
+pip3.7 install --user --upgrade empy
+pip3.7 install --user --upgrade requests
+pip3.7 install --user --upgrade defusedxml 
+pip3.7 install --user --upgrade rospkg
+pip3.7 install --user --upgrade matplotlib
+pip3.7 install --user --upgrade netifaces
+pip3.7 install --user --upgrade regex
+pip3.7 install --user --upgrade psutil
+pip3.7 install --user --upgrade gym
+pip3.7 install --user --upgrade python-socketio
+pip3.7 install --user --upgrade scikit-image
+pip3.7 install --user --upgrade pyquaternion
+pip3.7 install --user --upgrade imageio
 
 cd $OFFWORLD_GYM_ROOT
-pip3.6 install --user -e .
+pip3.7 install --user -e .
 		
 # put modified keras-rl under ./assets
 # gymshell.sh will update the $PYTHONPATH to point here
