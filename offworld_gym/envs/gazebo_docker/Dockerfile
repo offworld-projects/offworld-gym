@@ -24,13 +24,13 @@ RUN git clone -b fix/new-reward-logic-for-monolith https://github.com/offworld-p
 
 WORKDIR /offworld-gym/scripts 
 
+ENV PATH "/root/.local/bin:$PATH"
+
 RUN export OFFWORLD_GYM_ROOT=`pwd`/.. \
 	&& ./install-real-and-sim.sh 
 
 RUN pip3.6 install --user docker
 	# adding this pip install here because we probably will want to separate docker env install from other env installs later
-
-ENV PATH "/root/.local/bin:$PATH"
 
 RUN cd /offworld-gym \
 	&& git pull \

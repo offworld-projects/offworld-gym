@@ -30,7 +30,7 @@ pip install --user --upgrade scipy==1.2.2
 pip install --user --upgrade futures==3.1.1
 pip install --user --upgrade tensorflow-gpu==1.14.0
 pip install --user --upgrade keras==2.2.4
-# pip install --user --upgrade opencv-python
+pip install --user --upgrade opencv-python==4.2.0.32
 pip install --user --upgrade catkin_pkg
 pip install --user --upgrade empy
 pip install --user --upgrade requests
@@ -38,35 +38,30 @@ pip install --user --upgrade defusedxml
 pip install --user --upgrade rospkg
 pip install --user --upgrade matplotlib
 pip install --user --upgrade netifaces
-# pip install --user --upgrade regex
+pip install --user --upgrade regex
 pip install --user --upgrade psutil
 pip install --user --upgrade gym
-pip install --user --upgrade python-socketio
+pip install --user --upgrade python-socketio==4.6.0 
 pip install --user --upgrade scikit-image
 pip install --user --upgrade pyquaternion
 pip install --user --upgrade imageio
 cd $OFFWORLD_GYM_ROOT
 pip install --user -e .
 
-# # Installing Python3.6
-# cd /tmp
-# wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
-# tar -xvf Python-3.6.3.tgz
-# cd /tmp/Python-3.6.3
-# ./configure --enable-shared
-# make
-# make install 
-
 # Installing Python3.6
-sudo add-apt-repository ppa:jonathonf/python-3.6
-sudo apt update
-sudo apt install python3.6
-sudo apt install python3.6-dev
-sudo apt install python3.6-venv
-wget https://bootstrap.pypa.io/get-pip.py
-sudo python3.6 get-pip.py
-sudo ln -s /usr/bin/python3.6 /usr/local/bin/python3
-sudo ln -s /usr/local/bin/pip /usr/local/bin/pip3
+cd /tmp
+wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
+tar -xvf Python-3.6.3.tgz
+cd /tmp/Python-3.6.3
+./configure --enable-shared
+make
+make install 
+
+# # Installing Python3.6
+# sudo add-apt-repository ppa:deadsnakes/ppa -y
+# sudo apt-get update
+# sudo apt-get install -y python3.6 python3.6-dev
+curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
 
 pip3.6 install --user --upgrade setuptools      
 pip3.6 install --user --upgrade pip
