@@ -21,9 +21,8 @@ export OFFWORLD_GYM_ROOT=`pwd`
 sudo apt update
 sudo apt install -y libbullet-dev python-pip git curl wget
 
-curl https://bootstrap.pypa.io/pip/2.7/get-pip.py
-python get-pip.py 
-pip install --upgrade pip 
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py | sudo -H python2.7
+pip install --user --upgrade pip 
 pip install --user --upgrade testresources
 pip install --user --upgrade setuptools
 pip install --user --upgrade numpy==1.16.5
