@@ -28,8 +28,8 @@ pip install --user --upgrade setuptools
 pip install --user --upgrade numpy==1.16.5
 pip install --user --upgrade scipy==1.2.2
 pip install --user --upgrade futures==3.1.1
-pip install --user --upgrade tensorflow-gpu==1.14.0
-pip install --user --upgrade keras==2.2.4
+# pip install --user --upgrade tensorflow-gpu==1.14.0
+# pip install --user --upgrade keras==2.2.4
 pip install --user --upgrade opencv-python==4.2.0.32
 pip install --user --upgrade catkin_pkg
 pip install --user --upgrade empy
@@ -49,26 +49,31 @@ cd $OFFWORLD_GYM_ROOT
 pip install --user -e .
 
 # Installing Python3.6
-cd /tmp
-wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
-tar -xvf Python-3.6.3.tgz
-cd /tmp/Python-3.6.3
-./configure --enable-shared
-make
-make install 
+# cd /tmp
+# wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
+# tar -xvf Python-3.6.3.tgz
+# cd /tmp/Python-3.6.3
+# ./configure --enable-shared
+# make
+# make install 
 
 # # Installing Python3.6
 # sudo add-apt-repository ppa:deadsnakes/ppa -y
 # sudo apt-get update
 # sudo apt-get install -y python3.6 python3.6-dev
+
+# Installing Python3.6
+sudo apt-get update
+sudo apt-get install -y python3.6 python3.6-dev
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3/bin
 curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6
 
 pip3.6 install --user --upgrade setuptools      
 pip3.6 install --user --upgrade pip
 pip3.6 install --user --upgrade numpy
 pip3.6 install --user --upgrade scipy
-pip3.6 install --user --upgrade tensorflow-gpu==1.14.0
-pip3.6 install --user --upgrade keras==2.2.4
+# pip3.6 install --user --upgrade tensorflow-gpu==1.14.0
+# pip3.6 install --user --upgrade keras==2.2.4
 pip3.6 install --user --upgrade opencv-python
 pip3.6 install --user --upgrade catkin_pkg
 pip3.6 install --user --upgrade empy
