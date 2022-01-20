@@ -30,12 +30,12 @@ RUN export OFFWORLD_GYM_ROOT=`pwd`/.. \
 RUN pip3.6 install --user docker
 	# adding this pip install here because we probably will want to separate docker env install from other env installs later
 
+ENV PATH "/root/.local/bin:$PATH"
+
 RUN cd /offworld-gym \
 	&& git pull \
 	&& git checkout origin/main \
 	&& chmod +x /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
-
-ENV PATH "/root/.local/bin:$PATH"
 
 # Additional ENV Variables to separete elements of PYTHONPATH dependencies among the specific systems that require them.
 # (May have unnecessary elements in these paths, e.g. catkin_ws packages)
