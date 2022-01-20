@@ -21,7 +21,9 @@ export OFFWORLD_GYM_ROOT=`pwd`
 sudo apt update
 sudo apt install -y libbullet-dev python-pip git curl wget
 
-curl https://bootstrap.pypa.io/get-pip.py | sudo -H python2.7
+curl https://bootstrap.pypa.io/pip/2.7/get-pip.py
+python get-pip.py 
+pip install --upgrade pip 
 pip install --user --upgrade testresources
 pip install --user --upgrade setuptools
 pip install --user --upgrade numpy==1.16.5
@@ -48,35 +50,45 @@ cd $OFFWORLD_GYM_ROOT
 pip install --user -e .
 
 # Installing Python3.6
-cd /tmp
-wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
-tar -xvf Python-3.6.3.tgz
-cd /tmp/Python-3.6.3
-./configure --enable-shared
-make
-make install 
+# cd /tmp
+# wget http://10.0.3.12:20500/offworld/common-libraries/python-3.6/Python-3.6.3.tgz
+# tar -xvf Python-3.6.3.tgz
+# cd /tmp/Python-3.6.3
+# ./configure --enable-shared
+# make
+# make install 
 
-pip3.6 install --user --upgrade setuptools
-pip3.6 install --user --upgrade pip
-pip3.6 install --user --upgrade numpy
-pip3.6 install --user --upgrade scipy
-pip3.6 install --user --upgrade tensorflow-gpu==1.14.0
-pip3.6 install --user --upgrade keras==2.2.4
-pip3.6 install --user --upgrade opencv-python
-pip3.6 install --user --upgrade catkin_pkg
-pip3.6 install --user --upgrade empy
-pip3.6 install --user --upgrade requests
-pip3.6 install --user --upgrade defusedxml 
-pip3.6 install --user --upgrade rospkg
-pip3.6 install --user --upgrade matplotlib
-pip3.6 install --user --upgrade netifaces
-pip3.6 install --user --upgrade regex
-pip3.6 install --user --upgrade psutil
-pip3.6 install --user --upgrade gym
-pip3.6 install --user --upgrade python-socketio
-pip3.6 install --user --upgrade scikit-image
-pip3.6 install --user --upgrade pyquaternion
-pip3.6 install --user --upgrade imageio
+# sudo add-apt-repository ppa:jonathonf/python-3.6
+# sudo apt update
+# sudo apt install python3.6
+# sudo apt install python3.6-dev
+# sudo apt install python3.6-venv
+# wget https://bootstrap.pypa.io/get-pip.py
+# sudo python3.6 get-pip.py
+# sudo ln -s /usr/bin/python3.6 /usr/local/bin/python3
+# sudo ln -s /usr/local/bin/pip /usr/local/bin/pip3
+
+# pip3.6 install --user --upgrade setuptools      
+# pip3.6 install --user --upgrade pip
+# pip3.6 install --user --upgrade numpy
+# pip3.6 install --user --upgrade scipy
+# pip3.6 install --user --upgrade tensorflow-gpu==1.14.0
+# pip3.6 install --user --upgrade keras==2.2.4
+# pip3.6 install --user --upgrade opencv-python
+# pip3.6 install --user --upgrade catkin_pkg
+# pip3.6 install --user --upgrade empy
+# pip3.6 install --user --upgrade requests
+# pip3.6 install --user --upgrade defusedxml 
+# pip3.6 install --user --upgrade rospkg
+# pip3.6 install --user --upgrade matplotlib
+# pip3.6 install --user --upgrade netifaces
+# pip3.6 install --user --upgrade regex
+# pip3.6 install --user --upgrade psutil
+# pip3.6 install --user --upgrade gym
+# pip3.6 install --user --upgrade python-socketio
+# pip3.6 install --user --upgrade scikit-image
+# pip3.6 install --user --upgrade pyquaternion
+# pip3.6 install --user --upgrade imageio
 
 # cd $OFFWORLD_GYM_ROOT
 # pip3.6 install --user -e .
