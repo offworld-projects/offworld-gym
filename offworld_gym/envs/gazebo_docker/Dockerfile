@@ -34,17 +34,32 @@ RUN rosdep init
 RUN sudo rosdep fix-permissions
 RUN rosdep update
 
-# gazebo
-RUN apt install -y gazebo9 libgazebo9-dev
-RUN apt install -y libjansson-dev libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential
+## Gazebo and nvm
+ENV NVM_DIR /usr/local/nvm
+ENV NODE_VERSION 8.17.0
 
-    # install nvm
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-RUN nvm install 8
-WORKDIR /;
-RUN git clone https://github.com/osrf/gzweb
-WORKDIR /gzweb
-RUN git checkout gzweb_1.4.1 
+# Replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+RUN apt-get install -y libjansson-dev npm libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential libignition-math2-dev
+
+# Install nvm with node and npm
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.30.1/install.sh | bash \
+    && source $NVM_DIR/nvm.sh \
+    && nvm install $NODE_VERSION \
+    && nvm alias default $NODE_VERSION \
+    && nvm use default \
+    && cd / \
+    && git clone https://github.com/osrf/gzweb \
+    && cd gzweb \
+    && git checkout gzweb_1.4.0 \
+    && source /offworld-gym/scripts/gymshell.sh \
+    && source /usr/share/gazebo/setup.sh \
+    && mkdir -p /gzweb/http/client/assets/ \
+    && npm run deploy --- -m local
+
+ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 
 # RUN git clone -b fix/new-reward-logic-for-monolith https://github.com/offworld-projects/offworld-gym.git 
