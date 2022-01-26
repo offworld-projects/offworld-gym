@@ -1,7 +1,7 @@
-cloudpickle==1.3.0
-opencv-python==3.4.9.31
-docker==4.2.0
-grpcio-tools==1.27.2
+cloudpickle>=1.3.0
+opencv-python>=3.4.9.31
+docker>=4.2.0
+grpcio-tools>=1.27.2
 PyYAML
 tlslite-ng
 gym>=0.12.0

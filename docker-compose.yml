@@ -2,6 +2,6 @@ services:
   ow_gym_sim:
     build:
       context: ./
-      dockerfile: offworld_gym/envs/gazebo_docker/Dockerfile
+      dockerfile: Dockerfile
     image: offworldai/offworld-gym:latest
 

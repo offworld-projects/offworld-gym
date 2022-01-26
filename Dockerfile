@@ -9,10 +9,15 @@ RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONT
 # Copy and Initialize workspace
 RUN mkdir -p /offworld_gym
 ENV  OFFWORLD_GYM_ROOT='/offworld_gym'
-ADD  examples /offworld_gym/examples
-ADD  offworld_gym /offworld_gym/offworld_gym
-ADD  scripts /offworld_gym/scripts
+COPY . /offworld_gym
+# COPY  examples/ /offworld_gym/examples
+# COPY  offworld_gym/ /offworld_gym/offworld_gym
+# COPY  scripts/ /offworld_gym/scripts
+# COPY  setup.py /offworld_gym/
+# COPY  requirements.txt /offworld_gym/
 WORKDIR /offworld_gym
+RUN pwd
+RUN ls -lh
 
 # Install system level dependecies
 RUN apt-get update -y
@@ -26,11 +31,13 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
 	&& apt-get install -y python3.8 python3.8-dev 
 
 # Install Offworld Client Library and Python dependecies
-RUN cd offworld-gym/scripts
+# RUN cd offworld-gym/scripts
+ENV PATH "/root/.local/bin:$PATH"
 RUN export OFFWORLD_GYM_ROOT=`pwd`/..
-RUN apt install -y libbullet-dev python-pip git curl wget
+RUN apt install -y libbullet-dev git curl wget python3-distutils
 RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3/bin
-RUN curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.8
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+RUN python3.8 get-pip.py
 
 RUN pip3.8 install --user --upgrade setuptools      
 RUN pip3.8 install --user --upgrade pip
@@ -55,10 +62,12 @@ RUN pip3.8 install --user docker
 
 RUN cd $OFFWORLD_GYM_ROOT
 RUN pip3.8 install --user -e .
-RUN chmod +x /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
+RUN pwd
+RUN ls -lh
+RUN chmod +x ./offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
 
 
-# Install ROS Gazebo and other Python dependencies
+# Install ROS and other Python dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 #RUN ./scripts/install-real-and-sim.sh install_ros_dep_lib
 RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' 
@@ -71,20 +80,28 @@ RUN apt install -y python3-rosdep
 RUN rosdep init
 RUN sudo rosdep fix-permissions
 RUN rosdep update
-RUN source /opt/ros/Noetic/setup.bash
+# RUN source /opt/ros/Noetic/setup.bash
 
-## Gazebo and nvm
-ENV PATH "/root/.local/bin:$PATH"
+# install additional ROS packages
+# RUN apt install --allow-unauthenticated -y ros-noetic-grid-map ros-noetic-frontier-exploration \
+#                     ros-noetic-ros-controllers ros-noetic-rospack \
+#                     libignition-math2 libignition-math2-dev python3-tk libeigen3-dev \
+#                     ros-noetic-roslint
+
+
+# ## Gazebo and nvm
+
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 8.17.0
+ENV NODE_VERSION 11
 
 # Replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 RUN apt-get install -y libjansson-dev npm libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential 
 
+
 # Install nvm with node and npm
-RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.30.1/install.sh | bash \
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | bash \
     && source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
@@ -92,8 +109,7 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.30.1/install.sh | b
     && cd / \
     && git clone https://github.com/osrf/gzweb \
     && cd gzweb \
-    && git checkout gzweb_1.4.0 \
-    # && source /offworld-gym/scripts/gymshell.sh \
+    && git checkout gzweb_1.4.1 \
     && source /usr/share/gazebo/setup.sh \
     && mkdir -p /gzweb/http/client/assets/ \
     && npm run deploy --- -m local
@@ -101,16 +117,16 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.30.1/install.sh | b
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-# Additional ENV Variables to separete elements of PYTHONPATH dependencies among the specific systems that require them.
-# (May have unnecessary elements in these paths, e.g. catkin_ws packages)
+# # Additional ENV Variables to separete elements of PYTHONPATH dependencies among the specific systems that require them.
+# # (May have unnecessary elements in these paths, e.g. catkin_ws packages)
 
-# Appended to the python system path at runtime to import ROS python modules regardless of existing env setup.
-ENV GAZEBO_GYM_PYTHON_DEPENDENCIES /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3.8/dist-packages
+# # Appended to the python system path at runtime to import ROS python modules regardless of existing env setup.
+# ENV GAZEBO_GYM_PYTHON_DEPENDENCIES /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3.8/dist-packages
 
-# Replaces PYTHONPATH in the subprocess that calls roslaunch within a Gazebo Gym (So that your python3 site-packages don't get imported by accident)
-ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
+# # Replaces PYTHONPATH in the subprocess that calls roslaunch within a Gazebo Gym (So that your python3 site-packages don't get imported by accident)
+# ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
 
 
-# 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
-RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
-    && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
+# # 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
+# RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
+#     && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
