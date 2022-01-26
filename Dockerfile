@@ -10,14 +10,7 @@ RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONT
 RUN mkdir -p /offworld_gym
 ENV  OFFWORLD_GYM_ROOT='/offworld_gym'
 COPY . /offworld_gym
-# COPY  examples/ /offworld_gym/examples
-# COPY  offworld_gym/ /offworld_gym/offworld_gym
-# COPY  scripts/ /offworld_gym/scripts
-# COPY  setup.py /offworld_gym/
-# COPY  requirements.txt /offworld_gym/
 WORKDIR /offworld_gym
-RUN pwd
-RUN ls -lh
 
 # Install system level dependecies
 RUN apt-get update -y
@@ -25,13 +18,34 @@ RUN apt-get install -y -q gnupg2 apt-utils lsb-core lsb-release software-propert
 RUN apt-get clean all 
 RUN apt-get install -y -q nano net-tools xvfb tmux glew-utils mesa-utils
 
+# Install ROS and other Python dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+#RUN ./scripts/install-real-and-sim.sh install_ros_dep_lib
+RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' 
+RUN apt install -y curl 
+RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - 
+RUN apt update -y
+RUN apt install -y ros-noetic-desktop-full git
+RUN apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
+RUN apt install -y python3-rosdep
+RUN rosdep init
+RUN sudo rosdep fix-permissions
+RUN rosdep update
+# RUN source /opt/ros/Noetic/setup.bash
+
+# install additional ROS packages
+RUN apt install --allow-unauthenticated -y ros-noetic-multirobot-map-merge ros-noetic-explore-lite \
+                    ros-noetic-ros-controllers ros-noetic-rospack \
+                    libignition-math2 libignition-math2-dev python3-tk libeigen3-dev \
+                    ros-noetic-roslint
+
+###########################################################################
 # Install Python3.8
 RUN add-apt-repository ppa:deadsnakes/ppa \
 	&& apt-get update \
 	&& apt-get install -y python3.8 python3.8-dev 
 
 # Install Offworld Client Library and Python dependecies
-# RUN cd offworld-gym/scripts
 ENV PATH "/root/.local/bin:$PATH"
 RUN export OFFWORLD_GYM_ROOT=`pwd`/..
 RUN apt install -y libbullet-dev git curl wget python3-distutils
@@ -65,33 +79,13 @@ RUN pip3.8 install --user -e .
 RUN pwd
 RUN ls -lh
 RUN chmod +x ./offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
+RUN ./scripts/install-real-and-sim.sh install_python_dep_lib
+RUN ./scripts/install-real-and-sim.sh build_gym_shell_script
 
-
-# Install ROS and other Python dependencies
-ENV DEBIAN_FRONTEND=noninteractive
-#RUN ./scripts/install-real-and-sim.sh install_ros_dep_lib
-RUN sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' 
-RUN apt install -y curl 
-RUN curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key add - 
-RUN apt update -y
-RUN apt install -y ros-noetic-desktop-full git
-RUN apt install -y python3-rosdep python3-rosinstall python3-rosinstall-generator python3-wstool build-essential
-RUN apt install -y python3-rosdep
-RUN rosdep init
-RUN sudo rosdep fix-permissions
-RUN rosdep update
-# RUN source /opt/ros/Noetic/setup.bash
-
-# install additional ROS packages
-# RUN apt install --allow-unauthenticated -y ros-noetic-grid-map ros-noetic-frontier-exploration \
-#                     ros-noetic-ros-controllers ros-noetic-rospack \
-#                     libignition-math2 libignition-math2-dev python3-tk libeigen3-dev \
-#                     ros-noetic-roslint
-
-
-# ## Gazebo and nvm
-
+###########################################################################
+## Gazebo and nvm
 ENV NVM_DIR /usr/local/nvm
+RUN mkdir -p $NVM_DIR
 ENV NODE_VERSION 11
 
 # Replace shell with bash so we can source files
@@ -117,16 +111,16 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | b
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
-# # Additional ENV Variables to separete elements of PYTHONPATH dependencies among the specific systems that require them.
-# # (May have unnecessary elements in these paths, e.g. catkin_ws packages)
+# Additional ENV Variables to separete elements of PYTHONPATH dependencies among the specific systems that require them.
+# (May have unnecessary elements in these paths, e.g. catkin_ws packages)
 
-# # Appended to the python system path at runtime to import ROS python modules regardless of existing env setup.
-# ENV GAZEBO_GYM_PYTHON_DEPENDENCIES /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3.8/dist-packages
+# Appended to the python system path at runtime to import ROS python modules regardless of existing env setup.
+ENV GAZEBO_GYM_PYTHON_DEPENDENCIES /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3.8/dist-packages
 
-# # Replaces PYTHONPATH in the subprocess that calls roslaunch within a Gazebo Gym (So that your python3 site-packages don't get imported by accident)
-# ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
+# Replaces PYTHONPATH in the subprocess that calls roslaunch within a Gazebo Gym (So that your python3 site-packages don't get imported by accident)
+ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
 
 
-# # 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
-# RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
-#     && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
+# 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
+RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
+    && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae

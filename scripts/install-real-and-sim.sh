@@ -16,6 +16,9 @@
 # this assumes the script is executed from under `scripts` directory
 # (should we move `install.sh` to the repository root? will be cleaner)
 
+cd ..
+export OFFWORLD_GYM_ROOT='/offworld_gym'
+
 install_ros_dep_lib() {
     # sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list' 
     # apt install -y curl 
@@ -44,7 +47,31 @@ install_gazebo_dep_lib() {
 }
 
 install_python_dep_lib() {
-    apt-get update -y
+    cd /usr/lib/x86_64-linux-gnu
+    ln -s libboost_python-py38.so libboost_python3.so
+    sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+    wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+    apt-get update
+    apt-get install -y libignition-math4-dev
+    cd $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
+
+    git clone https://github.com/ros-perception/vision_opencv.git -b noetic
+    git clone https://github.com/offworld-projects/rosbot_description.git -b offworld-gym
+
+    cd ..
+    catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3.8 -DPYTHON_INCLUDE_DIR=/usr/include/python3.8m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8m.so
+}
+
+build_gym_shell_script() {
+    # build the Gym Shell script
+    echo '#!/usr/bin/env bash' > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+    echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+    echo "source /opt/ros/noetic/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+    echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+    echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+    echo 'export PYTHONPATH= ~/.local/lib/python3.8/site-packages/:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+    echo 'export OFFWORLD_GYM_ACCESS_TOKEN="COPY IT HERE"' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+    chmod +x $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 }
 
 "$@"
