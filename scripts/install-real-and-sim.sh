@@ -48,7 +48,12 @@ install_gazebo_dep_lib() {
 
 install_python_dep_lib() {
     cd /usr/lib/x86_64-linux-gnu
-    ln -s libboost_python-py38.so libboost_python3.so
+    echo "check libboost version------------------------------\n"
+    ls -al /usr/lib/aarch64-linux-gnu/libboost_python
+    ln -s libboost_python3.a libboost_python38.a
+    ln -s libboost_python3.so libboost_python38.so
+    echo "check libboost version------------------------------\n"
+    ls -al /usr/lib/aarch64-linux-gnu/libboost_python
     sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
     wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
     apt-get update
