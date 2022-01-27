@@ -6,11 +6,8 @@ FROM ubuntu:20.04
 # Set timezone:
 RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone
 
-# Copy and Initialize workspace
-RUN mkdir -p /offworld_gym
-ENV  OFFWORLD_GYM_ROOT='/offworld_gym'
-COPY . /offworld_gym
-WORKDIR /offworld_gym
+# Replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # Install system level dependecies
 RUN apt-get update -y
@@ -31,13 +28,14 @@ RUN apt install -y python3-rosdep
 RUN rosdep init
 RUN sudo rosdep fix-permissions
 RUN rosdep update
-# RUN source /opt/ros/Noetic/setup.bash
+RUN source /opt/ros/noetic/setup.bash
 
 # install additional ROS packages
+RUN apt-get update -y
 RUN apt install --allow-unauthenticated -y ros-noetic-multirobot-map-merge ros-noetic-explore-lite \
                     ros-noetic-ros-controllers ros-noetic-rospack \
-                    libignition-math2 libignition-math2-dev python3-tk libeigen3-dev \
-                    ros-noetic-roslint
+                    python3-tk libeigen3-dev \
+                    ros-noetic-roslint ros-noetic-catkin
 
 ###########################################################################
 # Install Python3.8
@@ -74,7 +72,13 @@ RUN pip3.8 install --user --upgrade pyquaternion
 RUN pip3.8 install --user --upgrade imageio
 RUN pip3.8 install --user docker
 
-RUN cd $OFFWORLD_GYM_ROOT
+# Copy and Initialize workspace
+RUN mkdir -p /offworld_gym
+ENV  OFFWORLD_GYM_ROOT='/offworld_gym'
+COPY . /offworld_gym
+WORKDIR /offworld_gym
+
+WORKDIR $OFFWORLD_GYM_ROOT
 RUN pip3.8 install --user -e .
 RUN pwd
 RUN ls -lh
@@ -88,11 +92,7 @@ ENV NVM_DIR /usr/local/nvm
 RUN mkdir -p $NVM_DIR
 ENV NODE_VERSION 11
 
-# Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
 RUN apt-get install -y libjansson-dev npm libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential 
-
 
 # Install nvm with node and npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | bash \
@@ -119,7 +119,6 @@ ENV GAZEBO_GYM_PYTHON_DEPENDENCIES /offworld-gym/offworld_gym/envs/gazebo/catkin
 
 # Replaces PYTHONPATH in the subprocess that calls roslaunch within a Gazebo Gym (So that your python3 site-packages don't get imported by accident)
 ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
-
 
 # 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
 RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
