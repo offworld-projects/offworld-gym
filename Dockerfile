@@ -3,13 +3,14 @@
 
 FROM ubuntu:20.04
 
-# Set timezone:
-RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone
+# set the image timezone to be UTC
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+# # Replace shell with bash so we can source files
+# RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-# Install system level dependecies
+# Install Ubuntu system level dependecies
 RUN apt-get update -y
 RUN apt-get install -y -q gnupg2 apt-utils lsb-core lsb-release software-properties-common dialog 
 RUN apt-get clean all 
@@ -28,14 +29,15 @@ RUN apt install -y python3-rosdep
 RUN rosdep init
 RUN sudo rosdep fix-permissions
 RUN rosdep update
-RUN source /opt/ros/noetic/setup.bash
+# ENV source /opt/ros/noetic/setup.bash
+
 
 # install additional ROS packages
 RUN apt-get update -y
 RUN apt install --allow-unauthenticated -y ros-noetic-multirobot-map-merge ros-noetic-explore-lite \
                     ros-noetic-ros-controllers ros-noetic-rospack \
                     python3-tk libeigen3-dev \
-                    ros-noetic-roslint ros-noetic-catkin
+                    ros-noetic-roslint ros-noetic-catkin python3-catkin-tools
 
 ###########################################################################
 # Install Python3.8
@@ -44,7 +46,6 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
 	&& apt-get install -y python3.8 python3.8-dev 
 
 # Install Offworld Client Library and Python dependecies
-ENV PATH "/root/.local/bin:$PATH"
 RUN export OFFWORLD_GYM_ROOT=`pwd`/..
 RUN apt install -y libbullet-dev git curl wget python3-distutils
 RUN export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/python3/bin
@@ -79,12 +80,29 @@ COPY . /offworld_gym
 WORKDIR /offworld_gym
 
 WORKDIR $OFFWORLD_GYM_ROOT
-RUN pip3.8 install --user -e .
+RUN pip3.8 install  -e .
 RUN pwd
 RUN ls -lh
 RUN chmod +x ./offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
-RUN ./scripts/install-real-and-sim.sh install_python_dep_lib
-RUN ./scripts/install-real-and-sim.sh build_gym_shell_script
+
+# RUN ./scripts/install-real-and-sim.sh install_python_dep_lib
+WORKDIR /usr/lib/x86_64-linux-gnu
+RUN ln -s libboost_python37.a libboost_python3.a
+RUN ln -s libboost_python37.so libboost_python3.so
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+RUN apt-get update
+RUN apt-get install -y libignition-math4-dev  
+RUN mkdir -p $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
+WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
+
+RUN git clone https://github.com/ros-perception/vision_opencv.git -b noetic
+RUN git clone https://github.com/offworld-projects/rosbot_description.git -b offworld-gym
+
+RUN cd ..
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
+        catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3.8 -DPYTHON_INCLUDE_DIR=/usr/include/python3.8m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8m.so"
+# RUN ./scripts/install-real-and-sim.sh build_gym_shell_script
 
 ###########################################################################
 ## Gazebo and nvm
