@@ -81,8 +81,6 @@ WORKDIR /offworld_gym
 
 WORKDIR $OFFWORLD_GYM_ROOT
 RUN pip3.8 install  -e .
-RUN pwd
-RUN ls -lh
 RUN chmod +x ./offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
 
 # RUN ./scripts/install-real-and-sim.sh install_python_dep_lib
@@ -99,9 +97,10 @@ WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
 RUN git clone https://github.com/ros-perception/vision_opencv.git -b noetic
 RUN git clone https://github.com/offworld-projects/rosbot_description.git -b offworld-gym
 
-RUN cd ..
-RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && \
-        catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3.8 -DPYTHON_INCLUDE_DIR=/usr/include/python3.8m -DPYTHON_LIBRARY=/usr/lib/x86_64-linux-gnu/libpython3.8m.so"
+WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws
+RUN pwd
+RUN ls -lh
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
 # RUN ./scripts/install-real-and-sim.sh build_gym_shell_script
 
 ###########################################################################
