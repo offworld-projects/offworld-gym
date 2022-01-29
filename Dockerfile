@@ -7,9 +7,6 @@ FROM ubuntu:20.04
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# # Replace shell with bash so we can source files
-# RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
 # Install Ubuntu system level dependecies
 RUN apt-get update -y
 RUN apt-get install -y -q gnupg2 apt-utils lsb-core lsb-release software-properties-common dialog 
@@ -30,7 +27,6 @@ RUN rosdep init
 RUN sudo rosdep fix-permissions
 RUN rosdep update
 # ENV source /opt/ros/noetic/setup.bash
-
 
 # install additional ROS packages
 RUN apt-get update -y
@@ -109,6 +105,9 @@ ENV NVM_DIR /usr/local/nvm
 RUN mkdir -p $NVM_DIR
 ENV NODE_VERSION 11
 
+# Replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
 RUN apt-get install -y libjansson-dev npm libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential 
 
 # Install nvm with node and npm
@@ -121,7 +120,7 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | b
     && git clone https://github.com/osrf/gzweb \
     && cd gzweb \
     && git checkout gzweb_1.4.1 \
-    && source /usr/share/gazebo/setup.sh \
+    && source /usr/share/gazebo/setup.sh\
     && mkdir -p /gzweb/http/client/assets/ \
     && npm run deploy --- -m local
 
@@ -138,5 +137,5 @@ ENV GAZEBO_GYM_PYTHON_DEPENDENCIES /offworld-gym/offworld_gym/envs/gazebo/catkin
 ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
 
 # 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
-RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
-    && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
+# RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
+#     && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
