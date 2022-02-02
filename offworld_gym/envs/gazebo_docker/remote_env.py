@@ -205,6 +205,7 @@ class OffWorldDockerizedEnv(gym.Env):
         # open a gRPC channel
         channel = grpc.insecure_channel(f'localhost:{host_published_grpc_port}')
         self._grpc_stub = RemoteEnvStub(channel)
+        logger.info(colored(f"We are here", "blue"))
 
         # Assure that the time this method returns, the docker env is fully initialized.
         # Verify this by successfully querying the container's gym env observation and action spaces
