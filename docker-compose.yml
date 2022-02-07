@@ -3,5 +3,19 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    networks:
+      gym_network:
+        ipv4_address: 172.20.0.10
+    ports:
+      - "22:22"
+      - "9090:9090"
+      - "7777:7777"
     image: offworldai/offworld-gym:latest
+
+
+networks:
+  gym_network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 

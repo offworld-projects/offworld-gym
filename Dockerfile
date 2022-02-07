@@ -30,7 +30,7 @@ RUN rosdep update
 
 # install additional ROS packages
 RUN apt-get update -y
-RUN apt install --allow-unauthenticated -y ros-noetic-multirobot-map-merge ros-noetic-explore-lite \
+RUN apt install --allow-unauthenticated -y ros-noetic-rosbridge-suite ros-noetic-multirobot-map-merge ros-noetic-explore-lite \
                     ros-noetic-ros-controllers ros-noetic-rospack \
                     python3-tk libeigen3-dev \
                     ros-noetic-roslint ros-noetic-catkin python3-catkin-tools
@@ -67,6 +67,8 @@ RUN pip3.8 install --user --upgrade python-socketio
 RUN pip3.8 install --user --upgrade scikit-image
 RUN pip3.8 install --user --upgrade pyquaternion
 RUN pip3.8 install --user --upgrade imageio
+RUN pip3.8 install --user --upgrade paramiko
+RUN pip3.8 install --user --upgrade roslibpy
 RUN pip3.8 install --user docker
 
 # Copy and Initialize workspace
@@ -140,12 +142,22 @@ ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/o
 RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_description/src/rosbot_description /gzweb/http/client/assets/ \
     && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
 
+# Install a SSH Daemon
+RUN apt install -y openssh-server && 
+     systemctl ssh start &&
+     systemctl ssh enable
+
+RUN mkdir -p /var/run/sshd
+
 # build the Gym Shell script
 RUN echo '#!/usr/bin/env bash' > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo "source /opt/ros/noetic/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo 'export PYTHONPATH= ~/.local/lib/python3.8/site-packages/:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+RUN echo 'export PYTHONPATH= /usr/local/lib/python3.8/dist-packages/:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo 'export OFFWORLD_GYM_ACCESS_TOKEN="COPY IT HERE"' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN chmod +x $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+
+ENTRYPOINT ["/bin/bash"]
+CMD [ "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"]
