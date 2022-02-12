@@ -29,13 +29,6 @@ from abc import ABCMeta
 
 # gym and ros
 import gym
-from std_srvs.srv import Empty as Empty_srv
-from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
-from gazebo_msgs.srv import GetModelState
-from gazebo_msgs.msg import ModelState
-from sensor_msgs.msg import Image
-from rosgraph_msgs.msg import Clock
 
 # other dependencies
 import paramiko
@@ -77,9 +70,11 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             self.launch_file = launch_file
             self.node_name = node_name
 
+            self._latest_odom_message = None
             self._latest_clock_message = None
             self._latest_depth_img = None
             self._latest_rgb_img = None
+            
 
             self._start_container()
             
@@ -95,24 +90,24 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
     
     def _start_container(self):
 
-        container_start_command = f"docker-compose up"
+        docker_run_command = f"docker-compose up"
         logger.debug(f"Docker run command is:\n{docker_run_command}\n")
-        container_id = subprocess.check_output(["/bin/bash", "-c", container_start_command]).decode("utf-8").strip()
+        # container_id = subprocess.check_output(["/bin/bash", "-c", container_start_command]).decode("utf-8").strip()
         
         # check_ip_command = "docker inspect f"{container_name}" | grep 'IPAddress' | head -n 1"
         # self._container_ip = subprocess.check_output(["/bin/bash", "-c", check_ip_command]).decode("utf-8").strip()
         # logger.debug(f"Docker container ip is:\n{self._container_ip}\n")
 
-    def _send_command(self, shell, data):
-        # send command throgh a specific shell session
-        while not shell.send_ready(): time.sleep(1)
-        shell.send(str(data))
+    # def _send_command(self, shell, data):
+    #     # send command throgh a specific shell session
+    #     while not shell.send_ready(): time.sleep(1)
+    #     shell.send(str(data))
 
-    def _recv_data(self, shell, size):
-        # recieve command's respoinse throgh a specific shell session
-        while not shell.recv_ready(): time.sleep(1)
-        data = shell.recv(size)
-        return data
+    # def _recv_data(self, shell, size):
+    #     # recieve command's respoinse throgh a specific shell session
+    #     while not shell.recv_ready(): time.sleep(1)
+    #     data = shell.recv(size)
+    #     return data
 
     def launch_node(self):
         """Launches the gazebo world in the docker
@@ -122,43 +117,54 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         """
         try:
             # start ssh connection
-            self._ssh_client = paramiko.SSHClient()
-            self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            self._ssh_client.connect(hostname=CONTAINER_IP,username=’root’,password=’offworld’,look_for_keys=False, allow_agent=False)
-            self._ros_shell = self._ssh_client.invoke_shell()
+            # self._ssh_client = paramiko.SSHClient()
+            # self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            # self._ssh_client.connect(hostname=CONTAINER_IP,username=’root’,password=’offworld_gym’,look_for_keys=False, allow_agent=False)
+            # self._ros_shell = self._ssh_client.invoke_shell() # open a shell seesion for roslaunch
 
             # launch environment remotely using ssh
-            ros_env = os.environ.copy()
-            if ros_env.get("ROSLAUNCH_PYTHONPATH_OVERRIDE", None) is not None:
-                ros_env["PYTHONPATH"] = ros_env["ROSLAUNCH_PYTHONPATH_OVERRIDE"]
+            # ros_env = os.environ.copy()
+            # if ros_env.get("ROSLAUNCH_PYTHONPATH_OVERRIDE", None) is not None:
+            #     ros_env["PYTHONPATH"] = ros_env["ROSLAUNCH_PYTHONPATH_OVERRIDE"]
 
-            # pass launch arguments and launch gazebo
-            self._send_command(self._ros_shell, f"export "{ros_env["PYTHONPATH"]}")
-            rospack_path = os.path.join(rospack.get_path(self.package_name)
-            roslaunch_command = f"roslaunch {rospack_path} launch {self.launch_file}"
-            self._send_command(self._ros_shell, roslaunch_command)
-            logging.info("The environment has been started.")
+            # # pass launch arguments and launch gazebo
+            # self._send_command(self._ros_shell, f"export "{ros_env["PYTHONPATH"]}")
+            # rospack_path = os.path.join(rospack.get_path(self.package_name))
+            
+            # roslaunch_command = f"roslaunch {self.package_name}  {self.launch_file}"
+            # self._send_command(self._ros_shell, roslaunch_command)
+
+            # roslaunch_command = 'curl --data "{\"package_name\": \"gym_offworld_monolith\", \"launch_file_name\":\"env_bringup.launch\"}" \
+            #                     --header "Content-Type: application/json" \
+            #                     --request POST \
+            #                     http://127.0.0.1:8008/'
+
+            logger.info("The environment has been started.")
 
         except Exception:
-            logging.error("Environment cannont be launched in the docker.")
+            logger.error("Environment cannont be launched in the docker.")
             import traceback
             traceback.print_exc() 
 
-    def call_ros_service(self, service_name, service_type, *args, **kwargs):
+    def call_ros_service(self, service_name, service_type, data=None):
         service = roslibpy.Service(self._rosbridge_client, service_name, service_type)
-        request = roslibpy.ServiceRequest()
+        if not data:
+            request = roslibpy.ServiceRequest()
+        else:
+            request = roslibpy.ServiceRequest(data)
 
-        logging.info(f'Calling service {service_name}')
+        logger.info(f'Calling service {service_name}')
         result = service.call(request)
         return result
         
-    def public_message_to_ros_topic(self, topic_name, message_type, data):
-        publisher = roslibpy.Topic(self._rosbridge_client, topic_name, message_type)
-        if self._rosbridge_client.is_connected:
-            publisher.publish(roslibpy.Message({'data': data}))
+    def register_publisher(self, topic_name, message_type):
+        publisher= roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type)
+        return publisher
 
-    def get_message_from_ros_topic(self, topic_name, message_type, placeholder):
-        
+    def register_subscriber(self, topic_name, message_type, placeholder, queue_size):
+        def update_odom(msg):
+            self._latest_odom_message = msg
+
         def update_sim_time_from_clock(msg):
             self._latest_clock_message = msg
 
@@ -168,22 +174,24 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         def update_rgb_img(msg):
             self._latest_rgb_img = msg
 
-        def decode_image(msg):
-            base64_bytes = msg['data'].encode('ascii')
-            image_bytes = base64.b64decode(base64_bytes)
-            msg = np.array(image_bytes)
+        # def decode_image(msg):
+        #     base64_bytes = msg['data'].encode('ascii')
+        #     image_bytes = base64.b64decode(base64_bytes)
+        #     msg = np.array(image_bytes)
 
-        subscriber = roslibpy.Topic(self._rosbridge_client, topic_name, message_type)
-
+        subscriber = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type, queue_size=queue_size)  
+        
         if self._rosbridge_client.is_connected:
-            if str(topic_name) == '/clock':
+            if str(topic_name) == '/odom':
+                subscriber.subscribe(update_odom)
+            elif str(topic_name) == '/clock':
                 subscriber.subscribe(update_sim_time_from_clock)
             elif str(topic_name) == '/camera/depth/image_raw':
                 subscriber.subscribe(update_depth_img)
             elif str(topic_name) == '/camera/rgb/image_raw':
                 subscriber.subscribe(update_rgb_img)
             else:
-                logging.error(f"Message type not found {message_type}")
+                logger.error(f"Message type not found {message_type}")
 
         return subscriber
 

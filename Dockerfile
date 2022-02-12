@@ -33,7 +33,7 @@ RUN apt-get update -y
 RUN apt install --allow-unauthenticated -y ros-noetic-rosbridge-suite ros-noetic-multirobot-map-merge ros-noetic-explore-lite \
                     ros-noetic-ros-controllers ros-noetic-rospack \
                     python3-tk libeigen3-dev \
-                    ros-noetic-roslint ros-noetic-catkin python3-catkin-tools
+                    ros-noetic-roslint ros-noetic-catkin python3-catkin-tools  ros-noetic-robot-state-publisher
 
 ###########################################################################
 # Install Python3.8
@@ -71,49 +71,19 @@ RUN pip3.8 install --user --upgrade paramiko
 RUN pip3.8 install --user --upgrade roslibpy
 RUN pip3.8 install --user docker
 
-# Copy and Initialize workspace
-RUN mkdir -p /offworld-gym
-ENV  OFFWORLD_GYM_ROOT='/offworld-gym'
-COPY . /offworld-gym
-WORKDIR /offworld-gym
+# Replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
-WORKDIR $OFFWORLD_GYM_ROOT
-RUN pip3.8 install  -e .
-RUN chmod +x ./offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
-
-# RUN ./scripts/install-real-and-sim.sh install_python_dep_lib
-WORKDIR /usr/lib/x86_64-linux-gnu
-RUN ln -s libboost_python37.a libboost_python3.a
-RUN ln -s libboost_python37.so libboost_python3.so
-RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
-RUN apt-get update
-RUN apt-get install -y libignition-math4-dev  
-RUN mkdir -p $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
-WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
-
-RUN git clone https://github.com/ros-perception/vision_opencv.git -b noetic
-RUN git clone https://github.com/offworld-projects/rosbot_description.git -b offworld-gym
-
-WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws
-RUN pwd
-RUN ls -lh
-RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
-# RUN ./scripts/install-real-and-sim.sh build_gym_shell_script
-
+RUN apt-get install -y libjansson-dev npm libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential 
+RUN apt install gazebo11 libgazebo11-dev ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control
 ###########################################################################
 ## Gazebo and nvm
 ENV NVM_DIR /usr/local/nvm
 RUN mkdir -p $NVM_DIR
 ENV NODE_VERSION 11
 
-# Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-RUN apt-get install -y libjansson-dev npm libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential 
-
 # Install nvm with node and npm
-RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | bash \
+RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.35.1/install.sh | bash \
     && source $NVM_DIR/nvm.sh \
     && nvm install $NODE_VERSION \
     && nvm alias default $NODE_VERSION \
@@ -129,6 +99,35 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/v0.39.1/install.sh | b
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
+# Copy and Initialize workspace
+RUN mkdir -p /offworld-gym
+ENV  OFFWORLD_GYM_ROOT='/offworld-gym'
+COPY . /offworld-gym
+WORKDIR /offworld-gym
+
+WORKDIR $OFFWORLD_GYM_ROOT
+RUN pip3.8 install  -e .
+
+# RUN ./scripts/install-real-and-sim.sh install_python_dep_lib
+WORKDIR /usr/lib/x86_64-linux-gnu
+RUN ln -s libboost_python37.a libboost_python3.a
+RUN ln -s libboost_python37.so libboost_python3.so
+RUN sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
+RUN wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+RUN apt-get update
+RUN apt-get install -y libignition-math6-dev  
+RUN mkdir -p $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
+WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
+
+RUN git clone https://github.com/ros-perception/vision_opencv.git -b noetic
+# RUN git clone https://github.com/offworld-projects/rosbot_description.git -b offworld-gym
+
+WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws
+RUN pwd
+RUN ls -lh
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
+# RUN ./scripts/install-real-and-sim.sh build_gym_shell_script
+
 # Additional ENV Variables to separete elements of PYTHONPATH dependencies among the specific systems that require them.
 # (May have unnecessary elements in these paths, e.g. catkin_ws packages)
 
@@ -143,9 +142,9 @@ RUN cp -r /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/src/rosbot_descriptio
     && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
 
 # Install a SSH Daemon
-RUN apt install -y openssh-server && 
-     systemctl ssh start &&
-     systemctl ssh enable
+# RUN apt install -y openssh-server && 
+#      systemctl ssh start &&
+#      systemctl ssh enable
 
 RUN mkdir -p /var/run/sshd
 
@@ -155,9 +154,18 @@ RUN echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/set
 RUN echo "source /opt/ros/noetic/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo 'export PYTHONPATH= /usr/local/lib/python3.8/dist-packages/:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+RUN echo 'export PYTHONPATH=/usr/local/lib/python3.8/dist-packages/:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN echo 'export OFFWORLD_GYM_ACCESS_TOKEN="COPY IT HERE"' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
 RUN chmod +x $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
+RUN chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
+
+
+ENV PYTHONPATH=/usr/local/lib/python3.8/dist-packages/:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages
+ENV GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH
+ 
+ENV source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash
+ENV source /opt/ros/noetic/setup.bash --extend
+ENV DISPLAY :0
 
 ENTRYPOINT ["/bin/bash"]
 CMD [ "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"]

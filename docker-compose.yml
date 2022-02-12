@@ -3,13 +3,17 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     networks:
       gym_network:
         ipv4_address: 172.20.0.10
     ports:
-      - "22:22"
+      - "8008:8008"
       - "9090:9090"
-      - "7777:7777"
+      - "8080:8080"
+      - "11345:11345"
+      - "12345:12345"
     image: offworldai/offworld-gym:latest
 
 
