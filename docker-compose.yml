@@ -5,21 +5,19 @@ services:
       dockerfile: Dockerfile
     volumes:
       - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
-    networks:
-      gym_network:
-        ipv4_address: 172.20.0.10
+    # networks:
+    #   gym_network:
+    #     ipv4_address: 172.20.0.10
     ports:
       - "8008:8008"
       - "9090:9090"
       - "8080:8080"
-      - "11345:11345"
-      - "12345:12345"
     image: offworldai/offworld-gym:latest
 
 
-networks:
-  gym_network:
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
+# networks:
+#   gym_network:
+#     ipam:
+#       config:
+#         - subnet: 172.20.0.0/16
 

@@ -2,19 +2,14 @@
 
 Xvfb :1 -screen 0 1400x900x24 -ac +extension GLX +render -noreset &
 export DISPLAY=:1.0
-source /offworld-gym/scripts/gymshell.sh
 
-# # authorize SSH connection with root account
-# sudo sed -i '/^#/!s/PermitRootLogin .*/PermitRootLogin yes/' /etc/ssh/sshd_config
+export OFFWORLD_GYM_ROOT='/offworld-gym'
+source /opt/ros/noetic/setup.bash
+source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend
 
-# # start ssh deamon
-# systemctl ssh start &&systemctl ssh enable
-
-# # change password root
-# RUN echo "root:docker"|offworld_gym
 
 # start python server
-# python3 /offworld-gym/offworld_gym/envs/gazebo_docker/command_server.py 
+python3 /offworld-gym/offworld_gym/envs/gazebo_docker/command_server.py 
 # start node.js and gazebo
 # npm start --prefix /gzweb &
 

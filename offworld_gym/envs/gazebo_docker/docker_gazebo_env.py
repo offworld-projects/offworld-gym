@@ -20,9 +20,10 @@ __version__     = version.__version__
 import os
 import sys
 import time
+import uuid
 import subprocess
 import signal
-import psutil
+import atexit
 import threading
 from abc import abstractmethod
 from abc import ABCMeta
@@ -31,24 +32,21 @@ from abc import ABCMeta
 import gym
 
 # other dependencies
-import paramiko
 import logging
 from json import dumps, loads
 import roslibpy
 import numpy as np
 
 logger = logging.getLogger(__name__)
-# level = logging.DEBUG
-# logger.setLevel(level)
+level = logging.DEBUG
+logger.setLevel(level)
 
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworldai/offworld-gym")
-CONTAINER_IP = "172.20.0.10"
+ROS_BRIDGE_PORT = 9090
 GAZEBO_SERVER_INTERNAL_PORT = 11345
-CONTAINER_INTERNAL_GAZEBO_PORT_BINDING = f'{GAZEBO_SERVER_INTERNAL_PORT}/tcp'
-
 GAZEBO_WEB_SERVER_INTERNAL_PORT = 8080
-CONTAINER_INTERNAL_GAZEBO_WEB_PORT_BINDING = f'{GAZEBO_WEB_SERVER_INTERNAL_PORT}/tcp'
+XSERVER_VOLUME = "/tmp/.X11-unix"
 
 
 class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
@@ -75,39 +73,57 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             self._latest_depth_img = None
             self._latest_rgb_img = None
             
-
             self._start_container()
+
+            # Run "xhost local:" command to enable XServer to be written from localhost over network
+            xhost_command = "xhost +local:docker"
+            try:
+                subprocess.check_output(['bash', '-c', xhost_command])
+            except subprocess.CalledProcessError:
+                logger.warning(f"The bash command \"{xhost_command}\" failed. "
+                            f"Installing \'xhost\' may be required for OffWorldDockerizedEnv to render properly. "
+                            f"Further issues may be caused by this.")
             
             # initialize a ros bridge client
-            self._rosbridge_client = roslibpy.Ros(host=CONTAINER_IP, port=9090)
+            self._rosbridge_client = roslibpy.Ros(host=self._container_ip, port=ROS_BRIDGE_PORT)
             self._rosbridge_client.run()
 
-            try:
-                self.launch_node()
-            except:
-                import traceback
-                traceback.print_exc()
+            # try:
+            #     self.launch_node()
+            # except:
+            #     import traceback
+            #     traceback.print_exc()
     
     def _start_container(self):
 
-        docker_run_command = f"docker-compose up"
-        logger.debug(f"Docker run command is:\n{docker_run_command}\n")
-        # container_id = subprocess.check_output(["/bin/bash", "-c", container_start_command]).decode("utf-8").strip()
-        
-        # check_ip_command = "docker inspect f"{container_name}" | grep 'IPAddress' | head -n 1"
-        # self._container_ip = subprocess.check_output(["/bin/bash", "-c", check_ip_command]).decode("utf-8").strip()
-        # logger.debug(f"Docker container ip is:\n{self._container_ip}\n")
+        # container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
+        container_name = "gym-test"
+        # container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
+        # container_env_str = "DISPLAY"
+        # container_volumes_str = f"{XSERVER_VOLUME}:{XSERVER_VOLUME}"
+        # container_ports_str = f"-p {ROS_BRIDGE_PORT}:{ROS_BRIDGE_PORT} -p {GAZEBO_WEB_SERVER_INTERNAL_PORT}:{GAZEBO_WEB_SERVER_INTERNAL_PORT}"
+        # docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm" \
+        #                      f"{container_env_str}{container_volumes_str}{container_ports_str} " \
+        #                      f"offworldai/offworld-gym:latest {container_entrypoint}"
+        # logger.debug(f"Docker run command is:\n{docker_run_command}\n")
+        # container_id = subprocess.check_output(["/bin/bash", "-c", docker_run_command]).decode("utf-8").strip()
+        # import pdb; pdb.set_trace()
+        filter_string = "'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
+        check_ip_command = f"docker inspect -f {filter_string} {container_name}"
+        self._container_ip = subprocess.check_output(["/bin/bash", "-c", check_ip_command]).decode("utf-8").strip()
+        logger.debug(f"Docker container ip is:\n{self._container_ip}\n")
 
-    # def _send_command(self, shell, data):
-    #     # send command throgh a specific shell session
-    #     while not shell.send_ready(): time.sleep(1)
-    #     shell.send(str(data))
+        # # ensure cleanup at exit
+        # def kill_container_if_it_still_exists():
+        #     try:
+        #         # bash command kills the container if it exists, otherwise return error code 1 without printing an error
+        #         kill_command = f"docker ps -q --filter \"id={container_id}\" | grep -q . && docker kill {container_id}"
+        #         removed_container = subprocess.check_output(['bash', '-c', kill_command]).decode("utf-8").strip()
+        #         print(f"Cleaned up container {removed_container}")
+        #     except subprocess.CalledProcessError:
+        #         pass
 
-    # def _recv_data(self, shell, size):
-    #     # recieve command's respoinse throgh a specific shell session
-    #     while not shell.recv_ready(): time.sleep(1)
-    #     data = shell.recv(size)
-    #     return data
+        # atexit.register(kill_container_if_it_still_exists)
 
     def launch_node(self):
         """Launches the gazebo world in the docker
@@ -116,28 +132,12 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         remotely by sending launch command over ssh
         """
         try:
-            # start ssh connection
-            # self._ssh_client = paramiko.SSHClient()
-            # self._ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            # self._ssh_client.connect(hostname=CONTAINER_IP,username=’root’,password=’offworld_gym’,look_for_keys=False, allow_agent=False)
-            # self._ros_shell = self._ssh_client.invoke_shell() # open a shell seesion for roslaunch
+            roslaunch_command = 'curl --data "{\"package_name\": \"gym_offworld_monolith\", \"launch_file_name\":\"env_bringup.launch\"}" \
+                                --header "Content-Type: application/json" \
+                                --request POST \
+                                http://127.0.0.1:8008/'
 
-            # launch environment remotely using ssh
-            # ros_env = os.environ.copy()
-            # if ros_env.get("ROSLAUNCH_PYTHONPATH_OVERRIDE", None) is not None:
-            #     ros_env["PYTHONPATH"] = ros_env["ROSLAUNCH_PYTHONPATH_OVERRIDE"]
-
-            # # pass launch arguments and launch gazebo
-            # self._send_command(self._ros_shell, f"export "{ros_env["PYTHONPATH"]}")
-            # rospack_path = os.path.join(rospack.get_path(self.package_name))
-            
-            # roslaunch_command = f"roslaunch {self.package_name}  {self.launch_file}"
-            # self._send_command(self._ros_shell, roslaunch_command)
-
-            # roslaunch_command = 'curl --data "{\"package_name\": \"gym_offworld_monolith\", \"launch_file_name\":\"env_bringup.launch\"}" \
-            #                     --header "Content-Type: application/json" \
-            #                     --request POST \
-            #                     http://127.0.0.1:8008/'
+            subprocess.check_output(['bash', '-c', roslaunch_command])
 
             logger.info("The environment has been started.")
 

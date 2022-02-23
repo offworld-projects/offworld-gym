@@ -24,6 +24,7 @@ from scipy.spatial import distance
 import pdb
 from pyquaternion import Quaternion
 from matplotlib import pyplot as plt
+import json
 
 
 #gym
@@ -38,14 +39,6 @@ from offworld_gym.envs.common.actions import FourDiscreteMotionActions
 
 #ros
 import roslibpy
-from std_srvs.srv import Empty as Empty_srv
-from geometry_msgs.msg import Twist
-# from nav_msgs.msg import Odometry
-from gazebo_msgs.srv import GetModelState, SetModelState
-from gazebo_msgs.msg import ModelState
-from sensor_msgs.msg import Image
-from rosgraph_msgs.msg import Clock
-
 
 import logging
 logger = logging.getLogger(__name__)
@@ -81,7 +74,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         before_ros_init = time.time()
 
         # Avoid race condition with rosbot launch by waiting for it fully init and start publishing it's odometry
-        self.unpause_sim = self.call_ros_service('gazebo/unpause_physics', "std_srvs/Empty_srv")
+        self.unpause_sim = self.call_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
 
         print("waiting for rosbot model to init...")
         self.vel_sub = self.register_subscriber('/odom', "nav_msgs/Odometry", self._latest_odom_message, queue_size=1)
@@ -115,15 +108,15 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
                 raise GymException("ROS took too long to publish to /camera/rgb/image_raw")
             time.sleep(0.1)
 
-        self.pause_sim = self.call_ros_service('gazebo/pause_physics', "std_srvs/Empty_srv")
-        logger.nfo("Environment has been initiated.")
+        self.pause_sim = self.call_ros_service('/gazebo/pause_physics', "std_srvs/Empty_srv")
+        logger.info("Environment has been initiated.")
 
         # gazebo
         self.reset_sim = self.call_ros_service('/gazebo/reset_simulation', "std_srvs/Empty_srv")
         logger.info("Service proxies have been initiated.")
 
         # rosbot
-        self.vel_pub = self.register_publisher('/cmd_vel', Twist)
+        self.vel_pub = self.register_publisher('/cmd_vel', 'geometry_msgs/Twist')
 
         # environment
         self.seed()
@@ -191,19 +184,26 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         Returns:
             The real time factor for the move (sim-time elapsed/wall-time elapsed)
         """
-        vel_cmd = Twist()
-        vel_cmd.linear.x = lin_x_speed
-        vel_cmd.angular.z = ang_z_speed
+        # vel_cmd = Twist()
+        # vel_cmd.linear.x = lin_x_speed
+        # vel_cmd.angular.z = ang_z_speed
+
+        # vel_cmd_dict = {"linear":{"x":lin_x_speed,"y":0,"z":0}, 
+        #                 "angular":{"x":0,"y":0,"z":ang_z_speed}}
+        # if self._rosbridge_client.is_connected:
+        #     self.vel_pub.publish(roslibpy.Message({'/cmd_vel', 'geometry_msgs/Twist', f'{vel_cmd_dict}'}
+        #     ))
 
         if self._rosbridge_client.is_connected:
-            self.vel_pub.publish(roslibpy.Message({'data': data}))
+            self.vel_pub.publish(roslibpy.Message({"linear":[lin_x_speed, 0, 0], "angular":[0, 0, ang_z_speed]}
+            ))
 
 
-        self.unpause_sim = self.call_ros_service('gazebo/unpause_physics', "std_srvs/Empty_srv")
+        self.unpause_sim = self.call_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
         wall_start = time.time()
         self._sim_time_sleep(sleep_time)  # action duration is in sim-time, so simulation speed has no affect on env dynamics
         wall_stop = time.time()
-        self.pause_sim = self.call_ros_service('gazebo/pause_physics', "std_srvs/Empty_srv")
+        self.pause_sim = self.call_ros_service('/gazebo/pause_physics', "std_srvs/Empty_srv")
 
         wall_sleep_time = wall_stop - wall_start
         real_time_factor = sleep_time / wall_sleep_time
@@ -219,6 +219,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             A vector containing state of the model contained in a GetModelState service message.
         """
         try:
+            import pdb; pdb.set_trace()
             g_getStateVector = self.call_ros_service("/gazebo/get_model_state", "gazebo_msgs/GetModelState")
             state = g_getStateVector(model_name=name)
             return state
@@ -263,7 +264,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
 
         # for discrete action space
         if self.action_space == spaces.Discrete(4): 
-            if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
+            if dst < OffWorldDockerizedMonolithEnv._PROXIMITY_THRESHOLD:
                 if self._backward_step_counter == 0 and action == FourDiscreteMotionActions.BACKWARD:
                     reward = 0.0 # give another chance, not ending the episode yet
                     done = False 
@@ -282,7 +283,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
                
         # for continuous action space
         else: 
-            if dst < OffWorldMonolithEnv._PROXIMITY_THRESHOLD:
+            if dst < OffWorldDockerizedMonolithEnv._PROXIMITY_THRESHOLD:
                 if self._backward_step_counter == 0 and action[0] <= 0.0:
                     reward = 0.0 # give another chance, not ending the episode yet
                     done = False 
@@ -309,7 +310,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             reward = 0.0
             done = True
 
-        if self.step_count == OffWorldMonolithEnv._EPISODE_LENGTH:
+        if self.step_count == OffWorldDockerizedMonolithEnv._EPISODE_LENGTH:
             done = True
         return reward, done
 
@@ -345,7 +346,12 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
 
             if orient:
                 goal_state.pose.orientation.z, goal_state.pose.orientation.w = np.random.uniform(-3.14, 3.14, size=(2,))
-            move_to_position = self.call_ros_service("/gazebo/get_model_state", "gazebo_msgs/SetModelState", goal_state)
+
+            # goal_state_dict = {"model_name":goal_state.model_name, 
+            #                 "pose": [goal_state.pose.position.x, goal_state.pose.position.y, goal_state.pose.position.z],
+            #                 "twist":[goal_state.pose.orientation.z, goal_state.pose.orientation.w]}
+
+            move_to_position = self.call_ros_service("/gazebo/set_model_state", "gazebo_msgs/SetModelState", goal_state)
         except Exception as e:
             logger.error("An error occured while resetting the environment.")
             raise GymException("An error occured while resetting the environment.")
@@ -368,7 +374,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             goal_state.pose.position.y = 0.0
             goal_state.pose.position.z = 0.20
 
-            move_to_position = self.call_ros_service("/gazebo/get_model_state", "gazebo_msgs/SetModelState", goal_state)
+            move_to_position = self.call_ros_service("/gazebo/set_model_state", "gazebo_msgs/SetModelState", goal_state)
         except Exception as e:
             logger.error("An error occured while resetting the environment.")
             raise GymException("An error occured while resetting the environment.")
@@ -386,7 +392,8 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         vel_cmd.angular.z = 0.0
 
         if self._rosbridge_client.is_connected:
-            self.vel_pub.publish(roslibpy.Message({'data': data}))
+            self.vel_pub.publish(roslibpy.Message({"linear":[0, 0, 0], "angular":[0, 0, 0]}
+            ))
 
         if self.random_init:
             self._move_to_random_position('rosbot')
