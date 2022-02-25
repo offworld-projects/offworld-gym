@@ -12,6 +12,8 @@
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" > 
      <arg name="port" value="9090"/>
   </include>
+
+   <node name="env_rosbot_monolith" pkg="gym_offworld_monolith" type="robot_commands.py"  output="screen"></node>
   
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find gym_offworld_monolith)/worlds/gymbox.world"/>

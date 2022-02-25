@@ -18,6 +18,8 @@ __version__     = version.__version__
 
 import numpy as np
 import cv2
+import io
+from imageio import imread
 import rospy
 from std_srvs.srv import Empty as Empty_srv
 from cv_bridge import CvBridge, CvBridgeError
@@ -80,11 +82,8 @@ class ImageUtils(object):
     def process_img_msg(img_msg, resized_width=IMG_W, resized_height=IMG_H, max_value_for_clip_and_normalize=None):
         """Converts ROS image to cv2, then to numpy
         """
-        img = CvBridge().imgmsg_to_cv2(img_msg, "bgr8")
-        img = np.asarray(img)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = img_msg[:, :, ::-1].copy() # replace cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         img = cv2.resize(img, (resized_width, resized_height))
-
         img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2]))
 
         if max_value_for_clip_and_normalize is not None:
@@ -97,8 +96,8 @@ class ImageUtils(object):
     def process_depth_msg(depth_msg, resized_width=IMG_W, resized_height=IMG_H, max_value_for_clip_and_normalize=None):
         """Converts a depth image into numpy float32 array
         """
-        cv_image = CvBridge().imgmsg_to_cv2(depth_msg, "32FC1")
-        img = np.asarray(cv_image, dtype=np.float32)
+        # import pdb; pdb.set_trace()
+        img = depth_msg.astype("float32")
         img = np.nan_to_num(img)
         img = cv2.resize(img, (resized_width, resized_height))
 

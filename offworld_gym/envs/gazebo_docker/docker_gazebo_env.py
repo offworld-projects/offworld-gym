@@ -32,6 +32,7 @@ from abc import ABCMeta
 import gym
 
 # other dependencies
+import base64
 import logging
 from json import dumps, loads
 import roslibpy
@@ -169,15 +170,18 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             self._latest_clock_message = msg
 
         def update_depth_img(msg):
-            self._latest_depth_img = msg
+            # print("Encoding of depth img", msg['encoding'])
+            base64_bytes = msg['data'].encode('ascii')
+            image_bytes = base64.b64decode(base64_bytes)
+            np_image = np.frombuffer(image_bytes, dtype=np.float32)
+            self._latest_depth_img = np_image.reshape((msg['height'],msg['width'],-1))
 
         def update_rgb_img(msg):
-            self._latest_rgb_img = msg
-
-        # def decode_image(msg):
-        #     base64_bytes = msg['data'].encode('ascii')
-        #     image_bytes = base64.b64decode(base64_bytes)
-        #     msg = np.array(image_bytes)
+            # print("Encoding of rgb img", msg['encoding'])
+            base64_bytes = msg['data'].encode('ascii')
+            image_bytes = base64.b64decode(base64_bytes)
+            np_image = np.frombuffer(image_bytes, dtype=np.uint8)
+            self._latest_rgb_img = np_image.reshape((msg['height'],msg['width'],-1))
 
         subscriber = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type, queue_size=queue_size)  
         

@@ -22,17 +22,16 @@ import time
 import numpy as np
 from scipy.spatial import distance
 import pdb
+import json
 from pyquaternion import Quaternion
 from matplotlib import pyplot as plt
-import json
-
-
+from typing import List, Tuple, Union, Any
 #gym
 import gym
 from gym import utils, spaces
 from offworld_gym.envs.gazebo_docker.docker_gazebo_env import DockerizedGazeboEnv
 from gym.utils import seeding
-from offworld_gym.envs.gazebo.utils import ImageUtils, GazeboUtils
+from offworld_gym.envs.gazebo.utils import ImageUtils
 from offworld_gym.envs.common.exception.gym_exception import GymException
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.actions import FourDiscreteMotionActions
@@ -44,6 +43,38 @@ import logging
 logger = logging.getLogger(__name__)
 level = logging.DEBUG
 logger.setLevel(level)
+
+# # Emulating Gazebo-ROS ModelState Message Class
+# class Point:
+#     def __init__(self, x : float, y : float, z : float):
+#         self.x = x
+#         self.y = y
+#         self.z = z
+
+# class Quaternion:
+#     def __init__(self, x : float, y : float, z : float, w : float):
+#         self.x = x
+#         self.y = y
+#         self.z = z
+#         self.w = w
+
+# class ModelState:
+#     def __init__(self, model_name : str, reference_frame : str):
+#         self.model_name = model_name
+#         self.reference_frame = reference_frame
+
+#     class pose:
+#         def __init__(self, posotion_x: float, posotion_y: float, posotion_z: float,
+#                 orientation_x : float, orientation_y : float, orientation_z : float, orientation_w : float,):
+#             self.position = Point(posotion_x , posotion_y , posotion_z)
+#             self.orientation = Quaternion(orientation_x, orientation_y, orientation_z, orientation_w)
+
+#     class twist:
+#         def __init__(self, linear_x: float, linear_y: float, linear_z: float,
+#                 angular_x: float, angular_y: float, angular_z: float):
+#             self.linear = Point(linear_x, linear_y, linear_z)
+#             self.angular = Point(angular_x, angular_y, angular_z)
+
 
 class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
     """Generic Simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
@@ -115,6 +146,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         self.reset_sim = self.call_ros_service('/gazebo/reset_simulation', "std_srvs/Empty_srv")
         logger.info("Service proxies have been initiated.")
 
+
         # rosbot
         self.vel_pub = self.register_publisher('/cmd_vel', 'geometry_msgs/Twist')
 
@@ -137,10 +169,10 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         logger.info("Environment has been started.")
 
     def _sim_time_sleep(self, sleep_seconds):
-        before_sleep_sim_time_secs = self._latest_clock_message.clock.secs + self._latest_clock_message.clock.nsecs/1e+9
+        before_sleep_sim_time_secs = self._latest_clock_message["clock"]["secs"] + self._latest_clock_message["clock"]["nsecs"]/1e+9
         while True:
             time.sleep(0.0001)
-            cur_sim_time_sec = self._latest_clock_message.clock.secs + self._latest_clock_message.clock.nsecs/1e+9
+            cur_sim_time_sec = self._latest_clock_message["clock"]["secs"] + self._latest_clock_message["clock"]["nsecs"]/1e+9
             if cur_sim_time_sec - before_sleep_sim_time_secs > sleep_seconds:
                 break
 
@@ -159,6 +191,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         Returns:
             Numpy array with the state of the environment as captured by the robot's rgbd sensor.
         """
+        # import pdb; pdb.set_trace()
         rgb_img = ImageUtils.process_img_msg(self._latest_rgb_img)
         depth_img = ImageUtils.process_depth_msg(self._latest_depth_img)
 
@@ -194,10 +227,13 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         #     self.vel_pub.publish(roslibpy.Message({'/cmd_vel', 'geometry_msgs/Twist', f'{vel_cmd_dict}'}
         #     ))
 
+        vel_cmd_dict =  {"twist": 
+                        {"linear" : {"x" : lin_x_speed, "y" : 0.0, "z" : 0.0},
+                        "angular" : {"x" : 0.0, "y" : 0.0, "z" : ang_z_speed}}}
+                       
         if self._rosbridge_client.is_connected:
-            self.vel_pub.publish(roslibpy.Message({"linear":[lin_x_speed, 0, 0], "angular":[0, 0, ang_z_speed]}
-            ))
-
+            logger.info(str(vel_cmd_dict))
+            self.vel_pub.publish(vel_cmd_dict)
 
         self.unpause_sim = self.call_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
         wall_start = time.time()
@@ -219,9 +255,9 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             A vector containing state of the model contained in a GetModelState service message.
         """
         try:
-            import pdb; pdb.set_trace()
-            g_getStateVector = self.call_ros_service("/gazebo/get_model_state", "gazebo_msgs/GetModelState")
-            state = g_getStateVector(model_name=name)
+            # import pdb; pdb.set_trace()
+            # rosbridge returns a dict(service responce obj)
+            state = self.call_ros_service("/gazebo/get_model_state", "gazebo_msgs/GetModelState", {"model_name": f"{name}"})
             return state
         except Exception as e:
             logger.error("An error occured while invoking the get_model_state service.")
@@ -239,9 +275,9 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         try:
             ms = self._get_model_state(name)
             if ms is not None:
-                quaternion = Quaternion(ms.pose.orientation.w,  ms.pose.orientation.x, ms.pose.orientation.y, ms.pose.orientation.z,)
+                quaternion = Quaternion(ms['pose']['orientation']['w'], ms['pose']['orientation']['x'], ms['pose']['orientation']['y'], ms['pose']['orientation']['z'])
                 yaw, _, _ = quaternion.yaw_pitch_roll
-                state = (ms.pose.position.x, ms.pose.position.y, ms.pose.position.z, yaw)
+                state = (ms['pose']['position']['x'], ms['pose']['position']['y'], ms['pose']['position']['z'], yaw)
                 return state
             else:
                 return None
@@ -329,29 +365,36 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         """
         try:
             assert model_name is not None or model_name != ''
-            goal_state = ModelState()
-            goal_state.model_name = model_name
+            goal_state_model_name = model_name
 
             # random spawn location exlucing no-spawn 30cm radius around the monolith
-            goal_state.pose.position.x = self._monolith_space[0]
-            goal_state.pose.position.y = self._monolith_space[1]
-            while distance.euclidean((goal_state.pose.position.x, goal_state.pose.position.y), self._monolith_space[0:2]) < 0.50:
-                goal_state.pose.position.x = np.random.uniform(low=self._WALL_BOUNDARIES['x_min'] + 0.08,
+            goal_state_pose_position_x = self._monolith_space[0]
+            goal_state_pose_position_y = self._monolith_space[1]
+            while distance.euclidean((goal_state_pose_position_x, goal_state_pose_position_y), self._monolith_space[0:2]) < 0.50:
+                goal_state_pose_position_x = np.random.uniform(low=self._WALL_BOUNDARIES['x_min'] + 0.08,
                                                                high=self._WALL_BOUNDARIES['x_max'] - 0.08)
-                goal_state.pose.position.y = np.random.uniform(low=self._WALL_BOUNDARIES['y_min'] + 0.08,
+                goal_state_pose_position_y = np.random.uniform(low=self._WALL_BOUNDARIES['y_min'] + 0.08,
                                                                high=self._WALL_BOUNDARIES['y_max'] - 0.08)
 
-            logger.info("Spawning at (%.2f, %.2f)" % (goal_state.pose.position.x, goal_state.pose.position.y))
-            goal_state.pose.position.z = 0.20
+            logger.info("Spawning at (%.2f, %.2f)" % (goal_state_pose_position_x, goal_state_pose_position_y))
+            goal_state_pose_position_z = 0.20
 
             if orient:
-                goal_state.pose.orientation.z, goal_state.pose.orientation.w = np.random.uniform(-3.14, 3.14, size=(2,))
+                goal_state_pose_orientation_z, goal_state_pose_orientation_w = np.random.uniform(-3.14, 3.14, size=(2,))
+            
+            goal_state_dict = {"model_state": 
+                            {"model_name":goal_state_model_name, 
+                            "pose":
+                            {"position" : {"x" : goal_state_pose_position_x, "y" : goal_state_pose_position_y, "z" : goal_state_pose_position_z} ,
+                            "orientation":{"x": 0.0, "y": 0.0, "z": goal_state_pose_orientation_z, "w": goal_state_pose_orientation_w}}}}
 
-            # goal_state_dict = {"model_name":goal_state.model_name, 
-            #                 "pose": [goal_state.pose.position.x, goal_state.pose.position.y, goal_state.pose.position.z],
-            #                 "twist":[goal_state.pose.orientation.z, goal_state.pose.orientation.w]}
+            # goal_state_dict = {"model_name":goal_state_model_name, 
+            #     "pose":
+            #     [{"position" : [goal_state_pose_position_x, goal_state_pose_position_y, goal_state_pose_position_z] ,
+            #     "orientation":[0.0, 0.0, goal_state_pose_orientation_z, goal_state_pose_orientation_w]}]}
 
-            move_to_position = self.call_ros_service("/gazebo/set_model_state", "gazebo_msgs/SetModelState", goal_state)
+            move_to_position = self.call_ros_service("/gazebo/set_model_state", "gazebo_msgs/SetModelState", goal_state_dict)
+       
         except Exception as e:
             logger.error("An error occured while resetting the environment.")
             raise GymException("An error occured while resetting the environment.")
@@ -368,13 +411,19 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         try:
             assert model_name is not None or model_name != ''
 
-            goal_state = ModelState()
-            goal_state.model_name = model_name
-            goal_state.pose.position.x = 0.0
-            goal_state.pose.position.y = 0.0
-            goal_state.pose.position.z = 0.20
+            # goal_state = ModelState()
+            goal_state_model_name = model_name
+            goal_state_pose_position_x = 0.0
+            goal_state_pose_position_y = 0.0
+            goal_state_pose_position_z = 0.20
 
-            move_to_position = self.call_ros_service("/gazebo/set_model_state", "gazebo_msgs/SetModelState", goal_state)
+            goal_state_dict = {"model_state": 
+                            {"model_name":goal_state_model_name, 
+                            "pose":
+                            {"position" : {"x" : goal_state_pose_position_x, "y" : goal_state_pose_position_y, "z" : goal_state_pose_position_z}}}}
+
+
+            move_to_position = self.call_ros_service("/gazebo/set_model_state", "gazebo_msgs/SetModelState", goal_state_dict)
         except Exception as e:
             logger.error("An error occured while resetting the environment.")
             raise GymException("An error occured while resetting the environment.")
@@ -387,19 +436,18 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             the robot
         """
         self.pause_sim = self.call_ros_service('gazebo/pause_physics', "std_srvs/Empty_srv")
-        vel_cmd = Twist()
-        vel_cmd.linear.x = 0.0
-        vel_cmd.angular.z = 0.0
+        # vel_cmd = Twist()
+        # vel_cmd.linear.x = 0.0
+        # vel_cmd.angular.z = 0.0
 
         if self._rosbridge_client.is_connected:
-            self.vel_pub.publish(roslibpy.Message({"linear":[0, 0, 0], "angular":[0, 0, 0]}
+            self.vel_pub.publish(roslibpy.Message({"linear":[0.0, 0.0, 0], "angular":[0.0, 0.0, 0.0]}
             ))
 
         if self.random_init:
             self._move_to_random_position('rosbot')
         else:
             self._move_to_original_position('rosbot')
-
         state = self._get_state()
         return state
 
@@ -441,7 +489,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             plt.show(block=False)
             plt.pause(0.05)
 
-class OffWorldMonolithDiscreteEnv(OffWorldDockerizedMonolithEnv):
+class OffWorldDockerMonolithDiscreteEnv(OffWorldDockerizedMonolithEnv):
     """Discrete version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
 
     .. code:: python
@@ -452,7 +500,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldDockerizedMonolithEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithDiscreteEnv, self).__init__(channel_type=channel_type, random_init=random_init)
+        super(OffWorldDockerMonolithDiscreteEnv, self).__init__(channel_type=channel_type, random_init=random_init)
         self.action_space = spaces.Discrete(4)
 
     def _send_action_commands(self, action_type):
@@ -510,7 +558,7 @@ class OffWorldMonolithDiscreteEnv(OffWorldDockerizedMonolithEnv):
         return self._current_state, reward, done, info
 
 
-class OffWorldMonolithContinuousEnv(OffWorldDockerizedMonolithEnv):
+class OffWorldDockerMonolithContinuousEnv(OffWorldDockerizedMonolithEnv):
     """Continous version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.
 
     .. code:: python
@@ -521,7 +569,7 @@ class OffWorldMonolithContinuousEnv(OffWorldDockerizedMonolithEnv):
     """
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
-        super(OffWorldMonolithContinuousEnv, self).__init__(channel_type=channel_type, random_init=random_init)
+        super(OffWorldDockerMonolithContinuousEnv, self).__init__(channel_type=channel_type, random_init=random_init)
         self.action_space = spaces.Box(low=np.array([-0.7, -2.5]), high=np.array([0.7, 2.5]), dtype=np.float32)
         self.action_limit = np.array([[-0.7, -2.5], [0.7, 2.5]])
 
