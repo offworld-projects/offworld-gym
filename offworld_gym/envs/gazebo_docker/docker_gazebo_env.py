@@ -39,7 +39,7 @@ import roslibpy
 import numpy as np
 
 logger = logging.getLogger(__name__)
-level = logging.DEBUG
+level = logging.INFO
 logger.setLevel(level)
 
 
@@ -147,22 +147,35 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             import traceback
             traceback.print_exc() 
 
-    def call_ros_service(self, service_name, service_type, data=None):
+    def register_ros_service(self, service_name, service_type):
+        """Register service 
+        """
         service = roslibpy.Service(self._rosbridge_client, service_name, service_type)
+        logger.debug(f'Registering service {service_name}')
+        return service
+
+    def call_ros_service(self, service_proxy, service_name, service_type, data=None):
+        """Call service 
+        """
         if not data:
             request = roslibpy.ServiceRequest()
         else:
             request = roslibpy.ServiceRequest(data)
 
-        logger.info(f'Calling service {service_name}')
-        result = service.call(request)
-        return result
+        respond = service_proxy.call(request)
+        logger.debug(f'Calling service {service_name}')
+        return respond
         
-    def register_publisher(self, topic_name, message_type):
-        publisher= roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type)
+    def register_publisher(self, topic_name, message_type, queue_size=10, throttle_rate=300):
+        """Register publisher
+        """
+        publisher= roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type,
+                    queue_size=queue_size, throttle_rate=throttle_rate)
         return publisher
 
-    def register_subscriber(self, topic_name, message_type, placeholder, queue_size):
+    def register_subscriber(self, topic_name, message_type, placeholder, queue_size=10, throttle_rate=300):
+        """Register subscriber and consistently listening
+        """
         def update_odom(msg):
             self._latest_odom_message = msg
 
@@ -183,7 +196,8 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             np_image = np.frombuffer(image_bytes, dtype=np.uint8)
             self._latest_rgb_img = np_image.reshape((msg['height'],msg['width'],-1))
 
-        subscriber = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type, queue_size=queue_size)  
+        subscriber = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type, 
+                                queue_size=queue_size, throttle_rate=throttle_rate)  
         
         if self._rosbridge_client.is_connected:
             if str(topic_name) == '/odom':
