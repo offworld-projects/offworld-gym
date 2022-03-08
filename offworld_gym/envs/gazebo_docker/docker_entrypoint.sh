@@ -9,7 +9,7 @@ source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --
 
 
 # start python server
-python3 /offworld-gym/offworld_gym/envs/gazebo_docker/command_server.py 
+# python3 /offworld-gym/offworld_gym/envs/gazebo_docker/command_server.py 
 # start node.js and gazebo
 # npm start --prefix /gzweb &
 

@@ -3,6 +3,7 @@ import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import cgi
+from offworld_gym.envs.gazebo.utils import GazeboUtils
 
 class Server(BaseHTTPRequestHandler):
     def _set_headers(self):
@@ -34,14 +35,43 @@ class Server(BaseHTTPRequestHandler):
         message = json.loads(self.rfile.read(length))
         
         # run command
-        package_name = message['package_name'] 
-        launch_file_name = message['launch_file_name'] 
-        roslaunch_command = f"roslaunch {package_name} {launch_file_name}"
-        os.system(roslaunch_command)
+        command_name = message['command_name'] 
+        if command_name == "launch_node":
+            package_name = message['package_name'] 
+            launch_file_name = message['launch_file_name'] 
+            roslaunch_command = f"roslaunch {package_name} {launch_file_name}"
+            os.system(roslaunch_command)
         
-        # add a property to the object, just to mess with data
-        message = {}
-        message['success'] = 'ok'
+            # add a property to the object, just to mess with data
+            message = {}
+            message['success'] = 'launch node ok'
+
+        elif command_name == "pause":
+            GazeboUtils.pause_physics()
+            # add a property to the object, just to mess with data
+            message = {}
+            message['success'] = 'pause sim ok'
+
+        elif command_name == "unpause":
+            GazeboUtils.unpause_physics()
+            # add a property to the object, just to mess with data
+            message = {}
+            message['success'] = 'unpause sim ok'
+
+        elif command_name == "cmd_vel":
+            # add a property to the object, just to mess with data
+            lin_x_speed = message['lin_x_speed'] 
+            lin_y_speed = message['lin_y_speed'] 
+            lin_z_speed = message['lin_z_speed'] 
+            ang_x_speed = message['ang_x_speed'] 
+            ang_y_speed = message['ang_y_speed'] 
+            ang_z_speed = message['ang_z_speed'] 
+
+            cmd_command = f"rostopic pub -r 10 /cmd_vel geometry_msgs/Twist -- '[{lin_x_speed}, {lin_y_speed}, {lin_z_speed}]' '[{ang_x_speed}, {ang_y_speed}, {ang_z_speed}]'"
+            os.system(cmd_command)
+
+            message = {}
+            message['success'] = 'cmd_vel publish ok'
         
         # send the message back
         self._set_headers()

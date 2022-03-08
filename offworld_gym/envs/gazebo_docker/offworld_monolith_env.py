@@ -17,12 +17,16 @@ from offworld_gym import version
 __version__     = version.__version__
 
 #lib
+import ast
+import os
 from math import pi
 import time
+import subprocess
 import numpy as np
 from scipy.spatial import distance
-import pdb
 import json
+import requests
+
 from pyquaternion import Quaternion
 from matplotlib import pyplot as plt
 from typing import List, Tuple, Union, Any
@@ -60,7 +64,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
     """
     _PROXIMITY_THRESHOLD = 0.40
     _EPISODE_LENGTH = 100
-    _STEP_DURATION_SECONDS_IN_SIM = 0.01
+    _STEP_DURATION_SECONDS_IN_SIM = 1.0
     _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
     _WALL_BOUNDARIES = {"x_max": 1.90, "x_min": -1.75, "y_max": 1.10, "y_min": -1.60}
 
@@ -195,17 +199,41 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         vel_cmd_dict =  {"twist": 
                         {"linear" : {"x" : lin_x_speed, "y" : 0.0, "z" : 0.0},
                         "angular" : {"x" : 0.0, "y" : 0.0, "z" : ang_z_speed}}}
-                       
+        before_unpause = time.time()
+        # replace by endpont python server
+        # headers = {'Content-type': 'application/json'}
+        # json_data = '{"command_name": "unpause"}'
+        # json_data = ast.literal_eval(json_data)
+        # result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
         self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, '/gazebo/unpause_physics', "std_srvs/Empty_srv")
+        after_unpause = time.time()
+        logger.debug("Profilling unpause service {}".format(str(after_unpause - before_unpause)))
+
         wall_start = time.time()
         if self._rosbridge_client.is_connected:
             logger.debug(str(vel_cmd_dict))
+            
             self.vel_pub.publish(vel_cmd_dict)
+
+            # replace by endpont python server
+            # headers = {'Content-type': 'application/json'}
+            # json_data = '{"command_name": "cmd_vel", "lin_x_speed":'+ f'"{lin_x_speed}"' + ', "lin_y_speed":"0.0","lin_z_speed":"0.0", "ang_z_speed":' + f'"{ang_z_speed}"' + ',"ang_x_speed":"0.0", "ang_y_speed":"0.0"}'
+            # json_data = ast.literal_eval(json_data)
+            # result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+
         self._sim_time_sleep(sleep_time)  # action duration is in sim-time, so simulation speed has no affect on env dynamics
         wall_stop = time.time()
+        # replace by endpont python server
+        # headers = {'Content-type': 'application/json'}
+        # json_data = '{"command_name": "pause"}'
+        # json_data = ast.literal_eval(json_data)
+        # result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
         self.pause_sim_respond = self.call_ros_service(self.pause_sim, '/gazebo/pause_physics', "std_srvs/Empty_srv")
-
+        after_pause = time.time()
+        logger.debug("Profilling pause service {}".format(str(after_pause - wall_stop)))
+# 
         wall_sleep_time = wall_stop - wall_start
+        logger.debug("Profilling action and pause service {}".format(str(wall_sleep_time)))
         real_time_factor = sleep_time / wall_sleep_time
         logger.debug("real time factor : {} ".format(str(real_time_factor)))
     
@@ -410,6 +438,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         else:
             self._move_to_original_position('rosbot')
         state = self._get_state()
+        self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, 'gazebo/unpause_physics', "std_srvs/Empty_srv")
         return state
 
     def render(self, mode='human'):

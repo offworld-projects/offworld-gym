@@ -133,7 +133,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         remotely by sending launch command over ssh
         """
         try:
-            roslaunch_command = 'curl --data "{\"package_name\": \"gym_offworld_monolith\", \"launch_file_name\":\"env_bringup.launch\"}" \
+            roslaunch_command = 'curl --data "{\"command_name\": \"launch_node\", \"package_name\": \"gym_offworld_monolith\", \"launch_file_name\":\"env_bringup.launch\"}" \
                                 --header "Content-Type: application/json" \
                                 --request POST \
                                 http://127.0.0.1:8008/'

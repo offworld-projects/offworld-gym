@@ -71,6 +71,8 @@ RUN pip3.8 install --user --upgrade pyquaternion
 RUN pip3.8 install --user --upgrade imageio
 RUN pip3.8 install --user --upgrade testresources
 RUN pip3.8 install --user --upgrade roslibpy
+RUN pip3.8 install --user --upgrade markdown
+
 
 ###########################################################################
 # ## Gazebo and nvm
