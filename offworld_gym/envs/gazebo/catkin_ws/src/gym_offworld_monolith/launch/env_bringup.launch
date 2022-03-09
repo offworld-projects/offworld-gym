@@ -14,6 +14,7 @@
   </include>
 
    <node name="env_rosbot_cmd_vel" pkg="gym_offworld_monolith" type="robot_commands.py"  output="screen"></node>
+   <node name="http_server_cmd" pkg="gym_offworld_monolith" type="command_server.py"  output="screen"></node>
   
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find gym_offworld_monolith)/worlds/gymbox.world"/>

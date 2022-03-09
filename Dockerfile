@@ -71,7 +71,7 @@ RUN pip3.8 install --user --upgrade pyquaternion
 RUN pip3.8 install --user --upgrade imageio
 RUN pip3.8 install --user --upgrade testresources
 RUN pip3.8 install --user --upgrade roslibpy
-RUN pip3.8 install --user --upgrade markdown
+RUN pip3.8 install --user --upgrade Markdown
 
 
 ###########################################################################
@@ -131,7 +131,9 @@ WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src
 # RUN git clone https://github.com/offworld-projects/rosbot_description.git -b offworld-gym
 
 WORKDIR $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws
+RUN chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/scripts/command_server.py
 RUN chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/scripts/robot_commands.py
+
 RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
 # RUN ./scripts/install-real-and-sim.sh build_gym_shell_script
 

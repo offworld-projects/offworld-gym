@@ -34,7 +34,9 @@ import gym
 # other dependencies
 import base64
 import logging
-from json import dumps, loads
+import json 
+import ast
+import requests
 import roslibpy
 import numpy as np
 
@@ -173,7 +175,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
                     queue_size=queue_size, throttle_rate=throttle_rate)
         return publisher
 
-    def register_subscriber(self, topic_name, message_type, placeholder, queue_size=10, throttle_rate=300):
+    def register_subscriber(self, topic_name, message_type, placeholder, queue_size=10, throttle_rate=180):
         """Register subscriber and consistently listening
         """
         def update_odom(msg):
@@ -183,18 +185,10 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             self._latest_clock_message = msg
 
         def update_depth_img(msg):
-            # print("Encoding of depth img", msg['encoding'])
-            base64_bytes = msg['data'].encode('ascii')
-            image_bytes = base64.b64decode(base64_bytes)
-            np_image = np.frombuffer(image_bytes, dtype=np.float32)
-            self._latest_depth_img = np_image.reshape((msg['height'],msg['width'],-1))
+            self._latest_depth_img = msg
 
         def update_rgb_img(msg):
-            # print("Encoding of rgb img", msg['encoding'])
-            base64_bytes = msg['data'].encode('ascii')
-            image_bytes = base64.b64decode(base64_bytes)
-            np_image = np.frombuffer(image_bytes, dtype=np.uint8)
-            self._latest_rgb_img = np_image.reshape((msg['height'],msg['width'],-1))
+            self._latest_rgb_img = msg
 
         subscriber = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type, 
                                 queue_size=queue_size, throttle_rate=throttle_rate)  
@@ -213,6 +207,30 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
 
         return subscriber
 
+    def pause_physics_remotely(self):
+        """Pause physics remotely from localhost, send sommand to docker command server 
+        """
+        headers = {'Content-type': 'application/json'}
+        json_data = '{"command_name": "pause"}'
+        json_data = ast.literal_eval(json_data)
+        result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+
+    def unpause_physics_remotely(self):
+        """Pause physics remotely from localhost, send sommand to docker command server 
+        """
+        headers = {'Content-type': 'application/json'}
+        json_data = '{"command_name": "unpause"}'
+        json_data = ast.literal_eval(json_data)
+        result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+
+    def publish_cmd_vel_remotely(self, lin_x_speed, ang_z_speed):
+        """send cmd_vel from localhost to python server inside docker, then publish cmd_vel in as bash command inside 
+        """
+        headers = {'Content-type': 'application/json'}
+        json_data = '{"command_name": "cmd_vel", "lin_x_speed":'+ f'"{lin_x_speed}"' + ', "lin_y_speed":"0.0","lin_z_speed":"0.0", "ang_z_speed":' + f'"{ang_z_speed}"' + ',"ang_x_speed":"0.0", "ang_y_speed":"0.0"}'
+        json_data = ast.literal_eval(json_data)
+        result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+    
     @abstractmethod
     def step(self, action):
         """Abstract step method to be implemented in a child class

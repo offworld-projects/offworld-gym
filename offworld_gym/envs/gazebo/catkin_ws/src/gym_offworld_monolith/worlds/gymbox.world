@@ -82,10 +82,10 @@
       <wall_time>1559942715 925433953</wall_time>
       <iterations>44009</iterations>
       <model name='backwall'>
-        <pose frame=''>-1.98385 -0.26563 1.143 0 -0 0</pose>
+        <pose frame=''>-1.96385 -0.26563 1.143 0 -0 0</pose>
         <scale>1 1 1</scale>
         <link name='link'>
-          <pose frame=''>-1.98385 -0.26563 1.143 0 -0 0</pose>
+          <pose frame=''>-1.96385 -0.26563 1.143 0 -0 0</pose>
           <velocity>0 0 0 0 -0 0</velocity>
           <acceleration>0 0 0 0 -0 0</acceleration>
           <wrench>0 0 0 0 -0 0</wrench>
@@ -163,7 +163,7 @@
       </camera>
     </gui>
     <model name='backwall'>
-      <pose frame=''>-1.98385 -0.26563 1.143 0 -0 0</pose>
+      <pose frame=''>-1.96385 -0.26563 1.143 0 -0 0</pose>
       <static>1</static>
       <link name='link'>
         <inertial>

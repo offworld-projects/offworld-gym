@@ -45,7 +45,7 @@ import roslibpy
 
 import logging
 logger = logging.getLogger(__name__)
-level = logging.DEBUG
+level = logging.INFO
 logger.setLevel(level)
 
 class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
@@ -64,9 +64,9 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
     """
     _PROXIMITY_THRESHOLD = 0.40
     _EPISODE_LENGTH = 100
-    _STEP_DURATION_SECONDS_IN_SIM = 1.0
+    _STEP_DURATION_SECONDS_IN_SIM = 0.5
     _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
-    _WALL_BOUNDARIES = {"x_max": 1.90, "x_min": -1.75, "y_max": 1.10, "y_min": -1.60}
+    _WALL_BOUNDARIES = {"x_max": 1.80, "x_min": -1.60, "y_max": 1.00, "y_min": -1.45}
 
     def __init__(self, channel_type=Channels.DEPTH_ONLY, random_init=True):
 
@@ -77,9 +77,9 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         before_ros_init = time.time()
 
         # Avoid race condition with rosbot launch by waiting for it fully init and start publishing it's odometry
-        self.unpause_sim = self.register_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
-        self.unpause_sim_respond = self.call_ros_service(self.unpause_sim,'/gazebo/unpause_physics', "std_srvs/Empty_srv")
-
+        # self.unpause_sim = self.register_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
+        # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim,'/gazebo/unpause_physics', "std_srvs/Empty_srv")
+        self.unpause_physics_remotely()
         print("waiting for rosbot model to init...")
         self.vel_sub = self.register_subscriber('/odom', "nav_msgs/Odometry", self._latest_odom_message, queue_size=1)
         
@@ -112,8 +112,9 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
                 raise GymException("ROS took too long to publish to /camera/rgb/image_raw")
             time.sleep(0.1)
 
-        self.pause_sim = self.register_ros_service('/gazebo/pause_physics', "std_srvs/Empty_srv")
-        self.pause_sim_respond = self.call_ros_service(self.pause_sim,'/gazebo/pause_physics', "std_srvs/Empty_srv")
+        # self.pause_sim = self.register_ros_service('/gazebo/pause_physics', "std_srvs/Empty_srv")
+        # self.pause_sim_respond = self.call_ros_service(self.pause_sim,'/gazebo/pause_physics', "std_srvs/Empty_srv")
+        # self.pause_physics_remotely()
         logger.info("Environment has been initiated.")
 
         # gazebo
@@ -127,7 +128,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
 
 
         # rosbot
-        self.vel_pub = self.register_publisher('/cmd_vel_env', 'gym_offworld_monolith/EnvTwist')
+        # self.vel_pub = self.register_publisher('/cmd_vel_env', 'gym_offworld_monolith/EnvTwist')
 
         # environment
         self.seed()
@@ -199,39 +200,26 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         vel_cmd_dict =  {"twist": 
                         {"linear" : {"x" : lin_x_speed, "y" : 0.0, "z" : 0.0},
                         "angular" : {"x" : 0.0, "y" : 0.0, "z" : ang_z_speed}}}
+
         before_unpause = time.time()
-        # replace by endpont python server
-        # headers = {'Content-type': 'application/json'}
-        # json_data = '{"command_name": "unpause"}'
-        # json_data = ast.literal_eval(json_data)
-        # result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
-        self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, '/gazebo/unpause_physics', "std_srvs/Empty_srv")
+        # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, '/gazebo/unpause_physics', "std_srvs/Empty_srv")
+        self.unpause_physics_remotely()
         after_unpause = time.time()
         logger.debug("Profilling unpause service {}".format(str(after_unpause - before_unpause)))
 
         wall_start = time.time()
         if self._rosbridge_client.is_connected:
-            logger.debug(str(vel_cmd_dict))
-            
-            self.vel_pub.publish(vel_cmd_dict)
-
+            # self.vel_pub.publish(vel_cmd_dict)
             # replace by endpont python server
-            # headers = {'Content-type': 'application/json'}
-            # json_data = '{"command_name": "cmd_vel", "lin_x_speed":'+ f'"{lin_x_speed}"' + ', "lin_y_speed":"0.0","lin_z_speed":"0.0", "ang_z_speed":' + f'"{ang_z_speed}"' + ',"ang_x_speed":"0.0", "ang_y_speed":"0.0"}'
-            # json_data = ast.literal_eval(json_data)
-            # result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+            self.publish_cmd_vel_remotely(lin_x_speed, ang_z_speed)
 
         self._sim_time_sleep(sleep_time)  # action duration is in sim-time, so simulation speed has no affect on env dynamics
         wall_stop = time.time()
         # replace by endpont python server
-        # headers = {'Content-type': 'application/json'}
-        # json_data = '{"command_name": "pause"}'
-        # json_data = ast.literal_eval(json_data)
-        # result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
-        self.pause_sim_respond = self.call_ros_service(self.pause_sim, '/gazebo/pause_physics', "std_srvs/Empty_srv")
+        self.pause_physics_remotely()
         after_pause = time.time()
         logger.debug("Profilling pause service {}".format(str(after_pause - wall_stop)))
-# 
+
         wall_sleep_time = wall_stop - wall_start
         logger.debug("Profilling action and pause service {}".format(str(wall_sleep_time)))
         real_time_factor = sleep_time / wall_sleep_time
@@ -249,10 +237,11 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             A vector containing state of the model contained in a GetModelState service message.
         """
         try:
-            # import pdb; pdb.set_trace()
             # rosbridge returns a dict(service responce obj)
             state = self.call_ros_service(self.get_model_state_srv, "/gazebo/get_model_state", "gazebo_msgs/GetModelState", {"model_name": f"{name}"})
+            logger.debug("Current robot state {}".format(str(state['pose'])))
             return state
+            
         except Exception as e:
             logger.error("An error occured while invoking the get_model_state service.")
             return None
@@ -330,8 +319,6 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
                 reward = 0.0 
                 done = False 
 
-        logger.debug(f"\n New reward logic")
-
         # check boundaries
         if rosbot_state[0] < self._WALL_BOUNDARIES['x_min'] or \
                 rosbot_state[0] > self._WALL_BOUNDARIES['x_max'] or \
@@ -342,6 +329,8 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
 
         if self.step_count == OffWorldDockerizedMonolithEnv._EPISODE_LENGTH:
             done = True
+
+        logger.debug("Done : {}".format(bool(done)))
         return reward, done
 
     def step(self, action):
@@ -425,20 +414,23 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             A numpy array with rgb/depth/rgbd encoding of the state as seen by
             the robot
         """
-        self.pause_sim_respond = self.call_ros_service(self.pause_sim, 'gazebo/pause_physics', "std_srvs/Empty_srv")
+        # self.pause_sim_respond = self.call_ros_service(self.pause_sim, 'gazebo/pause_physics', "std_srvs/Empty_srv")
+        self.pause_physics_remotely()
         vel_cmd_dict =  {"twist": 
                 {"linear" : {"x" : 0.0, "y" : 0.0, "z" : 0.0},
                 "angular" : {"x" : 0.0, "y" : 0.0, "z" : 0.0}}}
 
         if self._rosbridge_client.is_connected:
-            self.vel_pub.publish(vel_cmd_dict)
+            # self.vel_pub.publish(vel_cmd_dict)
+            self.publish_cmd_vel_remotely(lin_x_speed=0.0, ang_z_speed=0.0)
 
         if self.random_init:
             self._move_to_random_position('rosbot')
         else:
             self._move_to_original_position('rosbot')
         state = self._get_state()
-        self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, 'gazebo/unpause_physics', "std_srvs/Empty_srv")
+        # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, 'gazebo/unpause_physics', "std_srvs/Empty_srv")
+        self.unpause_physics_remotely()
         return state
 
     def render(self, mode='human'):
