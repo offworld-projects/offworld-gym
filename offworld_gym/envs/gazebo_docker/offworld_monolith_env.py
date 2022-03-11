@@ -64,7 +64,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
     """
     _PROXIMITY_THRESHOLD = 0.40
     _EPISODE_LENGTH = 100
-    _STEP_DURATION_SECONDS_IN_SIM = 0.5
+    _STEP_DURATION_SECONDS_IN_SIM = 1.0
     _MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS = 20
     _WALL_BOUNDARIES = {"x_max": 1.80, "x_min": -1.60, "y_max": 1.00, "y_min": -1.45}
 
@@ -77,9 +77,9 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         before_ros_init = time.time()
 
         # Avoid race condition with rosbot launch by waiting for it fully init and start publishing it's odometry
-        # self.unpause_sim = self.register_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
+        self.unpause_sim = self.register_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
         # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim,'/gazebo/unpause_physics', "std_srvs/Empty_srv")
-        self.unpause_physics_remotely()
+        self.unpause_physics_remotely() # rosbridge replaced by endpont python server
         print("waiting for rosbot model to init...")
         self.vel_sub = self.register_subscriber('/odom', "nav_msgs/Odometry", self._latest_odom_message, queue_size=1)
         
@@ -112,9 +112,9 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
                 raise GymException("ROS took too long to publish to /camera/rgb/image_raw")
             time.sleep(0.1)
 
-        # self.pause_sim = self.register_ros_service('/gazebo/pause_physics', "std_srvs/Empty_srv")
+        self.pause_sim = self.register_ros_service('/gazebo/pause_physics', "std_srvs/Empty_srv")
         # self.pause_sim_respond = self.call_ros_service(self.pause_sim,'/gazebo/pause_physics', "std_srvs/Empty_srv")
-        # self.pause_physics_remotely()
+        self.pause_physics_remotely() # rosbridge replaced by endpont python server
         logger.info("Environment has been initiated.")
 
         # gazebo
@@ -128,7 +128,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
 
 
         # rosbot
-        # self.vel_pub = self.register_publisher('/cmd_vel_env', 'gym_offworld_monolith/EnvTwist')
+        self.vel_pub = self.register_publisher('/cmd_vel_env', 'gym_offworld_monolith/EnvTwist')
 
         # environment
         self.seed()
@@ -184,7 +184,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         logger.debug("State of the environment captured.")
         return state
 
-    def _move_rosbot(self, lin_x_speed, ang_z_speed, sleep_time=2.):
+    def _move_rosbot(self, lin_x_speed, ang_z_speed, sleep_time=2.0):
         """Moves the ROSBot.
 
         Accepts linear x speed and angular z speed and moves the
@@ -201,25 +201,19 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
                         {"linear" : {"x" : lin_x_speed, "y" : 0.0, "z" : 0.0},
                         "angular" : {"x" : 0.0, "y" : 0.0, "z" : ang_z_speed}}}
 
-        before_unpause = time.time()
         # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, '/gazebo/unpause_physics', "std_srvs/Empty_srv")
-        self.unpause_physics_remotely()
-        after_unpause = time.time()
-        logger.debug("Profilling unpause service {}".format(str(after_unpause - before_unpause)))
-
+        self.unpause_physics_remotely() # rosbridge replaced by endpont python server
+        
         wall_start = time.time()
         if self._rosbridge_client.is_connected:
             # self.vel_pub.publish(vel_cmd_dict)
-            # replace by endpont python server
-            self.publish_cmd_vel_remotely(lin_x_speed, ang_z_speed)
+            self.publish_cmd_vel_remotely(lin_x_speed, ang_z_speed)  # rosbridge replaced by endpont python server
 
         self._sim_time_sleep(sleep_time)  # action duration is in sim-time, so simulation speed has no affect on env dynamics
         wall_stop = time.time()
-        # replace by endpont python server
-        self.pause_physics_remotely()
-        after_pause = time.time()
-        logger.debug("Profilling pause service {}".format(str(after_pause - wall_stop)))
-
+        # self.pause_sim_respond = self.call_ros_service(self.pause_sim, '/gazebo/pause_physics', "std_srvs/Empty_srv")
+        self.pause_physics_remotely() # rosbridge replaced by endpont python server
+        
         wall_sleep_time = wall_stop - wall_start
         logger.debug("Profilling action and pause service {}".format(str(wall_sleep_time)))
         real_time_factor = sleep_time / wall_sleep_time

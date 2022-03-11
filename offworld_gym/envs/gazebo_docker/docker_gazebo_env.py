@@ -49,6 +49,7 @@ OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworl
 ROS_BRIDGE_PORT = 9090
 GAZEBO_SERVER_INTERNAL_PORT = 11345
 GAZEBO_WEB_SERVER_INTERNAL_PORT = 8080
+HTTP_COMMAND_SERVER_PORT = 8008
 XSERVER_VOLUME = "/tmp/.X11-unix"
 
 
@@ -87,46 +88,45 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
                             f"Installing \'xhost\' may be required for OffWorldDockerizedEnv to render properly. "
                             f"Further issues may be caused by this.")
             
+            try:
+                self.launch_node()
+            except:
+                import traceback
+                traceback.print_exc()
+
             # initialize a ros bridge client
-            self._rosbridge_client = roslibpy.Ros(host=self._container_ip, port=ROS_BRIDGE_PORT)
+            self._rosbridge_client = roslibpy.Ros(host=str(self._container_ip), port=int(ROS_BRIDGE_PORT))
             self._rosbridge_client.run()
 
-            # try:
-            #     self.launch_node()
-            # except:
-            #     import traceback
-            #     traceback.print_exc()
-    
     def _start_container(self):
 
-        # container_name = f"offworld-gym{uuid.uuid4().hex[:10]}"
-        container_name = "gym-test"
-        # container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
-        # container_env_str = "DISPLAY"
-        # container_volumes_str = f"{XSERVER_VOLUME}:{XSERVER_VOLUME}"
-        # container_ports_str = f"-p {ROS_BRIDGE_PORT}:{ROS_BRIDGE_PORT} -p {GAZEBO_WEB_SERVER_INTERNAL_PORT}:{GAZEBO_WEB_SERVER_INTERNAL_PORT}"
-        # docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm" \
-        #                      f"{container_env_str}{container_volumes_str}{container_ports_str} " \
-        #                      f"offworldai/offworld-gym:latest {container_entrypoint}"
-        # logger.debug(f"Docker run command is:\n{docker_run_command}\n")
-        # container_id = subprocess.check_output(["/bin/bash", "-c", docker_run_command]).decode("utf-8").strip()
-        # import pdb; pdb.set_trace()
+        # container_name = f"offworld-gym-{uuid.uuid4().hex[:10]}"
+        container_name = "offworld-gym_ow_gym_sim_1"
+        docker_run_command = "docker-compose up"
+        start_container = subprocess.Popen(["/bin/bash", "-c", docker_run_command])
+        logger.debug(f"Docker run command is:\n{docker_run_command}\n")
+        time.sleep(10.0)
+        get_container_id_command = f'docker ps -aqf "name={container_name}"'
+        container_id = subprocess.check_output(["/bin/bash", "-c", get_container_id_command]).decode("utf-8").strip()
+        logger.debug(f"Docker container id is:\n{container_id}\n")
+        
         filter_string = "'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
-        check_ip_command = f"docker inspect -f {filter_string} {container_name}"
-        self._container_ip = subprocess.check_output(["/bin/bash", "-c", check_ip_command]).decode("utf-8").strip()
+        get_container_ip_command = f"docker inspect -f {filter_string} {container_name}"
+        self._container_ip = subprocess.check_output(["/bin/bash", "-c", get_container_ip_command]).decode("utf-8").strip()
         logger.debug(f"Docker container ip is:\n{self._container_ip}\n")
+        
+        # ensure cleanup at exit
+        def kill_container_if_it_still_exists():
+            try:
+                # bash command kills the container if it exists, otherwise return error code 1 without printing an error
+                kill_command = f"docker ps -q --filter \"id={container_id}\" | grep -q . && docker kill {container_id}"
+                removed_container = subprocess.check_output(['bash', '-c', kill_command]).decode("utf-8").strip()
+                # remove_service = subprocess.Popen(["/bin/bash", "-c", "docker-compose down"])
+                print(f"Cleaned up container {removed_container}")
+            except subprocess.CalledProcessError:
+                pass
 
-        # # ensure cleanup at exit
-        # def kill_container_if_it_still_exists():
-        #     try:
-        #         # bash command kills the container if it exists, otherwise return error code 1 without printing an error
-        #         kill_command = f"docker ps -q --filter \"id={container_id}\" | grep -q . && docker kill {container_id}"
-        #         removed_container = subprocess.check_output(['bash', '-c', kill_command]).decode("utf-8").strip()
-        #         print(f"Cleaned up container {removed_container}")
-        #     except subprocess.CalledProcessError:
-        #         pass
-
-        # atexit.register(kill_container_if_it_still_exists)
+        atexit.register(kill_container_if_it_still_exists)
 
     def launch_node(self):
         """Launches the gazebo world in the docker
@@ -135,13 +135,10 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         remotely by sending launch command over ssh
         """
         try:
-            roslaunch_command = 'curl --data "{\"command_name\": \"launch_node\", \"package_name\": \"gym_offworld_monolith\", \"launch_file_name\":\"env_bringup.launch\"}" \
-                                --header "Content-Type: application/json" \
-                                --request POST \
-                                http://127.0.0.1:8008/'
-
-            subprocess.check_output(['bash', '-c', roslaunch_command])
-
+            headers = {'Content-type': 'application/json'}
+            json_data = '{"command_name": "launch_node", "package_name": "gym_offworld_monolith", "launch_file_name":"env_bringup.launch"}'
+            json_data = ast.literal_eval(json_data)
+            result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
             logger.info("The environment has been started.")
 
         except Exception:
@@ -168,14 +165,14 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         logger.debug(f'Calling service {service_name}')
         return respond
         
-    def register_publisher(self, topic_name, message_type, queue_size=10, throttle_rate=300):
+    def register_publisher(self, topic_name, message_type, queue_size=1, throttle_rate=300):
         """Register publisher
         """
         publisher= roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type,
                     queue_size=queue_size, throttle_rate=throttle_rate)
         return publisher
 
-    def register_subscriber(self, topic_name, message_type, placeholder, queue_size=10, throttle_rate=180):
+    def register_subscriber(self, topic_name, message_type, placeholder, queue_size=1, throttle_rate=200):
         """Register subscriber and consistently listening
         """
         def update_odom(msg):

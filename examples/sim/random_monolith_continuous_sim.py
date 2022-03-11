@@ -30,5 +30,5 @@ while True:
     done = False
     while not done:
         sampled_action = env.action_space.sample()
-        env.render()
+        # env.render()
         obs, rew, done, info = env.step(sampled_action)

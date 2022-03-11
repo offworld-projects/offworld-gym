@@ -49,9 +49,9 @@ ENV PATH=$PATH:/root/.local/bin
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 RUN python3.8 get-pip.py
 
+RUN python3.8 -m pip install --upgrade pip
 RUN pip3.8 install --user --upgrade testresources
 RUN pip3.8 install --user --upgrade setuptools
-RUN pip3.8 install --user --upgrade pip
 RUN pip3.8 install --user --upgrade numpy
 RUN pip3.8 install --user --upgrade scipy
 RUN pip3.8 install --user --upgrade opencv-python
@@ -71,24 +71,23 @@ RUN pip3.8 install --user --upgrade pyquaternion
 RUN pip3.8 install --user --upgrade imageio
 RUN pip3.8 install --user --upgrade testresources
 RUN pip3.8 install --user --upgrade roslibpy
-RUN pip3.8 install --user --upgrade Markdown
-
+RUN pip3.8 install --user -U importlib-metadata==4.11.2
 
 ###########################################################################
 # ## Gazebo and nvm
 
 # Replace shell with bash so we can source files
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-RUN ln -s /usr/bin/python3 /usr/bin/python
+# RUN ln -s /usr/bin/python3 /usr/bin/python
 
 RUN curl -sSL http://get.gazebosim.org | sh
 
 RUN apt-get install -y libjansson-dev npm libboost-dev imagemagick libtinyxml-dev mercurial cmake build-essential 
-# RUN apt install ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control
+RUN apt install ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control
 
-ENV NVM_DIR /usr/local/nvm
+ENV NVM_DIR=/usr/local/nvm
 RUN mkdir -p $NVM_DIR
-ENV NODE_VERSION 9.11.2
+ENV NODE_VERSION=9.11.2
 
 # Install nvm with node and npm
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash \
@@ -104,8 +103,8 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | b
     && mkdir -p /gzweb/http/client/assets/ \
     && npm run deploy --- -m local
 
-ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
-ENV PATH      $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+ENV NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
+ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # Copy and Initialize workspace
 RUN mkdir -p /offworld-gym
@@ -114,7 +113,7 @@ COPY . /offworld-gym
 WORKDIR /offworld-gym
 
 WORKDIR $OFFWORLD_GYM_ROOT
-RUN pip3.8 install  -e .
+RUN pip3.8 install --user -e .
 
 # RUN ./scripts/install-real-and-sim.sh install_python_dep_lib
 # WORKDIR /usr/lib/x86_64-linux-gnu
@@ -141,10 +140,10 @@ RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && catkin_make"
 # (May have unnecessary elements in these paths, e.g. catkin_ws packages)
 
 # Appended to the python system path at runtime to import ROS python modules regardless of existing env setup.
-ENV GAZEBO_GYM_PYTHON_DEPENDENCIES /offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3.8/dist-packages
+ENV GAZEBO_GYM_PYTHON_DEPENDENCIES=/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages:/opt/ros/noetic/lib/python3.8/dist-packages
 
 # Replaces PYTHONPATH in the subprocess that calls roslaunch within a Gazebo Gym (So that your python3 site-packages don't get imported by accident)
-ENV ROSLAUNCH_PYTHONPATH_OVERRIDE /opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
+ENV ROSLAUNCH_PYTHONPATH_OVERRIDE=/opt/ros/noetic/lib/python3.8/dist-packages:/offworld-gym/offworld_gym/envs/gazebo/catkin_ws/devel/lib/python3/dist-packages
 
 # 2nd line below is a hack. Something in the original astra_minimal.dae causes rendering to crash in chrome, but astra.dae works.
 RUN cp -r /usr/share/gazebo-11/media /gzweb/http/client/assets/ \
@@ -153,22 +152,16 @@ RUN cp -r /usr/share/gazebo-11/media /gzweb/http/client/assets/ \
     && cp /gzweb/http/client/assets/rosbot_description/meshes/astra.dae /gzweb/http/client/assets/rosbot_description/meshes/astra_minimal.dae
 
 
-# build the Gym Shell script
-RUN echo '#!/usr/bin/env bash' > $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo "source /opt/ros/noetic/setup.bash" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo "source $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/devel/setup.bash --extend" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo "export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo "export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT" >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo 'export PYTHONPATH=/usr/local/lib/python3.8/dist-packages/:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages:$PYTHONPATH' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN echo 'export OFFWORLD_GYM_ACCESS_TOKEN="COPY IT HERE"' >> $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN chmod +x $OFFWORLD_GYM_ROOT/scripts/gymshell.sh
-RUN chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
-
-
-ENV PYTHONPATH=/usr/local/lib/python3.8/dist-packages/:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages
+# Add to .bashrc for root user
 ENV GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH
- 
-ENTRYPOINT ["/bin/bash",  "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"]
+ENV OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT
+ENV PYTHONPATH=/usr/local/lib/python3.8/dist-packages/:/root/.local/lib/python3.8/site-packages:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages:$PYTHONPATH
+ENV GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH
+RUN chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
+WORKDIR $OFFWORLD_GYM_ROOT
+
+CMD ["source /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"]
+ENTRYPOINT ["/bin/bash","-c"]
 
 
 
