@@ -78,7 +78,6 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
 
         # Avoid race condition with rosbot launch by waiting for it fully init and start publishing it's odometry
         self.unpause_sim = self.register_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
-        # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim,'/gazebo/unpause_physics', "std_srvs/Empty_srv")
         self.unpause_physics_remotely() # rosbridge replaced by endpoint python server
         print("waiting for rosbot model to init...")
         self.vel_sub = self.register_subscriber('/odom', "nav_msgs/Odometry", self._latest_odom_message, queue_size=1)
@@ -112,8 +111,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             time.sleep(0.1)
 
         self.pause_sim = self.register_ros_service('/gazebo/pause_physics', "std_srvs/Empty_srv")
-        # self.pause_sim_respond = self.call_ros_service(self.pause_sim,'/gazebo/pause_physics', "std_srvs/Empty_srv")
-        self.pause_physics_remotely() # rosbridge replaced by endpont python server
+        self.pause_physics_remotely() # rosbridge replaced by endpoint python server
         logger.info("Environment has been initiated.")
 
         # gazebo
@@ -124,9 +122,6 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         # initialize other service proxy
         self.get_model_state_srv = self.register_ros_service( "/gazebo/get_model_state", "gazebo_msgs/GetModelState")
         self.set_robot_state_srv = self.register_ros_service( "/gazebo/set_model_state", "gazebo_msgs/SetModelState")
-
-        # rosbot
-        self.vel_pub = self.register_publisher('/cmd_vel_env', 'gym_offworld_monolith/EnvTwist')
 
         # environment
         self.seed()
@@ -195,21 +190,13 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         Returns:
             The real time factor for the move (sim-time elapsed/wall-time elapsed)
         """
-        vel_cmd_dict =  {"twist": 
-                        {"linear" : {"x" : lin_x_speed, "y" : 0.0, "z" : 0.0},
-                        "angular" : {"x" : 0.0, "y" : 0.0, "z" : ang_z_speed}}}
-
-        # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, '/gazebo/unpause_physics', "std_srvs/Empty_srv")
         self.unpause_physics_remotely() # rosbridge replaced by endpont python server
-        
         wall_start = time.time()
         if self._rosbridge_client.is_connected:
-            # self.vel_pub.publish(vel_cmd_dict)
             self.publish_cmd_vel_remotely(lin_x_speed, ang_z_speed)  # rosbridge replaced by endpont python server
 
         self._sim_time_sleep(sleep_time)  # action duration is in sim-time, so simulation speed has no affect on env dynamics
         wall_stop = time.time()
-        # self.pause_sim_respond = self.call_ros_service(self.pause_sim, '/gazebo/pause_physics', "std_srvs/Empty_srv")
         self.pause_physics_remotely() # rosbridge replaced by endpont python server
         
         wall_sleep_time = wall_stop - wall_start
@@ -406,14 +393,8 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             A numpy array with rgb/depth/rgbd encoding of the state as seen by
             the robot
         """
-        # self.pause_sim_respond = self.call_ros_service(self.pause_sim, 'gazebo/pause_physics', "std_srvs/Empty_srv")
         self.pause_physics_remotely()
-        vel_cmd_dict =  {"twist": 
-                {"linear" : {"x" : 0.0, "y" : 0.0, "z" : 0.0},
-                "angular" : {"x" : 0.0, "y" : 0.0, "z" : 0.0}}}
-
         if self._rosbridge_client.is_connected:
-            # self.vel_pub.publish(vel_cmd_dict)
             self.publish_cmd_vel_remotely(lin_x_speed=0.0, ang_z_speed=0.0)
 
         if self.random_init:
@@ -421,7 +402,6 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         else:
             self._move_to_original_position('rosbot')
         state = self._get_state()
-        # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim, 'gazebo/unpause_physics', "std_srvs/Empty_srv")
         self.unpause_physics_remotely()
         return state
 
