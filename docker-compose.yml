@@ -13,8 +13,8 @@ services:
       - "9090:9090"
       - "8080:8080"
     image: offworldai/offworld-gym:latest
-    logging:
-      driver: none
+    # logging:
+    #   driver: none
 
 
 networks:

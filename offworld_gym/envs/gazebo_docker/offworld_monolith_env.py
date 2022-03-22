@@ -79,7 +79,7 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         # Avoid race condition with rosbot launch by waiting for it fully init and start publishing it's odometry
         self.unpause_sim = self.register_ros_service('/gazebo/unpause_physics', "std_srvs/Empty_srv")
         # self.unpause_sim_respond = self.call_ros_service(self.unpause_sim,'/gazebo/unpause_physics', "std_srvs/Empty_srv")
-        self.unpause_physics_remotely() # rosbridge replaced by endpont python server
+        self.unpause_physics_remotely() # rosbridge replaced by endpoint python server
         print("waiting for rosbot model to init...")
         self.vel_sub = self.register_subscriber('/odom', "nav_msgs/Odometry", self._latest_odom_message, queue_size=1)
         
@@ -96,7 +96,6 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         self.depth_sub = self.register_subscriber('/camera/depth/image_raw', "sensor_msgs/Image", self._latest_depth_img, queue_size=1)
         self.rbg_sub = self.register_subscriber('/camera/rgb/image_raw', "sensor_msgs/Image", self._latest_rgb_img, queue_size=1)
         
-
         while self._latest_clock_message is None:
             if time.time() - before_ros_init > self._MAX_TOLERABLE_ROSLAUNCH_INIT_SECONDS:
                 raise GymException("ROS took too long to publish to /clock")
@@ -125,7 +124,6 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
         # initialize other service proxy
         self.get_model_state_srv = self.register_ros_service( "/gazebo/get_model_state", "gazebo_msgs/GetModelState")
         self.set_robot_state_srv = self.register_ros_service( "/gazebo/set_model_state", "gazebo_msgs/SetModelState")
-
 
         # rosbot
         self.vel_pub = self.register_publisher('/cmd_vel_env', 'gym_offworld_monolith/EnvTwist')
