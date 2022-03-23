@@ -3,7 +3,7 @@ import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import cgi
-from offworld_gym.envs.gazebo.utils import GazeboUtils
+from offworld_gym.envs.gazebo.gazebo_utils import GazeboUtils
 import rospy
 from geometry_msgs.msg import Twist
 import logging

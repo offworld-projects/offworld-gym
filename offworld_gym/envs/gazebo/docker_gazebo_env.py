@@ -41,7 +41,7 @@ import roslibpy
 import numpy as np
 
 logger = logging.getLogger(__name__)
-level = logging.INFO
+level = logging.DEBUG
 logger.setLevel(level)
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworldai/offworld-gym")
@@ -101,7 +101,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         container_name = f"offworld-gym-{uuid.uuid4().hex[:10]}"
 
         # retracted to "docker run" for automatic ip and container name assignment
-        container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"
+        container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo/docker_entrypoint.sh"
         container_env_str = " -e DISPLAY"
         container_volumes_str = f" -v {XSERVER_VOLUME}:{XSERVER_VOLUME}"
         container_ports_str = f" -p {ROS_BRIDGE_PORT}:{ROS_BRIDGE_PORT}" \
@@ -220,10 +220,12 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
     def unpause_physics_remotely(self):
         """Pause physics remotely from localhost, send sommand to docker command server 
         """
+        # import pdb; pdb.set_trace()
         headers = {'Content-type': 'application/json'}
         json_data = '{"command_name": "unpause"}'
         json_data = ast.literal_eval(json_data)
         result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+
 
     def publish_cmd_vel_remotely(self, lin_x_speed, ang_z_speed):
         """send cmd_vel from localhost to python server inside docker, then publish cmd_vel in as bash command inside 

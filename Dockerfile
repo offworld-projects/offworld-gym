@@ -149,10 +149,10 @@ ENV GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/
 ENV OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT
 ENV PYTHONPATH=/usr/local/lib/python3.8/dist-packages/:/root/.local/lib/python3.8/site-packages:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages:$PYTHONPATH
 ENV GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH
-RUN chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
+RUN chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/docker_entrypoint.sh
 WORKDIR $OFFWORLD_GYM_ROOT
 
-CMD ["source /offworld-gym/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh"]
+CMD ["source /offworld-gym/offworld_gym/envs/gazebo/docker_entrypoint.sh"]
 ENTRYPOINT ["/bin/bash","-c"]
 
 

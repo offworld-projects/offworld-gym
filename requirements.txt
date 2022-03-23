@@ -13,3 +13,4 @@ termcolor
 matplotlib
 pynput
 importlib-metadata>=4.11.2
+roslibpy>=1.2.1

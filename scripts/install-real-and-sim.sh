@@ -155,7 +155,7 @@ build_gym_shell_script() {
     export OFFWORLD_GYM_ROOT=$OFFWORLD_GYM_ROOT
     export PYTHONPATH=/usr/local/lib/python3.8/dist-packages/:/root/.local/lib/python3.8/site-packages:/usr/lib/python3/dist-packages/:/usr/lib/python3/dist-packages:$PYTHONPATH
     export GAZEBO_MODEL_PATH=$OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/models:$GAZEBO_MODEL_PATH
-    chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo_docker/docker_entrypoint.sh
+    chmod +x $OFFWORLD_GYM_ROOT/offworld_gym/envs/gazebo/docker_entrypoint.sh
     cd $OFFWORLD_GYM_ROOT
 }
 
