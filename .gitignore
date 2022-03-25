@@ -8,4 +8,4 @@ logs/
 *.shelve
 *.dill
 docs/_build
-
+build/
