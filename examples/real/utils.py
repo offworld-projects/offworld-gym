@@ -16,18 +16,20 @@ from offworld_gym import version
 
 __version__     = version.__version__
 
-import numpy as np
+
 import time
 import os
 import re
-from math import sqrt
+
 import matplotlib.cm
+import cv2
+import numpy as np
+from collections import deque
+from math import sqrt
 
-import tensorflow
-from keras import backend as K
-backend = K.backend()
-
-from kerasrl.callbacks import Callback
+import gym
+from offworld_gym.envs.common.channels import Channels
+from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 
 def GetLogPath(path=None, developerTestingFlag=True):
     """Setup a path where log files will be stored
@@ -51,245 +53,113 @@ def GetLogPath(path=None, developerTestingFlag=True):
     return directory, logDir
 
 
-# boosted from here: https://gist.github.com/jimfleming/c1adfdb0f526465c99409cc143dea97b
-def colorize(value, vmin=None, vmax=None, cmap=None):
-    """A utility function for TensorFlow that maps a grayscale image to a matplotlib colormap for use with TensorBoard image summaries.
+# Referrence: https://github.com/openai/baselines/blob/master/baselines/common/atari_wrappers.py
+class WarpFrame(gym.ObservationWrapper):
+    """Warp frames to 84x84 as done in the Nature paper and later work.
 
-    By default it will normalize the input value to the range 0..1 before mapping
-    to a grayscale colormap.
-
-    Args:
-        value: 2D Tensor of shape [height, width] or 3D Tensor of shape
-        [height, width, 1].
-        vmin: the minimum value of the range used for normalization.
-        (Default: value minimum)
-        vmax: the maximum value of the range used for normalization.
-        (Default: value maximum)
-        cmap: a valid cmap named for use with matplotlib's `get_cmap`.
-        (Default: 'gray')
-
-    Example usage:
-    ```
-    output = tf.random_uniform(shape=[256, 256, 1])
-    output_color = colorize(output, vmin=0.0, vmax=1.0, cmap='viridis')
-    tf.summary.image('output', output_color)
-    ```
-
-    Returns a 3D tensor of shape [height, width, 3].
+    :param gym.Env env: the environment to wrap.
     """
 
-    # normalize
-    vmin = tensorflow.reduce_min(value) if vmin is None else vmin
-    vmax = tensorflow.reduce_max(value) if vmax is None else vmax
-    value = (value - vmin) / (vmax - vmin) # vmin..vmax
+    def __init__(self, env):
+        super().__init__(env)
+        self.size = 84
+        self.channel = env.observation_space.shape[-1]
+        self.observation_space = gym.spaces.Box(
+            low=np.min(env.observation_space.low),
+            high=np.max(env.observation_space.high),
+            shape=(self.size, self.size),
+            # shape=(240, 320),
+            dtype=env.observation_space.dtype
+        )
 
-    # squeeze last dim if it exists
-    value = tensorflow.squeeze(value)
 
-    # quantize
-    indices = tensorflow.to_int32(tensorflow.round(value * 255))
+    def observation(self, frame):
+        """returns the current observation from a frame"""
+        # if self.channel > 1:
+        #     frame = cv2.cvtColor(frame[0], cv2.COLOR_RGB2GRAY)
+        # else:
+        #     frame = frame[0]
+        frame = frame[0]
+        return cv2.resize(frame, (self.size, self.size), interpolation=cv2.INTER_AREA)
+        # return cv2.resize(frame, (240, 320), interpolation=cv2.INTER_AREA)
 
-    # gather
-    cm = matplotlib.cm.get_cmap(cmap if cmap is not None else 'gray')
-    colors = cm(np.arange(256))[:, :3]
-    colors = tensorflow.constant(colors, dtype=tensorflow.float32)
-    value = tensorflow.gather(colors, indices)
-    #pdb.set_trace()
-    return value
+class FrameStack(gym.Wrapper):
+    """Stack n_frames last frames.
 
-# boosted from here: https://gist.github.com/kukuruza/03731dc494603ceab0c5
-def put_kernels_on_grid (kernel, rgb=False, pad = 1):
-    """Visualize conv. filters as an image (mostly for the 1st layer).
-
-    Arranges filters into a grid, with some paddings between adjacent filters.
-
-    Args:
-        kernel: tensor of shape [Y, X, NumChannels, NumKernels]
-        pad: number of black pixels around each filter (between them)
-
-    Returns:
-        Tensor of shape [1, (Y+2*pad)*grid_Y, (X+2*pad)*grid_X, NumChannels].
+    :param gym.Env env: the environment to wrap.
+    :param int n_frames: the number of frames to stack.
     """
 
-    # get shape of the grid. NumKernels == grid_Y * grid_X
-    def factorization(n):
-        for i in range(int(sqrt(float(n))), 0, -1):
-            if n % i == 0:
-                if i == 1: print('Who would enter a prime number of filters')
-                return (i, int(n / i))
-    (grid_Y, grid_X) = factorization (kernel.get_shape()[3].value)
+    def __init__(self, env, n_frames):
+        super().__init__(env)
+        self.n_frames = n_frames
+        self.frames = deque([], maxlen=n_frames)
+        shape = (n_frames, ) + env.observation_space.shape
+        self.observation_space = gym.spaces.Box(
+            low=np.min(env.observation_space.low),
+            high=np.max(env.observation_space.high),
+            shape=shape,
+            dtype=env.observation_space.dtype
+        )
 
-    x_min = tensorflow.reduce_min(kernel)
-    x_max = tensorflow.reduce_max(kernel)
-    kernel = (kernel - x_min) / (x_max - x_min)
+    def reset(self):
+        obs = self.env.reset()
+        for _ in range(self.n_frames):
+            self.frames.append(obs)
+        return self._get_ob()
 
-    # pad X and Y
-    x = tensorflow.pad(kernel, tensorflow.constant( [[pad,pad],[pad, pad],[0,0],[0,0]] ), mode = 'CONSTANT')
+    def step(self, action):
+        obs, reward, done, info = self.env.step(action)
+        self.frames.append(obs)
+        return self._get_ob(), reward, done, info
 
-    # X and Y dimensions, w.r.t. padding
-    Y = kernel.get_shape()[0] + 2 * pad
-    X = kernel.get_shape()[1] + 2 * pad
+    def _get_ob(self):
+        # the original wrapper use `LazyFrames` but since we use np buffer,
+        # it has no effect
+        return np.stack(self.frames, axis=0)
 
-    channels = kernel.get_shape()[2]
-    # put NumKernels to the 1st dimension
-    x = tensorflow.transpose(x, (3, 0, 1, 2))
-    # organize grid on Y axis
-    x = tensorflow.reshape(x, tensorflow.stack([grid_X, Y * grid_Y, X, channels]))
+def wrap_offworld(
+    env_id,
+    frame_stack=4,
+    warp_frame=True,
+):
+    """Configure environment for DeepMind-style Atari. The observation is
+    channel-first: (c, h, w) instead of (h, w, c).
 
-    # switch X and Y axes
-    x = tensorflow.transpose(x, (0, 2, 1, 3))
-    # organize grid on X axis
-    x = tensorflow.reshape(x, tensorflow.stack([1, X * grid_X, Y * grid_Y, channels]))
-
-    # back to normal order (not combining with the next step for clarity)
-    x = tensorflow.transpose(x, (2, 1, 3, 0))
-
-    # to tensorflow.image_summary order [batch_size, height, width, channels],
-    #   where in this case batch_size == 1
-    x = tensorflow.transpose(x, (3, 0, 1, 2))
-
-    # scaling to [0, 255] is not necessary for tensorboard
-    return x
-
-
-class TB_convs(Callback):
-    """callback for TF tensorboard with keras tensorboard convolution layers + histograms
+    :param str env_id: the atari environment id.
+    :param bool episode_life: wrap the episode life wrapper.
+    :param bool clip_rewards: wrap the reward clipping wrapper.
+    :param int frame_stack: wrap the frame stacking wrapper.
+    :param bool scale: wrap the scaling observation wrapper.
+    :param bool warp_frame: wrap the grayscale + resize observation wrapper.
+    :return: the wrapped atari environment.
     """
-    def __init__(self, example_input, log_dir='./logs'):
-        super(TB_convs, self).__init__()
-        if K.backend() != 'tensorflow':
-            raise RuntimeError('TB_convs callback only works with the TensorFlow backend.')
-        self.log_dir = log_dir
-        self.merged = None
-        self.example_input = example_input
+    env = gym.make(env_id,channel_type=Channels.DEPTH_ONLY)
+    if warp_frame:
+        env = WarpFrame(env)
+    if frame_stack:
+        env = FrameStack(env, frame_stack)
+    return env
 
-    def original_save_images(self, weight):
-        mapped_weight_name = weight.name.replace(':', '_')
-        w_img = tensorflow.squeeze(weight)
-        shape = K.int_shape(w_img)
-        if len(shape) == 2:  # dense layer kernel case
-            if shape[0] > shape[1]:
-                w_img = tensorflow.transpose(w_img)
-                shape = K.int_shape(w_img)
-            w_img = tensorflow.reshape(w_img, [1, shape[0], shape[1], 1])
-        elif len(shape) == 4:  # convnet case
-            if K.image_data_format() == 'channels_last':
-                # switch to channels_first to display
-                # every kernel as a separate image
-                w_img = tensorflow.transpose(w_img, perm=[2, 0, 1])
-                shape = K.int_shape(w_img)
-            w_img = tensorflow.reshape(w_img, [shape[0],
-                                        shape[1],
-                                        shape[2],
-                                        1])
-        elif len(shape) == 1:  # bias case
-            w_img = tensorflow.reshape(w_img, [1,
-                                        shape[0],
-                                        1,
-                                        1])
-        else:
-            # not possible to handle 3D convnets etc.
-            return
+def wrap_offworld_real(
+    env,
+    frame_stack=4,
+    warp_frame=True,
+):
+    """Configure environment for DeepMind-style Atari. The observation is
+    channel-first: (c, h, w) instead of (h, w, c).
 
-        shape = K.int_shape(w_img)
-        assert len(shape) == 4 and shape[-1] in [1, 3, 4]
-        tensorflow.summary.image(mapped_weight_name, w_img)
+    :param str env_id: the atari environment id.
+    :param bool episode_life: wrap the episode life wrapper.
+    :param bool clip_rewards: wrap the reward clipping wrapper.
+    :param int frame_stack: wrap the frame stacking wrapper.
+    :param bool scale: wrap the scaling observation wrapper.
+    :param bool warp_frame: wrap the grayscale + resize observation wrapper.
+    :return: the wrapped atari environment.
+    """
 
-    def gen_feed_dict(self):
-        feed_dict = {}
-        if len(self.model.model.inputs) > 1 or isinstance(self.example_input, dict):
-            feed_dict = {inp.name: self.example_input[inp.name] for inp in self.model.model.inputs if self.example_input is not None}
-        else:
-            inp = self.model.model.inputs[0]
-            if self.example_input is not None:
-                feed_dict = {inp.name: self.example_input}
-        return feed_dict
-
-    def set_model(self, model):
-        self.model = model
-        self.sess = K.get_session()
-        if self.merged is None:
-            for layer in model.layers:
-                if self.example_input is not None and hasattr(layer, 'output'):
-                    out = layer.output #colorize(layer.output, vmin=None, vmax=None, cmap='jet')
-                    output_shape = K.int_shape(out)
-                    if len(output_shape) == 4:
-                        out = tensorflow.transpose(out, perm=[3, 1, 2, 0])
-                        out = tensorflow.map_fn(lambda img: colorize(img, cmap='jet'), out)
-                        tensorflow.summary.image('{}_out'.format(layer.name.replace(':', '_')), out, max_outputs=100)
-                for weight in layer.weights:
-                    # order: [h, w, c, numFilters]
-                    mapped_weight_name = weight.name.replace(':', '_')
-                    tensorflow.summary.histogram(mapped_weight_name, weight)
-                    # --------- ripped from https://github.com/fchollet/keras/blob/master/keras/callbacks.py#L663 -------------
-                    w_img = weight # want to keep channel=1 dimension #tensorflow.squeeze(weight)
-                    shape = K.int_shape(w_img)
-                    if len(shape) == 4:  # convnet case
-                        ## expects [Y, X, NumChannels, NumKernels]
-                        w_img = put_kernels_on_grid (weight)
-                        if K.image_data_format() == 'channels_last':
-                            # switch to channels_first to display
-                            # every kernel as a separate image
-                            w_img = tensorflow.transpose(w_img, perm=[3, 1, 2, 0])
-                    else:
-                        # not possible to handle 3D convnets etc.
-                        continue
-                    if w_img is None:
-                        continue
-                    shape = K.int_shape(w_img)
-                    print("Weight shape: ", shape)
-                    assert len(shape) == 4 and shape[-1] in [1, 3, 4] # greyscale, rgb, rgba
-                    out = w_img #colorize(w_img, vmin=None, vmax=None, cmap='jet')
-                    out = tensorflow.map_fn(lambda img: colorize(img, cmap='jet'), out)
-                    tensorflow.summary.image(mapped_weight_name, out, max_outputs=100)
-        self.merged = tensorflow.summary.merge_all()
-        self.writer = tensorflow.summary.FileWriter(self.log_dir, self.sess.graph)
-        #write initial values
-        feed_dict = self.gen_feed_dict()
-
-        #pdb.set_trace()
-        result = self.sess.run([self.merged], feed_dict=feed_dict)
-        summary_str = result[0]
-        self.writer.add_summary(summary_str, 0)
-        self.writer.flush()
-
-    def on_epoch_end(self, epoch, logs=None):
-        logs = logs or {}
-        # get images
-        feed_dict = self.gen_feed_dict()
-        result = self.sess.run([self.merged], feed_dict=feed_dict)
-        summary_str = result[0]
-        self.writer.add_summary(summary_str, epoch)
-
-        for name, value in logs.items():
-            if name in ['batch', 'size']:
-                continue
-            summary = tensorflow.Summary()
-            summary_value = summary.value.add()
-            summary_value.simple_value = value
-            summary_value.tag = name
-            self.writer.add_summary(summary, epoch)
-        self.writer.flush()
-
-    def on_train_end(self, _):
-        self.writer.close()
-
-class TB_RL(TB_convs):
-    def __init__(self, *args, **kwargs):
-        super(TB_RL, self).__init__(*args, **kwargs)
-        self.totalSteps = 0
-
-    def on_step_end(self, step, logs={}):
-        # for use with keras-rl callbacks
-        self.info = logs['info']
-        self.wasFault = False
-
-        if 'fault' in logs:
-            self.wasFault = np.any(logs['fault'])
-
-        if not self.wasFault:
-            self.totalSteps += 1
-
-    def on_episode_end(self, epoch, logs=None):
-        # have to call on epoch end because that's what TB_convs has instead of episodes
-        super(TB_RL, self).on_epoch_end(epoch, logs=logs)
+    if warp_frame:
+        env = WarpFrame(env)
+    if frame_stack:
+        env = FrameStack(env, frame_stack)
+    return env
