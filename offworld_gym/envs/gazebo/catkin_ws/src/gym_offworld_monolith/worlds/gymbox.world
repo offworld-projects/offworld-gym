@@ -51,6 +51,15 @@
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type='adiabatic'/>
     <physics name='default_physics' default='0' type='ode'>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <min_step_size>0.0001></min_step_size>
+          <iters>5</iters>
+          <thread_position_correction>1</thread_position_correction>
+          <island_threads>6</island_threads>
+        </solver>
+      </ode>
       <max_step_size>0.005</max_step_size>
       <real_time_factor>1000</real_time_factor>
       <real_time_update_rate>20000</real_time_update_rate>
