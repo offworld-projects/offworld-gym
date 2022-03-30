@@ -76,15 +76,6 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             
             self._start_container()
 
-            # Run "xhost local:" command to enable XServer to be written from localhost over network
-            xhost_command = "xhost +local:docker"
-            try:
-                subprocess.check_output(['bash', '-c', xhost_command])
-            except subprocess.CalledProcessError:
-                logger.warning(f"The bash command \"{xhost_command}\" failed. "
-                            f"Installing \'xhost\' may be required for OffWorldDockerizedEnv to render properly. "
-                            f"Further issues may be caused by this.")
-
             try:
                 self.launch_node()
             except:
