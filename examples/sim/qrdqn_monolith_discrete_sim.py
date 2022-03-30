@@ -4,29 +4,25 @@ import pprint
 
 import numpy as np
 import torch
-from offworld_network import DQN,QRDQN
+import urllib3
+from offworld_network import DQN, QRDQN
 from utils import wrap_offworld, wrap_offworld_real
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
-from tianshou.env import ShmemVectorEnv, DummyVectorEnv
+from tianshou.env import ShmemVectorEnv, SubprocVectorEnv
 from tianshou.policy import QRDQNPolicy
 from tianshou.trainer import offpolicy_trainer
 from tianshou.utils import TensorboardLogger
 
-import gym
-import offworld_gym
-from offworld_gym.envs.common.channels import Channels
-from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
-import urllib3
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # to surpress the warning when running real env
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)  # to surpress the warning when running real env
 
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--task', type=str, default='OffWorldDockerMonolithDiscreteSim-v0')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--eps-test', type=float, default=0.005)
-    parser.add_argument('--eps-train', type=float, default=1.)
+    parser.add_argument('--eps-train', type=float, default=1)
     parser.add_argument('--eps-train-final', type=float, default=0.1)
     parser.add_argument('--buffer-size', type=int, default=25000)
     parser.add_argument('--lr', type=float, default=0.0003)
@@ -37,14 +33,14 @@ def get_args():
     parser.add_argument('--epoch', type=int, default=250)
     parser.add_argument('--step-per-epoch', type=int, default=1000)
     parser.add_argument('--step-per-collect', type=int, default=100)
-    parser.add_argument('--update-per-step', type=float, default= 0.1)
+    parser.add_argument('--update-per-step', type=float, default=0.1)
     parser.add_argument('--batch-size', type=int, default=256)
     parser.add_argument('--training-num', type=int, default=1)
     parser.add_argument('--test-num', type=int, default=1)
     parser.add_argument('--logdir', type=str, default='log')
     parser.add_argument('--render', type=float, default=0.)
     parser.add_argument(
-        '--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu'
+        '--device', type=str, default='cpu' if torch.cuda.is_available() else 'cpu'
     )
     parser.add_argument('--frames-stack', type=int, default=4)
     parser.add_argument('--resume-path', type=str, default=None)
@@ -71,21 +67,22 @@ def make_offworld_env_watch(args):
     return wrap_offworld(
         args.task
     )
- 
+
+
 def train_qrdqn(args=get_args()):
-    args.state_shape = (4,84,84)
+    args.state_shape = (4, 84, 84)
     args.action_shape = 4
     # should be N_FRAMES x H x W
     print("Observations shape:", args.state_shape)
     print("Actions shape:", args.action_shape)
     # make environments
-    train_envs = DummyVectorEnv(
+    train_envs = SubprocVectorEnv(
         [lambda: make_offworld_env(args) for _ in range(args.training_num)]
     )
-    # test_envs = DummyVectorEnv(
-    #     [lambda: make_offworld_env_watch(args) for _ in range(args.test_num)]
-    # )
-    test_envs = train_envs
+    test_envs = SubprocVectorEnv(
+        [lambda: make_offworld_env_watch(args) for _ in range(args.test_num)]
+    )
+    # test_envs = train_envs
 
     # seed
     np.random.seed(args.seed)
@@ -121,7 +118,7 @@ def train_qrdqn(args=get_args()):
         save_only_last_obs=True,
         stack_num=args.frames_stack
     )
-    
+
     # collector
     train_collector = Collector(policy, train_envs, buffer, exploration_noise=True)
     test_collector = Collector(policy, test_envs, exploration_noise=True)
@@ -143,7 +140,7 @@ def train_qrdqn(args=get_args()):
         # nature DQN setting, linear decay in the first 100k steps
         if env_step <= 4e4:
             eps = args.eps_train - env_step / 4e4 * \
-                (args.eps_train - args.eps_train_final)
+                  (args.eps_train - args.eps_train_final)
         else:
             eps = args.eps_train_final
         policy.set_eps(eps)
@@ -225,7 +222,7 @@ def train_qrdqn(args=get_args()):
         args.epoch,
         args.step_per_epoch,
         args.step_per_collect,
-        10 , #args.test_num,
+        10,  # args.test_num,
         args.batch_size,
         train_fn=train_fn,
         test_fn=test_fn,
@@ -233,12 +230,13 @@ def train_qrdqn(args=get_args()):
         save_fn=save_fn,
         logger=logger,
         update_per_step=args.update_per_step,
-        resume_from_log = args.resume,
+        resume_from_log=args.resume,
         save_checkpoint_fn=save_checkpoint_fn
     )
 
     pprint.pprint(result)
     watch()
+
 
 if __name__ == '__main__':
     train_qrdqn(get_args())
