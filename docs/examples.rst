@@ -139,7 +139,7 @@ Same as in the section above.
 
     python examples/sim/qrdqn_monolith_discrete_sim.py
 
-By default the script saves TensorBoard log data under `log/`, you can see the data by running ``tensorboard --logdir=logs`` and opening `http://localhost:8080
+By default the script saves TensorBoard log data under `log/`, you can see the data by running ``tensorboard --logdir=logs`` and opening `http://localhost:6006
 <http://localhost:6006>`_ in your web browser.
 
 .. figure:: images/running-sim-experiments.png

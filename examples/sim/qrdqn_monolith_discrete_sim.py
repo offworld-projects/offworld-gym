@@ -9,7 +9,7 @@ from utils import wrap_offworld, wrap_offworld_real
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
-from tianshou.env import ShmemVectorEnv, DummyVectorEnv
+from tianshou.env import ShmemVectorEnv, SubprocVecEnv 
 from tianshou.policy import QRDQNPolicy
 from tianshou.trainer import offpolicy_trainer
 from tianshou.utils import TensorboardLogger
@@ -79,13 +79,13 @@ def train_qrdqn(args=get_args()):
     print("Observations shape:", args.state_shape)
     print("Actions shape:", args.action_shape)
     # make environments
-    train_envs = DummyVectorEnv(
+    train_envs = SubprocVecEnv(
         [lambda: make_offworld_env(args) for _ in range(args.training_num)]
     )
-    # test_envs = DummyVectorEnv(
-    #     [lambda: make_offworld_env_watch(args) for _ in range(args.test_num)]
-    # )
-    test_envs = train_envs
+    test_envs = SubprocVecEnv(
+        [lambda: make_offworld_env_watch(args) for _ in range(args.test_num)]
+    )
+    # test_envs = train_envs
 
     # seed
     np.random.seed(args.seed)
