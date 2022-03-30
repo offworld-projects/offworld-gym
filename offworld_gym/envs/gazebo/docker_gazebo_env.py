@@ -275,6 +275,9 @@ class DockerPorts(NamedTuple):
 
 
 def _find_open_ports():
+    """Finds 3 random open ports to assign to the host for communication with the Docker container
+    This allows multiple containers to run simultaneously without conflicting
+    """
     ros_sock = socket.socket()
     ros_sock.bind(('localhost', 0))
     _, ros_port = ros_sock.getsockname()
