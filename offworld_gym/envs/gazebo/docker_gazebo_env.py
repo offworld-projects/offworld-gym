@@ -84,7 +84,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
                 logger.warning(f"The bash command \"{xhost_command}\" failed. "
                             f"Installing \'xhost\' may be required for OffWorldDockerizedEnv to render properly. "
                             f"Further issues may be caused by this.")
-            
+
             try:
                 self.launch_node()
             except:
@@ -92,7 +92,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
                 traceback.print_exc()
 
             # initialize a ros bridge client
-            self._rosbridge_client = roslibpy.Ros(host=str(self._container_ip), port=int(ROS_BRIDGE_PORT))
+            self._rosbridge_client = roslibpy.Ros(host=str('localhost'), port=int(ROS_BRIDGE_PORT))
             self._rosbridge_client.run()
 
     def _start_container(self):
@@ -107,28 +107,28 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         container_ports_str = f" -p {ROS_BRIDGE_PORT}:{ROS_BRIDGE_PORT}" \
                               f" -p {GAZEBO_WEB_SERVER_INTERNAL_PORT}:{GAZEBO_WEB_SERVER_INTERNAL_PORT}" \
                               f" -p {HTTP_COMMAND_SERVER_PORT}:{HTTP_COMMAND_SERVER_PORT}"
-        docker_run_command = f"docker run --name \'{container_name}\' -it -d --rm " \
+        docker_run_command = f"docker run --name {container_name} -it -d --rm " \
                             f"{container_env_str}{container_volumes_str}{container_ports_str} " \
                             f"offworldai/offworld-gym:latest {container_entrypoint}"
-        start_container = subprocess.Popen(["/bin/bash", "-c", docker_run_command])
+        start_container = subprocess.Popen(docker_run_command)
         logger.debug(f"Docker run command is:\n{docker_run_command}\n")
         time.sleep(10.0)
         # get the container id for corresponding container
         get_container_id_command = f'docker ps -aqf "name={container_name}"'
-        container_id = subprocess.check_output(["/bin/bash", "-c", get_container_id_command]).decode("utf-8").strip()
+        container_id = subprocess.check_output(get_container_id_command).decode("utf-8").strip()
         logger.debug(f"Docker container id is:\n{container_id}\n")
         # get the ip address for corresponding container
         filter_string = "'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
-        get_container_ip_command = f"docker inspect -f {filter_string} {container_name}"
-        self._container_ip = subprocess.check_output(["/bin/bash", "-c", get_container_ip_command]).decode("utf-8").strip()
-        logger.debug(f"Docker container ip is:\n{self._container_ip}\n")
+        # get_container_ip_command = f"docker inspect -f {filter_string} {container_name}"
+        # self._container_ip = subprocess.check_output(get_container_ip_command).decode("utf-8").strip()
+        # logger.debug(f"Docker container ip is:\n{self._container_ip}\n")
         
         # ensure cleanup at exit
         def kill_container_if_it_still_exists():
             try:
                 # bash command kills the container if it exists, otherwise return error code 1 without printing an error
                 kill_command = f"docker ps -q --filter \"id={container_id}\" | grep -q . && docker kill {container_id}"
-                removed_container = subprocess.check_output(['bash', '-c', kill_command]).decode("utf-8").strip()
+                removed_container = subprocess.check_output(kill_command).decode("utf-8").strip()
                 # remove_service = subprocess.Popen(["/bin/bash", "-c", "docker-compose down"])
                 print(f"Cleaned up container {removed_container}")
             except subprocess.CalledProcessError:
