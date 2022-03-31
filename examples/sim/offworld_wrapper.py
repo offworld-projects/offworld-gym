@@ -62,7 +62,7 @@ class WarpFrame(gym.ObservationWrapper):
 
     def __init__(self, env):
         super().__init__(env)
-        self.size = 84
+        self.size = 100
         self.channel = env.observation_space.shape[-1]
         self.observation_space = gym.spaces.Box(
             low=np.min(env.observation_space.low),
@@ -72,16 +72,23 @@ class WarpFrame(gym.ObservationWrapper):
             dtype=env.observation_space.dtype
         )
 
-
     def observation(self, frame):
         """returns the current observation from a frame"""
-        # if self.channel > 1:
-        #     frame = cv2.cvtColor(frame[0], cv2.COLOR_RGB2GRAY)
-        # else:
-        #     frame = frame[0]
-        frame = frame[0]
-        return cv2.resize(frame, (self.size, self.size), interpolation=cv2.INTER_AREA)
-        # return cv2.resize(frame, (240, 320), interpolation=cv2.INTER_AREA)
+        if self.channel == 1: #depth only
+            depth = frame[0, :, :, -1]
+            depth = (np.clip(depth / 5, 0, 1) * 255).astype('uint8')  # convert depth to uint8
+            obs = depth
+        elif self.channel == 3: #rgb only:
+            rgb = cv2.cvtColor(frame[0, :, :, :3], cv2.COLOR_RGB2GRAY).astype('uint8')
+            obs = rgb
+        else: # rgbd
+            depth = frame[0, :, :, -1]
+            depth = (np.clip(depth / 5, 0, 1) * 255).astype('uint8')  # convert depth to uint8
+            rgb = cv2.cvtColor(frame[0, :, :, :3], cv2.COLOR_RGB2GRAY).astype('uint8')
+            obs = np.stack([rgb, depth], axis=-1)
+
+        obs_resized = cv2.resize(obs, (self.size, self.size), interpolation=cv2.INTER_AREA)
+        return np.transpose(obs_resized, axes=[2, 0, 1])
 
 class FrameStack(gym.Wrapper):
     """Stack n_frames last frames.
@@ -120,7 +127,7 @@ class FrameStack(gym.Wrapper):
 
 def wrap_offworld(
     env_id,
-    frame_stack=4,
+    frame_stack=None,
     warp_frame=True,
 ):
     """Configure environment for DeepMind-style Atari. The observation is
@@ -134,7 +141,7 @@ def wrap_offworld(
     :param bool warp_frame: wrap the grayscale + resize observation wrapper.
     :return: the wrapped atari environment.
     """
-    env = gym.make(env_id,channel_type=Channels.DEPTH_ONLY)
+    env = gym.make(env_id,channel_type=Channels.RGBD)
     if warp_frame:
         env = WarpFrame(env)
     if frame_stack:

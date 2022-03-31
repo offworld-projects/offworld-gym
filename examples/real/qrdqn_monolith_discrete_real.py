@@ -5,7 +5,7 @@ import pprint
 import numpy as np
 import torch
 from offworld_network import DQN,QRDQN
-from utils import wrap_offworld_real
+from offworld_wrapper import wrap_offworld_real
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
@@ -74,7 +74,7 @@ def train_qrdqn(args=get_args()):
                 "test":AlgorithmMode.TEST}
     env = gym.make(args.task, channel_type=Channels.DEPTH_ONLY, resume_experiment=args.resume,
                         learning_type=LearningType.END_TO_END, algorithm_mode=env_mode["train"], experiment_name=experiment_name)
-    args.state_shape = (4,84,84)
+    args.state_shape = (2,100,100)
     args.action_shape = 4
     # should be N_FRAMES x H x W
     print("Observations shape:", args.state_shape)

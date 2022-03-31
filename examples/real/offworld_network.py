@@ -26,9 +26,10 @@ class DQN(nn.Module):
         super().__init__()
         self.device = device
         self.net = nn.Sequential(
-            nn.Conv2d(c, 32, kernel_size=8, stride=4), nn.ReLU(inplace=True),
-            nn.Conv2d(32, 64, kernel_size=4, stride=2), nn.ReLU(inplace=True),
-            nn.Conv2d(64, 64, kernel_size=3, stride=1), nn.ReLU(inplace=True),
+            nn.Conv2d(c, 16, kernel_size=5, stride=2), nn.ReLU(inplace=True),
+            nn.Conv2d(16, 16, kernel_size=5, stride=2), nn.ReLU(inplace=True),
+            nn.Conv2d(16, 16, kernel_size=5, stride=1), nn.ReLU(inplace=True),
+            nn.Conv2d(16, 16, kernel_size=5, stride=1), nn.ReLU(inplace=True),
             nn.Flatten()
         )
 
