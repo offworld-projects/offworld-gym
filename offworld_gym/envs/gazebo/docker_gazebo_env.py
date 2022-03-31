@@ -14,9 +14,9 @@
 
 from offworld_gym import version
 
-__version__     = version.__version__
+__version__ = version.__version__
 
-#std
+# std
 import os
 import sys
 import time
@@ -27,6 +27,7 @@ import atexit
 import threading
 from abc import abstractmethod
 from abc import ABCMeta
+import os
 
 # gym and ros
 import gym
@@ -34,7 +35,7 @@ import gym
 # other dependencies
 import base64
 import logging
-import json 
+import json
 import ast
 import requests
 import roslibpy
@@ -51,6 +52,7 @@ GAZEBO_WEB_SERVER_INTERNAL_PORT = 8080
 HTTP_COMMAND_SERVER_PORT = 8008
 XSERVER_VOLUME = "/tmp/.X11-unix"
 
+
 class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
     """Base class for Dockerized Gazebo based Gym environments
 
@@ -60,31 +62,32 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         node_name: String with a ROS node name for the environment's node
     """
     metadata = {'render.modes': ['human']}
+
     def __init__(self, package_name, launch_file, node_name='gym_offworld_env'):
 
-            assert package_name is not None and package_name != '', "Must provide a valid package name."
-            assert launch_file is not None and launch_file != '', "Must provide a valid launch file name."
-            
-            self.package_name = package_name
-            self.launch_file = launch_file
-            self.node_name = node_name
+        assert package_name is not None and package_name != '', "Must provide a valid package name."
+        assert launch_file is not None and launch_file != '', "Must provide a valid launch file name."
 
-            self._latest_odom_message = None
-            self._latest_clock_message = None
-            self._latest_depth_img = None
-            self._latest_rgb_img = None
-            
-            self._start_container()
+        self.package_name = package_name
+        self.launch_file = launch_file
+        self.node_name = node_name
 
-            try:
-                self.launch_node()
-            except:
-                import traceback
-                traceback.print_exc()
+        self._latest_odom_message = None
+        self._latest_clock_message = None
+        self._latest_depth_img = None
+        self._latest_rgb_img = None
 
-            # initialize a ros bridge client
-            self._rosbridge_client = roslibpy.Ros(host=str('localhost'), port=int(ROS_BRIDGE_PORT))
-            self._rosbridge_client.run()
+        self._start_container()
+
+        try:
+            self.launch_node()
+        except:
+            import traceback
+            traceback.print_exc()
+
+        # initialize a ros bridge client
+        self._rosbridge_client = roslibpy.Ros(host=str('localhost'), port=int(ROS_BRIDGE_PORT))
+        self._rosbridge_client.run()
 
     def _start_container(self):
         """ Start a container, get id and ip
@@ -99,27 +102,30 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
                               f" -p {GAZEBO_WEB_SERVER_INTERNAL_PORT}:{GAZEBO_WEB_SERVER_INTERNAL_PORT}" \
                               f" -p {HTTP_COMMAND_SERVER_PORT}:{HTTP_COMMAND_SERVER_PORT}"
         docker_run_command = f"docker run --name {container_name} -it -d --rm " \
-                            f"{container_env_str}{container_volumes_str}{container_ports_str} " \
-                            f"offworldai/offworld-gym:latest {container_entrypoint}"
-        start_container = subprocess.Popen(docker_run_command)
+                             f"{container_env_str}{container_volumes_str}{container_ports_str} " \
+                             f"offworldai/offworld-gym:latest {container_entrypoint}"
+
+        _ = subprocess.Popen(docker_run_command.split())
+
         logger.debug(f"Docker run command is:\n{docker_run_command}\n")
         time.sleep(10.0)
         # get the container id for corresponding container
         get_container_id_command = f'docker ps -aqf "name={container_name}"'
-        container_id = subprocess.check_output(get_container_id_command).decode("utf-8").strip()
+        container_id = subprocess.check_output(get_container_id_command, shell=True).decode("utf-8").strip()
         logger.debug(f"Docker container id is:\n{container_id}\n")
         # get the ip address for corresponding container
         filter_string = "'{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}'"
         # get_container_ip_command = f"docker inspect -f {filter_string} {container_name}"
         # self._container_ip = subprocess.check_output(get_container_ip_command).decode("utf-8").strip()
-        # logger.debug(f"Docker container ip is:\n{self._container_ip}\n")
-        
+        # logger.debug(f"Docker container ip is :\n{self._container_ip}\n")
+
         # ensure cleanup at exit
         def kill_container_if_it_still_exists():
             try:
-                # bash command kills the container if it exists, otherwise return error code 1 without printing an error
+                # bash command kills the container if it exists, otherwise return error code 1` without printing an error
                 kill_command = f'docker kill {container_id}'
-                removed_container = subprocess.check_output(kill_command).decode("utf-8").strip()
+                removed_container = subprocess.check_output(kill_command, shell=True).decode(
+                    "utf-8").strip()
                 # remove_service = subprocess.Popen(["/bin/bash", "-c", "docker-compose down"])
                 print(f"Cleaned up container {removed_container}")
             except subprocess.CalledProcessError:
@@ -139,9 +145,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
             logger.info("The environment has been started.")
         except Exception:
-            logger.error("Environment cannont be launched in the docker.")
-            import traceback
-            traceback.print_exc() 
+            logger.error("Environment cannot be launched in the docker.")
 
     def register_ros_service(self, service_name, service_type):
         """Register service 
@@ -161,17 +165,18 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         respond = service_proxy.call(request)
         logger.debug(f'Calling service {service_name}')
         return respond
-        
+
     def register_publisher(self, topic_name, message_type, queue_size=1, throttle_rate=300):
         """Register publisher
         """
-        publisher= roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type,
-                    queue_size=queue_size, throttle_rate=throttle_rate)
+        publisher = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type,
+                                   queue_size=queue_size, throttle_rate=throttle_rate)
         return publisher
 
     def register_subscriber(self, topic_name, message_type, placeholder, queue_size=1, throttle_rate=200):
         """Register subscriber and consistently listening
         """
+
         def update_odom(msg):
             self._latest_odom_message = msg
 
@@ -184,9 +189,9 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         def update_rgb_img(msg):
             self._latest_rgb_img = msg
 
-        subscriber = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type, 
-                                queue_size=queue_size, throttle_rate=throttle_rate)  
-        
+        subscriber = roslibpy.Topic(ros=self._rosbridge_client, name=topic_name, message_type=message_type,
+                                    queue_size=queue_size, throttle_rate=throttle_rate)
+
         if self._rosbridge_client.is_connected:
             if str(topic_name) == '/odom':
                 subscriber.subscribe(update_odom)
@@ -206,7 +211,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         headers = {'Content-type': 'application/json'}
         json_data = '{"command_name": "pause"}'
         json_data = ast.literal_eval(json_data)
-        result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+        _ = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
 
     def unpause_physics_remotely(self):
         """Pause physics remotely from localhost, send sommand to docker command server 
@@ -215,35 +220,34 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         headers = {'Content-type': 'application/json'}
         json_data = '{"command_name": "unpause"}'
         json_data = ast.literal_eval(json_data)
-        result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
-
+        _ = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
 
     def publish_cmd_vel_remotely(self, lin_x_speed, ang_z_speed):
         """send cmd_vel from localhost to python server inside docker, then publish cmd_vel in as bash command inside 
         """
         headers = {'Content-type': 'application/json'}
-        json_data = '{"command_name": "cmd_vel", "lin_x_speed":'+ f'"{lin_x_speed}"' + ', "lin_y_speed":"0.0","lin_z_speed":"0.0", "ang_z_speed":' + f'"{ang_z_speed}"' + ',"ang_x_speed":"0.0", "ang_y_speed":"0.0"}'
+        json_data = '{"command_name": "cmd_vel", "lin_x_speed":' + f'"{lin_x_speed}"' + ', "lin_y_speed":"0.0","lin_z_speed":"0.0", "ang_z_speed":' + f'"{ang_z_speed}"' + ',"ang_x_speed":"0.0", "ang_y_speed":"0.0"}'
         json_data = ast.literal_eval(json_data)
-        result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
-    
+        _ = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+
     @abstractmethod
     def step(self, action):
         """Abstract step method to be implemented in a child class
         """
         raise NotImplementedError
-    
+
     @abstractmethod
     def reset(self):
         """Abstract reset method to be implemented in a child class
         """
         raise NotImplementedError
-    
+
     @abstractmethod
     def render(self, mode='human'):
         """Abstract render method to be implemented in a child class
         """
         raise NotImplementedError
-    
+
     def close(self):
         """Closes environment and all processes created for the environment
         """
