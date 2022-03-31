@@ -118,7 +118,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         def kill_container_if_it_still_exists():
             try:
                 # bash command kills the container if it exists, otherwise return error code 1 without printing an error
-                kill_command = f"docker ps -q --filter \"id={container_id}\" | grep -q . && docker kill {container_id}"
+                kill_command = f'docker kill {container_id}'
                 removed_container = subprocess.check_output(kill_command).decode("utf-8").strip()
                 # remove_service = subprocess.Popen(["/bin/bash", "-c", "docker-compose down"])
                 print(f"Cleaned up container {removed_container}")
