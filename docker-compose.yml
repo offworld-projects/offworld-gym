@@ -3,8 +3,6 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
-    volumes:
-      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     networks:
       gym_network:
         ipv4_address: 172.20.0.10

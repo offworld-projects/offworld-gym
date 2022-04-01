@@ -50,7 +50,6 @@ ROS_BRIDGE_PORT = 9090
 GAZEBO_SERVER_INTERNAL_PORT = 11345
 GAZEBO_WEB_SERVER_INTERNAL_PORT = 8080
 HTTP_COMMAND_SERVER_PORT = 8008
-XSERVER_VOLUME = "/tmp/.X11-unix"
 
 
 class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
@@ -97,12 +96,11 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         # retracted to "docker run" for automatic ip and container name assignment
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo/docker_entrypoint.sh"
         container_env_str = " -e DISPLAY"
-        container_volumes_str = f" -v {XSERVER_VOLUME}:{XSERVER_VOLUME}"
         container_ports_str = f" -p {ROS_BRIDGE_PORT}:{ROS_BRIDGE_PORT}" \
                               f" -p {GAZEBO_WEB_SERVER_INTERNAL_PORT}:{GAZEBO_WEB_SERVER_INTERNAL_PORT}" \
                               f" -p {HTTP_COMMAND_SERVER_PORT}:{HTTP_COMMAND_SERVER_PORT}"
         docker_run_command = f"docker run --name {container_name} -it -d --rm " \
-                             f"{container_env_str}{container_volumes_str}{container_ports_str} " \
+                             f"{container_env_str} {container_ports_str} " \
                              f"offworldai/offworld-gym:latest {container_entrypoint}"
 
         _ = subprocess.Popen(docker_run_command.split())
