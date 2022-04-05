@@ -9,7 +9,7 @@ from offworld_wrapper import wrap_offworld, wrap_offworld_real
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
-from tianshou.env import ShmemVectorEnv, SubprocVecEnv 
+from tianshou.env import SubprocVectorEnv 
 from tianshou.policy import QRDQNPolicy
 from tianshou.trainer import offpolicy_trainer
 from tianshou.utils import TensorboardLogger
@@ -46,7 +46,7 @@ def get_args():
     parser.add_argument(
         '--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu'
     )
-    parser.add_argument('--frames-stack', type=int, default=4)
+    parser.add_argument('--frames-stack', type=int, default=1)
     parser.add_argument('--resume-path', type=str, default=None)
     parser.add_argument(
         '--watch',
@@ -75,17 +75,18 @@ def make_offworld_env_watch(args):
 def train_qrdqn(args=get_args()):
     args.state_shape = (2,100,100)
     args.action_shape = 4
-    # should be N_FRAMES x H x W
+    channel = args.state_shape[0]
+    # should be (N_FRAMES X C) x H x W
     print("Observations shape:", args.state_shape)
     print("Actions shape:", args.action_shape)
     # make environments
-    train_envs = SubprocVecEnv(
+    train_envs = SubprocVectorEnv(
         [lambda: make_offworld_env(args) for _ in range(args.training_num)]
     )
-    test_envs = SubprocVecEnv(
-        [lambda: make_offworld_env_watch(args) for _ in range(args.test_num)]
-    )
-    # test_envs = train_envs
+    # test_envs = SubprocVectorEnv(
+    #     [lambda: make_offworld_env_watch(args) for _ in range(args.test_num)]
+    # )
+    test_envs = train_envs
 
     # seed
     np.random.seed(args.seed)
@@ -119,7 +120,7 @@ def train_qrdqn(args=get_args()):
         buffer_num=len(train_envs),
         ignore_obs_next=True,
         save_only_last_obs=True,
-        stack_num=args.frames_stack
+        stack_num=args.frames_stack * channel
     )
     
     # collector
