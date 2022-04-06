@@ -46,7 +46,7 @@ Additinal steps to run the examples that based on Pytorch, Tianshou and Stable-b
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 If you are interested in running or building upon the QR-DQN examples provided in the ``examples/`` directory you will need to install ``Pytorch``, ``tianshou`` and ``stable-baselines3`` libraries:
 
-    1. ``pip isntall torch==1.10.0 tianshou==0.4.3 stable-baselines3==1.1.0``
+    1. ``pip install torch==1.10.0 tianshou==0.4.3 stable-baselines3==1.1.0``
 
 we have created an easy script that will create a virtual environment that everything you need, please see the `Examples <./examples.html>`_ section for details.
 
