@@ -39,7 +39,7 @@ To run a simulated environment:
 
 
     1. ``python3.6 examples/sim/random_monolith_continuous_sim.py``
-    2. Open ``localhost:8080`` in your browser to visualize the Gazebo simulation
+    2. The terminal will print out a link that you can paste into your browser to visualize the Gazebo simulation!
 
 
 Additinal steps to run the examples that based on Pytorch, Tianshou and Stable-baselines 3
