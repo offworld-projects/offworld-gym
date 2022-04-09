@@ -49,7 +49,6 @@ class DQN(nn.Module):
         info: Dict[str, Any] = {},
     ) -> Tuple[torch.Tensor, Any]:
         r"""Mapping: x -> Q(x, \*)."""
-        if len(x.shape) == 3: x = np.expand_dims(x, axis=1)
         x = torch.as_tensor(x, device=self.device, dtype=torch.float32)
         return self.net(x), state
 
@@ -81,7 +80,6 @@ class QRDQN(DQN):
         info: Dict[str, Any] = {},
     ) -> Tuple[torch.Tensor, Any]:
         r"""Mapping: x -> Z(x, \*)."""
-        if len(x.shape) == 3: x = np.expand_dims(x, axis=1)
         x, state = super().forward(x)
         x = x.view(-1, self.action_num, self.num_quantiles)
         return x, state

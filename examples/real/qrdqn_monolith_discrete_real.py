@@ -46,7 +46,7 @@ def get_args():
     parser.add_argument(
         '--device', type=str, default='cuda' if torch.cuda.is_available() else 'cpu'
     )
-    parser.add_argument('--frames-stack', type=int, default=4)
+    parser.add_argument('--frames-stack', type=int, default=1)
     parser.add_argument('--resume-path', type=str, default=None)
     parser.add_argument(
         '--watch',
@@ -72,11 +72,12 @@ def train_qrdqn(args=get_args()):
     experiment_name = "QRDQN_Real_Example"
     env_mode = {"train":AlgorithmMode.TRAIN,
                 "test":AlgorithmMode.TEST}
-    env = gym.make(args.task, channel_type=Channels.DEPTH_ONLY, resume_experiment=args.resume,
+    env = gym.make(args.task, channel_type=Channels.DEPTH_ONLY, resume_experiment=True,
                         learning_type=LearningType.END_TO_END, algorithm_mode=env_mode["train"], experiment_name=experiment_name)
-    args.state_shape = (2,100,100)
+    args.state_shape = (1,100,100)
     args.action_shape = 4
-    # should be N_FRAMES x H x W
+    channel = args.state_shape[0]
+    # should be (N_FRAMES X C) x H x W
     print("Observations shape:", args.state_shape)
     print("Actions shape:", args.action_shape)
 
@@ -116,7 +117,7 @@ def train_qrdqn(args=get_args()):
         buffer_num=len(train_envs),
         ignore_obs_next=True,
         save_only_last_obs=True,
-        stack_num=args.frames_stack
+        stack_num=args.frames_stack * channel
     )
 
     # collector

@@ -101,7 +101,7 @@ class FrameStack(gym.Wrapper):
         super().__init__(env)
         self.n_frames = n_frames
         self.frames = deque([], maxlen=n_frames)
-        shape = (n_frames, ) + env.observation_space.shape
+        shape = (env.observation_space.shape[0] * n_frames, *env.observation_space.shape[1:])
         self.observation_space = gym.spaces.Box(
             low=np.min(env.observation_space.low),
             high=np.max(env.observation_space.high),
@@ -123,11 +123,11 @@ class FrameStack(gym.Wrapper):
     def _get_ob(self):
         # the original wrapper use `LazyFrames` but since we use np buffer,
         # it has no effect
-        return np.stack(self.frames, axis=0)
+        return np.concatenate(self.frames, axis=0)
 
 def wrap_offworld(
     env_id,
-    frame_stack=None,
+    frame_stack=1,
     warp_frame=True,
 ):
     """Configure environment for DeepMind-style Atari. The observation is
@@ -150,7 +150,7 @@ def wrap_offworld(
 
 def wrap_offworld_real(
     env,
-    frame_stack=4,
+    frame_stack=1,
     warp_frame=True,
 ):
     """Configure environment for DeepMind-style Atari. The observation is
