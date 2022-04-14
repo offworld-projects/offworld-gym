@@ -57,16 +57,5 @@ try:
         entry_point='offworld_gym.envs.gazebo:OffWorldDockerMonolithContinuousEnv'
     )
 
-    # # OffWorld Monolith Simulated replica with discrete actions
-    # register(
-    #     id='OffWorldDockerMonolithObstacleDiscreteSim-v0',
-    #     entry_point='offworld_gym.envs.gazebo:OffWorldDockerMonolithObstacleDiscreteEnv'
-    # )
-
-    # # OffWorld Monolith Simulated replica with continous actions
-    # register(
-    #     id='OffWorldDockerMonolithObstacleContinuousSim-v0',
-    #     entry_point='offworld_gym.envs.gazebo:OffWorldDockerMonolithObstacleContinuousEnv'
-    # )
 except ImportError:
     print("The 'gym' module isn't installed so not registering envs")

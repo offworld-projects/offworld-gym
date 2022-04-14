@@ -37,6 +37,7 @@ import logging
 import json 
 import ast
 import requests
+import traceback
 import roslibpy
 import numpy as np
 
@@ -149,7 +150,6 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             logger.info("The environment has been started.")
         except Exception:
             logger.error("Environment cannont be launched in the docker.")
-            import traceback
             traceback.print_exc() 
 
     def register_ros_service(self, service_name, service_type):

@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
+
+# Copyright 2022 OffWorld Inc.
+# Doing business as Off-World AI, Inc. in California.
+# All rights reserved.
+#
+# Licensed under GNU General Public License v3.0 (the "License")
+# You may not use this file except in compliance with the License.
+# You may obtain a copy of the License at https://www.gnu.org/licenses/gpl-3.0.en.html
+#
+# Unless required by applicable law, any source code or other materials
+# distributed under the License is distributed on an "AS IS" basis,
+# without warranties or conditions of any kind, express or implied.
 import os
+from sys import argv
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import cgi
@@ -96,8 +109,6 @@ class Server(BaseHTTPRequestHandler):
             ang_z_speed = message['ang_z_speed'] 
 
             move_robot(lin_x_speed, ang_z_speed)
-            # cmd_command = f"rostopic pub -r 10 /cmd_vel geometry_msgs/Twist -- '[{lin_x_speed}, {lin_y_speed}, {lin_z_speed}]' '[{ang_x_speed}, {ang_y_speed}, {ang_z_speed}]'"
-            # os.system(cmd_command)
 
             message = {}
             message['success'] = 'cmd_vel publish ok'
@@ -113,12 +124,9 @@ def run(server_class=HTTPServer, handler_class=Server, port=8008):
     httpd.serve_forever()
     
 if __name__ == "__main__":
-    from sys import argv
-    
     if len(argv) == 2:
         run(port=int(argv[1]))
     else:
         run()
-    
     print("The command server is running and accepting commands.")
         
