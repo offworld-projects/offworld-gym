@@ -1,11 +1,13 @@
 import argparse
 import os
 import pprint
+import sys
+sys.path.append("..")
 
 import numpy as np
 import torch
-from offworld_network import DQN,QRDQN
-from offworld_wrapper import wrap_offworld, wrap_offworld_real
+from examples import DQN,QRDQN
+from examples import wrap_offworld, wrap_offworld_real
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
@@ -73,7 +75,7 @@ def make_offworld_env_watch(args):
     )
  
 def train_qrdqn(args=get_args()):
-    args.state_shape = (2,100,100)
+    args.state_shape = (1,100,100)
     args.action_shape = 4
     channel = args.state_shape[0]
     # should be (N_FRAMES X C) x H x W
