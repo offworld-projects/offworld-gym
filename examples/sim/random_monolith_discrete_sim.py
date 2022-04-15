@@ -17,18 +17,24 @@ import logging
 
 import offworld_gym
 from offworld_gym.envs.common.channels import Channels
-
-logging.basicConfig(level=logging.DEBUG)
+import time
+# logging.basicConfig(level=logging.INFO)
 
 # create the environment
 env = gym.make("OffWorldDockerMonolithDiscreteSim-v0", channel_type=Channels.RGB_ONLY)
 env.seed(42)
 
 logging.info(f"action space: {env.action_space} observation_space: {env.observation_space}")
-while True:
+step = 0
+start = time.time()
+while True and step < 100:
     env.reset()
     done = False
     while not done:
         sampled_action = env.action_space.sample()
-        env.render()
+        # env.render()
         obs, rew, done, info = env.step(sampled_action)
+        step += 1
+end = time.time()
+
+print(100.0/(end - start))

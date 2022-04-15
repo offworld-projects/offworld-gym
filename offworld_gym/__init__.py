@@ -48,25 +48,14 @@ try:
     # OffWorld Monolith Simulated replica with discrete actions
     register(
         id='OffWorldDockerMonolithDiscreteSim-v0',
-        entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithDiscreteEnv'
+        entry_point='offworld_gym.envs.gazebo:OffWorldDockerMonolithDiscreteEnv'
     )
 
     # OffWorld Monolith Simulated replica with continous actions
     register(
         id='OffWorldDockerMonolithContinuousSim-v0',
-        entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithContinuousEnv'
+        entry_point='offworld_gym.envs.gazebo:OffWorldDockerMonolithContinuousEnv'
     )
 
-    # OffWorld Monolith Simulated replica with discrete actions
-    register(
-        id='OffWorldDockerMonolithObstacleDiscreteSim-v0',
-        entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithObstacleDiscreteEnv'
-    )
-
-    # OffWorld Monolith Simulated replica with continous actions
-    register(
-        id='OffWorldDockerMonolithObstacleContinuousSim-v0',
-        entry_point='offworld_gym.envs.gazebo_docker:OffWorldDockerMonolithObstacleContinuousEnv'
-    )
 except ImportError:
     print("The 'gym' module isn't installed so not registering envs")

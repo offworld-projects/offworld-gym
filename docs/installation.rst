@@ -38,16 +38,19 @@ To test your installtion and the connectivity with the physical enviroment, do t
 To run a simulated environment:
 
 
-    1. ``python3.6 examples/minimal_example_OffWorldDockerMonolithContinuousSim.py``
-    2. Open the URL from the script's output in your browser to visualize the Gazebo simulation
+    1. ``python3.6 examples/sim/random_monolith_continuous_sim.py``
+    2. Open ``localhost:8080`` in your browser to visualize the Gazebo simulation
 
 
-Additinal steps to run the examples that based on Keras-RL
+Additinal steps to run the examples that based on Pytorch, Tianshou and Stable-baselines 3
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-If you are interested in running or building upon the DDQN examples provided in the ``examples/`` directory you will need to install our fork of ``keras-rl``. we have created an easy script that will create a virtual environment that everything you need, please see the `Examples <./examples.html>`_ section for details.
+If you are interested in running or building upon the QR-DQN examples provided in the ``examples/`` directory you will need to install ``Pytorch``, ``tianshou`` and ``stable-baselines3`` libraries:
 
+    1. ``pip install torch==1.10.0 tianshou==0.4.3 stable-baselines3==1.1.0``
 
-Local Ubuntu installation without Docker (no active supported)
+we have created an easy script that will create a virtual environment that everything you need, please see the `Examples <./examples.html>`_ section for details.
+
+Local Ubuntu installation without Docker (Deprecated)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If for some reason you would like to avoid using Docker for running simulated environments, you can install all the necessary components directly on your system (tested on Ubuntu 16.04).
