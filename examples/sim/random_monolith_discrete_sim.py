@@ -15,7 +15,6 @@
 import gym
 import logging
 
-import offworld_gym
 from offworld_gym.envs.common.channels import Channels
 import time
 # logging.basicConfig(level=logging.INFO)
@@ -37,4 +36,4 @@ while True and step < 100:
         step += 1
 end = time.time()
 
-print(100.0/(end - start))
+print(end - start)
