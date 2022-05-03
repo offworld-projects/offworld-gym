@@ -1,7 +1,7 @@
 OffWorldMonolithDiscreteSim-v0
 ==============================
 
-.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_env.OffWorldMonolithDiscreteEnv
+.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_env.OffWorldDockerMonolithDiscreteEnv
    :members:
    :undoc-members:
    :show-inheritance:
@@ -13,31 +13,7 @@ OffWorldMonolithDiscreteSim-v0
 OffWorldMonolithContinuousSim-v0
 ================================
 
-.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_env.OffWorldMonolithContinuousEnv
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-   :noindex:
-
-
-OffWorldMonolithObstacleDiscreteSim-v0
-======================================
-
-.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_obstacle_env.OffWorldMonolithObstacleDiscreteEnv
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :special-members:
-   :private-members:
-   :noindex:
-
-
-OffWorldMonolithObstacleContinuousSim-v0
-========================================
-
-.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_obstacle_env.OffWorldMonolithObstacleContinuousEnv
+.. autoclass:: offworld_gym.envs.gazebo.offworld_monolith_env.OffWorldDockerMonolithContinuousEnv
    :members:
    :undoc-members:
    :show-inheritance:

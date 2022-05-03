@@ -10,8 +10,8 @@ OffWorldMonolithDiscreteReal-v0
    :noindex:
 
 
-OffWorldMonolithContinousReal-v0
-================================
+OffWorldMonolithContinuousReal-v0
+=================================
 
 .. autoclass:: offworld_gym.envs.real.OffWorldMonolithContinuousEnv
    :members:

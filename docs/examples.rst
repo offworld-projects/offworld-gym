@@ -6,7 +6,7 @@ By now you have registered at `gym.offworld.ai <https://gym.offworld.ai>`_, book
 Minimal example in the Real environment
 ---------------------------------------
 
-Execute ``python3.6 examples/real/random_monolith_discrete_real.py`` to run the example and let us go over the notable portions of the code you are running:
+Execute ``python3 examples/real/random_monolith_discrete_real.py`` to run the example and let us go over the notable portions of the code you are running:
 
 .. note::
   Make sure you have booked the time with the `resource manager <https://gym.offworld.ai/book>`_ and that you are running the experiment during your time slot.
@@ -75,7 +75,7 @@ SAC in a real environment with continuous control
 
 
 QR-DQN in a real environment with discrete actions
------------------------------------------------
+--------------------------------------------------
 In some of our examples we use ``PyTorch`` as Deep Learning Framework, alongside the Reinforcement Learning algorithm libraries such as  ``Tianshou`` and ``Stable-baselines3``. Our training scripts in ``examples/`` allow you to make the training process resumable after an interruption. This is something that happens quite often when training in real.
 
 The ``utils.py`` packs gym wrapper classes to modify how an environment works to meet the preprocessing criteria of RL alhgorithm libraries, such as Frame resizing and stacking.
@@ -131,15 +131,15 @@ We wish you the best of luck with your algorithm design and hope to see you on t
 
 
 QR-DQN in a simulated environment
-------------------------------
+---------------------------------
 
 Same as in the section above.
 
 .. code:: bash
 
-    python examples/sim/qrdqn_monolith_discrete_sim.py
+    python3 examples/sim/qrdqn_monolith_discrete_sim.py
 
-By default the script saves TensorBoard log data under `log/`, you can see the data by running ``tensorboard --logdir=logs`` and opening `http://localhost:8080
+By default the script saves TensorBoard log data under `log/`, you can see the data by running ``tensorboard --logdir=logs`` and opening `http://localhost:6006
 <http://localhost:6006>`_ in your web browser.
 
 .. figure:: images/running-sim-experiments.png

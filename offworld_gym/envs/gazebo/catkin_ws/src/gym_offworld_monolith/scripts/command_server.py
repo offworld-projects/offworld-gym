@@ -7,6 +7,7 @@ import rospy
 from geometry_msgs.msg import Twist
 import logging
 import subprocess
+from sys import argv
 
 logger = logging.getLogger(__name__)
 level = logging.INFO
@@ -97,11 +98,10 @@ class Server(BaseHTTPRequestHandler):
             ang_z_speed = message['ang_z_speed']
 
             move_robot(lin_x_speed, ang_z_speed)
-            # cmd_command = f"rostopic pub -r 10 /cmd_vel geometry_msgs/Twist -- '[{lin_x_speed}, {lin_y_speed},
-            # {lin_z_speed}]' '[{ang_x_speed}, {ang_y_speed}, {ang_z_speed}]'" os.system(cmd_command)
 
-            message = {'success': 'cmd_vel publish ok'}
-
+            message = {}
+            message['success'] = 'cmd_vel publish ok'
+        
         # send the message back
         self._set_headers()
         self.wfile.write(json.dumps(message).encode())

@@ -34,6 +34,8 @@ import ast
 import requests
 import roslibpy
 import socket
+import traceback
+import numpy as np
 
 logger = logging.getLogger(__name__)
 level = logging.DEBUG
