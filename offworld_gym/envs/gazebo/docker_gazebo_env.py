@@ -12,33 +12,30 @@
 # distributed under the License is distributed on an "AS IS" basis,
 # without warranties or conditions of any kind, express or implied.
 
+from typing import NamedTuple
 from offworld_gym import version
 
 __version__ = version.__version__
 
 # std
 import os
-import sys
 import time
 import uuid
 import subprocess
-import signal
 import atexit
-import threading
 from abc import abstractmethod
 from abc import ABCMeta
 import os
 
-# gym and ros
-import gym
-
 # other dependencies
-import base64
+import gym
 import logging
 import json
 import ast
 import requests
 import roslibpy
+import socket
+import traceback
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -46,10 +43,9 @@ level = logging.DEBUG
 logger.setLevel(level)
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworldai/offworld-gym")
-ROS_BRIDGE_PORT = 9090
-GAZEBO_SERVER_INTERNAL_PORT = 11345
 GAZEBO_WEB_SERVER_INTERNAL_PORT = 8080
 HTTP_COMMAND_SERVER_PORT = 8008
+
 
 
 class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
@@ -85,7 +81,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             traceback.print_exc()
 
         # initialize a ros bridge client
-        self._rosbridge_client = roslibpy.Ros(host=str('localhost'), port=int(ROS_BRIDGE_PORT))
+        self._rosbridge_client = roslibpy.Ros(host=str('localhost'), port=int(self._ports.ros_port))
         self._rosbridge_client.run()
 
     def _start_container(self):
@@ -96,9 +92,10 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         # retracted to "docker run" for automatic ip and container name assignment
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo/docker_entrypoint.sh"
         container_env_str = " -e DISPLAY"
-        container_ports_str = f" -p {ROS_BRIDGE_PORT}:{ROS_BRIDGE_PORT}" \
-                              f" -p {GAZEBO_WEB_SERVER_INTERNAL_PORT}:{GAZEBO_WEB_SERVER_INTERNAL_PORT}" \
-                              f" -p {HTTP_COMMAND_SERVER_PORT}:{HTTP_COMMAND_SERVER_PORT}"
+        self._ports = _find_open_ports()
+        container_ports_str = f" -p {self._ports.ros_port}:{self._ports.ros_port}" \
+                              f" -p {self._ports.gazebo_port}:{GAZEBO_WEB_SERVER_INTERNAL_PORT}" \
+                              f" -p {self._ports.server_port}:{HTTP_COMMAND_SERVER_PORT}"
         docker_run_command = f"docker run --name {container_name} -it -d --rm " \
                              f"{container_env_str} {container_ports_str} " \
                              f"offworldai/offworld-gym:latest {container_entrypoint}"
@@ -138,12 +135,13 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         """
         try:
             headers = {'Content-type': 'application/json'}
-            json_data = '{"command_name": "launch_node", "package_name": "gym_offworld_monolith", "launch_file_name":"env_bringup.launch"}'
+            json_data = f'{{"command_name": "launch_node", "package_name": "gym_offworld_monolith", "launch_file_name":"env_bringup.launch", "ros_port": {self._ports.ros_port}}}'
             json_data = ast.literal_eval(json_data)
-            result = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+            _ = requests.post(f"http://127.0.0.1:{self._ports.server_port}/", data=json.dumps(json_data), headers=headers)
             logger.info("The environment has been started.")
+            print(f"The simulation can be viewed at 'http://localhost:{self._ports.gazebo_port}'")
         except Exception:
-            logger.error("Environment cannot be launched in the docker.")
+            logger.error("Environment cannont be launched in the docker.")
 
     def register_ros_service(self, service_name, service_type):
         """Register service 
@@ -204,21 +202,21 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         return subscriber
 
     def pause_physics_remotely(self):
-        """Pause physics remotely from localhost, send sommand to docker command server 
+        """Pause physics remotely from localhost, send command to docker command server
         """
         headers = {'Content-type': 'application/json'}
         json_data = '{"command_name": "pause"}'
         json_data = ast.literal_eval(json_data)
-        _ = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+        _ = requests.post(f"http://127.0.0.1:{self._ports.server_port}/", data=json.dumps(json_data), headers=headers)
 
     def unpause_physics_remotely(self):
-        """Pause physics remotely from localhost, send sommand to docker command server 
+        """Unpause physics remotely from localhost, send command to docker command server
         """
         # import pdb; pdb.set_trace()
         headers = {'Content-type': 'application/json'}
         json_data = '{"command_name": "unpause"}'
         json_data = ast.literal_eval(json_data)
-        _ = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+        _ = requests.post(f"http://127.0.0.1:{self._ports.server_port}/", data=json.dumps(json_data), headers=headers)
 
     def publish_cmd_vel_remotely(self, lin_x_speed, ang_z_speed):
         """send cmd_vel from localhost to python server inside docker, then publish cmd_vel in as bash command inside 
@@ -226,7 +224,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         headers = {'Content-type': 'application/json'}
         json_data = '{"command_name": "cmd_vel", "lin_x_speed":' + f'"{lin_x_speed}"' + ', "lin_y_speed":"0.0","lin_z_speed":"0.0", "ang_z_speed":' + f'"{ang_z_speed}"' + ',"ang_x_speed":"0.0", "ang_y_speed":"0.0"}'
         json_data = ast.literal_eval(json_data)
-        _ = requests.post("http://127.0.0.1:8008/", data=json.dumps(json_data), headers=headers)
+        _ = requests.post(f"http://127.0.0.1:{self._ports.server_port}/", data=json.dumps(json_data), headers=headers)
 
     @abstractmethod
     def step(self, action):
@@ -255,3 +253,37 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         os.system("killall -9 -u `whoami` rosmaster")
         os.system("killall -9 -u `whoami` roscore")
         # kill the container
+
+
+class DockerPorts(NamedTuple):
+    ros_port: str
+    gazebo_port: str
+    server_port: str
+
+    def __str__(self):
+        return f'rosbridge port: {self.ros_port}\n' \
+               f'gazebo port: {self.gazebo_port}\n' \
+               f'server port: {self.server_port}'
+
+
+def _find_open_ports():
+    """Finds 3 random open ports to assign to the host for communication with the Docker container
+    This allows multiple containers to run simultaneously without conflicting
+    """
+    ros_sock = socket.socket()
+    ros_sock.bind(('localhost', 0))
+    _, ros_port = ros_sock.getsockname()
+
+    gazebo_sock = socket.socket()
+    gazebo_sock.bind(('localhost', 0))
+    _, gazebo_port = gazebo_sock.getsockname()
+
+    server_sock = socket.socket()
+    server_sock.bind(('localhost', 0))
+    _, server_port = server_sock.getsockname()
+
+    ros_sock.close()
+    gazebo_sock.close()
+    server_sock.close()
+
+    return DockerPorts(ros_port, gazebo_port, server_port)

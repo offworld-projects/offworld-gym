@@ -30,7 +30,6 @@ OffWorld Gym
     source/offworld_gym.envs.common
     source/offworld_gym.envs.real.core
     source/offworld_gym.envs.real.config
-    source/custom-keras-callbacks
 
 .. toctree::
     :maxdepth: 2

@@ -11,9 +11,4 @@ roscore &
 python3 "$OFFWORLD_GYM_ROOT"/offworld_gym/envs/gazebo/catkin_ws/src/gym_offworld_monolith/scripts/command_server.py &
 
 # start node.js and gazebo
-npm start --prefix /gzweb &
-
-while true
-do
-   sleep 2;
-done
+npm start --prefix /gzweb

@@ -29,11 +29,11 @@ env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Random agent'
                learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
 
 # initialize figure for drawing RGB and D inputs
-# fig, (ax1, ax2) = plt.subplots(1, 2);
-# plt.ion();
-# plt.show();
+fig, (ax1, ax2) = plt.subplots(1, 2);
+plt.ion();
+plt.show();
 
-# env.reset()
+env.reset()
 
 # send a command to the robot
 while True:
@@ -41,11 +41,11 @@ while True:
     while not done:
         state, reward, done, _ = env.step(env.action_space.sample())
 
-        # # display the state
-        # ax1.imshow(np.array(state[0, :, :, :3], dtype='int'));
-        # ax2.imshow(np.array(state[0, :, :, 3]), cmap='gray');
-        # plt.draw();
-        # plt.pause(0.001);
+        # display the state
+        ax1.imshow(np.array(state[0, :, :, :3], dtype='int'));
+        ax2.imshow(np.array(state[0, :, :, 3]), cmap='gray');
+        plt.draw();
+        plt.pause(0.001);
 
         # print out action outcome
         print("Step reward:", reward)
