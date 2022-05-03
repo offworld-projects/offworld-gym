@@ -1,5 +1,10 @@
 services:
   ow_gym_sim:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - "/tmp/.X11-unix:/tmp/.X11-unix:rw"
     image: offworldai/offworld-gym:latest
-
-
+    # logging:
+    #   driver: none

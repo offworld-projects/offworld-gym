@@ -7,10 +7,11 @@
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
   <arg name="verbose" default="false"/>
+  <arg name="ros_port" default="9090"/>
 
   <!-- Configure and launch rosbridge-->
-  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" > 
-     <arg name="port" value="9090"/>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
+     <arg name="port" value="$(arg ros_port)"/>
   </include>
   
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
