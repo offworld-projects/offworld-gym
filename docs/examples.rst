@@ -6,7 +6,7 @@ By now you have registered at `gym.offworld.ai <https://gym.offworld.ai>`_, book
 Minimal example in the Real environment
 ---------------------------------------
 
-Execute ``python3.6 minimal_example_OffWorldMonolithDiscreteReal.py`` to run the example and let us go over the notable portions of the code you are running:
+Execute ``python3 examples/real/random_monolith_discrete_real.py`` to run the example and let us go over the notable portions of the code you are running:
 
 .. note::
   Make sure you have booked the time with the `resource manager <https://gym.offworld.ai/book>`_ and that you are running the experiment during your time slot.
@@ -74,20 +74,26 @@ SAC in a real environment with continuous control
     TODO
 
 
-DQN in a real environment with discrete actions
------------------------------------------------
-In some of our examples we use a slightly `modified version <https://github.com/offworld-projects/keras-rl/tree/offworld-gym>`_ of `Keras-RL <https://github.com/keras-rl/keras-rl>`_ library that allows us to make the training process resumable after an interruption. This is something that happens quite often when training in real. A set of ``utils`` allows you to visualize additional information on a TensorBoard. The ``offworld_gym`` library itself does not depend on these tools - you can ignore them, build on top of them or use them for inspiration. Keras-RL was our choice but you can use any other framework when developing your RL agents.
+QR-DQN in a real environment with discrete actions
+--------------------------------------------------
+In some of our examples we use ``PyTorch`` as Deep Learning Framework, alongside the Reinforcement Learning algorithm libraries such as  ``Tianshou`` and ``Stable-baselines3``. Our training scripts in ``examples/`` allow you to make the training process resumable after an interruption. This is something that happens quite often when training in real.
 
-Keras RL relies on somewhat older packages, the easiest way to get everything you need is by runing ``scripts/owgym-kerasrl-virtualenv.sh`` that will create virtual Python 3.6 environment and install all the necessary dependencies.
+The ``utils.py`` packs gym wrapper classes to modify how an environment works to meet the preprocessing criteria of RL alhgorithm libraries, such as Frame resizing and stacking.
+
+The ``offworld_network.py`` provides customized pytorch network structures to train an agent in real.
+
+The ``offworld_gym`` library itself does not depend on these tools - you can ignore them, build on top of them or use them for inspiration. 
 
 .. code:: bash
 
-    ./scripts/owgym-kerasrl-virtualenv.sh
-    source assets/owgym-kerasrl/bin/activate
-    python examples/ddqn_OffWorldMonolithDiscreteReal.py
+    python examples/real/qrdqn_monolith_discrete_real.py
 
 
-This will start training a DQN agent on a real robot! Note that it will only work if you have booked the time with the resource manager and the time of running the experiment is the time you've booked.
+This will start training a QR-DQN agent on a real robot! In order to resume, add ``--resume`` argument in above commandline. 
+
+To check training curves, navigating to ``log/ {your experiment name}`` folder, and open another terminal under this folder, type ``tensorboard --logdir .``, then copy the URL provided in your terminal and paste it in browser.
+
+Note that it will only work if you have booked the time with the resource manager and the time of running the experiment is the time you've booked.
 
 .. note::
    When initializing new environment you need to give a unique name for each new experiment.
@@ -124,22 +130,16 @@ We wish you the best of luck with your algorithm design and hope to see you on t
 
 
 
-DQN in a simulated environment
-------------------------------
+QR-DQN in a simulated environment
+---------------------------------
 
-Same as in the section above, running this example requires a few additional installation steps:
+Same as in the section above.
 
 .. code:: bash
 
-    ./scripts/owgym-kerasrl-virtualenv.sh
-    source assets/owgym-kerasrl/bin/activate
-    python examples/ddqn_OffWorldMonolithDiscreteSim.py
+    python3 examples/sim/qrdqn_monolith_discrete_sim.py
 
-The ``SaveDQNTrainingState`` callback will store model and memory snapshots every 100 episodes in the ``sim_agent_state`` directory. In case your process stops you can just restart the python script, confirm that you wish to resume learning from the latest snapshot, and the learning will continue. Since we are storing the DQN replay buffer alongside the model, the script saves only the 3 last snapshots by default to save some storage space. Feel free to change that parameter or set it to `None` if you would like to keep all the snapshots. You can also stop training manually by calling ``touch /tmp/killrlsim`` or pressing Ctrl+C (this sometimes fails so it is better user the ``touch`` method).
-
-Calling ``pkill -f ros`` is a good way to clear runaway ROS processes that might still be running if the process was not cleanly terminated.
-
-By default the script saves TensorBoard log data under `logs`, you can see the data by running ``tensorboard --logdir=logs`` and opening `http://localhost:6006
+By default the script saves TensorBoard log data under `log/`, you can see the data by running ``tensorboard --logdir=logs`` and opening `http://localhost:6006
 <http://localhost:6006>`_ in your web browser.
 
 .. figure:: images/running-sim-experiments.png

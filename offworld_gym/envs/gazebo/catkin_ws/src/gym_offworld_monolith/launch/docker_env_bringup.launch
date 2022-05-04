@@ -8,11 +8,7 @@
   <arg name="debug" default="false"/>
   <arg name="verbose" default="false"/>
 
-  <!-- Configure and launch rosbridge-->
-  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" > 
-     <arg name="port" value="9090"/>
-  </include>
-  
+
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find gym_offworld_monolith)/worlds/gymbox.world"/>
     <arg name="paused" value="$(arg paused)"/>
@@ -28,4 +24,11 @@
     <arg name="pos_y" value="0.9"/>
     <arg name="pos_z" value="0.21"/>
   </include>
+
+  <!-- Configure and launch rosbridge-->
+  
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" > 
+     <arg name="port" value="9090"/>
+  </include>
+
 </launch>

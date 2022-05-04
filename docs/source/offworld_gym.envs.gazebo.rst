@@ -4,10 +4,26 @@ offworld\_gym.envs.gazebo package
 Submodules
 ----------
 
-offworld\_gym.envs.gazebo.gazebo\_env module
---------------------------------------------
+offworld\_gym.envs.gazebo.docker\_gazebo\_env module
+----------------------------------------------------
 
-.. automodule:: offworld_gym.envs.gazebo.gazebo_env
+.. automodule:: offworld_gym.envs.gazebo.docker_gazebo_env
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+offworld\_gym.envs.gazebo.gazebo\_utils module
+----------------------------------------------
+
+.. automodule:: offworld_gym.envs.gazebo.gazebo_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+offworld\_gym.envs.gazebo.image\_utils module
+---------------------------------------------
+
+.. automodule:: offworld_gym.envs.gazebo.image_utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -16,22 +32,6 @@ offworld\_gym.envs.gazebo.offworld\_monolith\_env module
 --------------------------------------------------------
 
 .. automodule:: offworld_gym.envs.gazebo.offworld_monolith_env
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-offworld\_gym.envs.gazebo.offworld\_monolith\_obstacle\_env module
-------------------------------------------------------------------
-
-.. automodule:: offworld_gym.envs.gazebo.offworld_monolith_obstacle_env
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-offworld\_gym.envs.gazebo.utils module
---------------------------------------
-
-.. automodule:: offworld_gym.envs.gazebo.utils
    :members:
    :undoc-members:
    :show-inheritance:

@@ -9,7 +9,6 @@ Subpackages
 
    offworld_gym.envs.common
    offworld_gym.envs.gazebo
-   offworld_gym.envs.gazebo_docker
    offworld_gym.envs.real
 
 Module contents

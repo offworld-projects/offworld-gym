@@ -1,0 +1,5 @@
+services:
+  ow_gym_sim:
+    image: offworldai/offworld-gym:latest
+
+

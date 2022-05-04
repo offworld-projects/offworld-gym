@@ -33,7 +33,7 @@ env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Random agent'
 # plt.ion();
 # plt.show();
 
-# env.reset()
+env.reset()
 
 # send a command to the robot
 while True:
