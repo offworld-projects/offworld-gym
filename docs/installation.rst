@@ -32,13 +32,13 @@ To test your installtion and the connectivity with the physical enviroment, do t
 
     1. Book your time slot at `https://gym.offworld.ai/book <https://gym.offworld.ai/book>`_
     2. ``export OFFWORLD_GYM_ACCESS_TOKEN=paste_your_token_here`` using the OffWorld Gym Access Token from `https://gym.offworld.ai/account <https://gym.offworld.ai/account>`_ (consider adding it to your ``~/.bashrc``)
-    3. Run the minimal example ``python3 examples/minimal_example_OffWorldMonolithDiscreteReal.py``
+    3. Run the minimal example ``python3 examples/sim/random_monolith_continuous_sim.py``
     4. Open `https://gym.offworld.ai/cameras <https://gym.offworld.ai/cameras>`_ in your browser to see the live camera feed from the environment!
 
 To run a simulated environment:
 
 
-    1. ``python3.6 examples/sim/random_monolith_continuous_sim.py``
+    1. ``python3 examples/sim/random_monolith_continuous_sim.py``
     2. The terminal will print out a link that you can paste into your browser to visualize the Gazebo simulation!
 
 
