@@ -22,7 +22,7 @@ Setup
 
     git clone https://github.com/offworld-projects/offworld-gym.git
     cd offworld-gym
-    pip3 install -e .
+    pip3 install -ve .
 
 
 Verify the installation
