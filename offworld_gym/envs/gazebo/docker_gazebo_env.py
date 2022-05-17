@@ -139,7 +139,7 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
             json_data = ast.literal_eval(json_data)
             _ = requests.post(f"http://127.0.0.1:{self._ports.server_port}/", data=json.dumps(json_data), headers=headers)
             logger.info("The environment has been started.")
-            print(f"The simulation can be viewed at 'http://localhost:{self._ports.gazebo_port}'")
+            print(f"\u001b[35;1mThe simulation can be viewed at 'http://localhost:{self._ports.gazebo_port}'\u001b[0m")
         except Exception:
             logger.error("Environment cannont be launched in the docker.")
 
