@@ -75,7 +75,7 @@ def make_offworld_env_watch(args):
     )
  
 def train_qrdqn(args=get_args()):
-    args.state_shape = (1,100,100)
+    args.state_shape = (2,100,100)
     args.action_shape = 4
     channel = args.state_shape[0]
     # should be (N_FRAMES X C) x H x W
