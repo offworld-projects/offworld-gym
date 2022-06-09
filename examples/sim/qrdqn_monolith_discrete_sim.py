@@ -7,7 +7,7 @@ sys.path.append("..")
 import numpy as np
 import torch
 from examples import DQN,QRDQN
-from examples import wrap_offworld, wrap_offworld_real
+from examples import wrap_offworld
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
@@ -65,14 +65,12 @@ def get_args():
     return parser.parse_args()
 
 
-def make_offworld_env(args):
-    return wrap_offworld(args.task)
+def make_offworld_env(env):
+    return wrap_offworld(env)
 
 
-def make_offworld_env_watch(args):
-    return wrap_offworld(
-        args.task
-    )
+def make_offworld_env_watch(env):
+    return wrap_offworld(env)
  
 def train_qrdqn(args=get_args()):
     args.state_shape = (2,100,100)
@@ -82,13 +80,14 @@ def train_qrdqn(args=get_args()):
     print("Observations shape:", args.state_shape)
     print("Actions shape:", args.action_shape)
     # make environments
+    env = gym.make(args.task, channel_type=Channels.RGBD)
     train_envs = SubprocVectorEnv(
-        [lambda: make_offworld_env(args) for _ in range(args.training_num)]
+        [lambda: make_offworld_env(env) for _ in range(args.training_num)]
     )
-    # test_envs = SubprocVectorEnv(
-    #     [lambda: make_offworld_env_watch(args) for _ in range(args.test_num)]
-    # )
-    test_envs = train_envs
+    test_envs = SubprocVectorEnv(
+        [lambda: make_offworld_env_watch(env) for _ in range(args.test_num)]
+    )
+    # test_envs = train_envs
 
     # seed
     np.random.seed(args.seed)

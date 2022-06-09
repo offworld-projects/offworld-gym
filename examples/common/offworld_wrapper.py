@@ -31,7 +31,7 @@ import gym
 from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 
-def GetLogPath(path=None, developerTestingFlag=True):
+def get_log_path(path=None, developerTestingFlag=True):
     """Setup a path where log files will be stored
 
     Path format .\[path]\YY-mm-dd\HH-MM-SS\
@@ -67,8 +67,7 @@ class WarpFrame(gym.ObservationWrapper):
         self.observation_space = gym.spaces.Box(
             low=np.min(env.observation_space.low),
             high=np.max(env.observation_space.high),
-            shape=(self.size, self.size),
-            # shape=(240, 320),
+            shape=(self.size, self.size),  # default shape=(240, 320),
             dtype=env.observation_space.dtype
         )
 
@@ -85,7 +84,7 @@ class WarpFrame(gym.ObservationWrapper):
             depth = frame[0, :, :, -1]
             depth = (np.clip(depth / 5, 0, 1) * 255).astype('uint8')  # convert depth to uint8
             rgb = cv2.cvtColor(frame[0, :, :, :3].astype('float32'), cv2.COLOR_RGB2GRAY).astype('uint8')
-            obs = np.stack([rgb, depth], axis=-1)
+            obs = np.stack([rgb, depth], axis=-1) # 2-channel image 
 
         obs_resized = cv2.resize(obs, (self.size, self.size), interpolation=cv2.INTER_AREA)
         obs_resized = obs_resized[..., np.newaxis] if len(obs_resized.shape) == 2 else obs_resized
@@ -127,47 +126,21 @@ class FrameStack(gym.Wrapper):
         return np.concatenate(self.frames, axis=0)
 
 def wrap_offworld(
-    env_id,
-    frame_stack=1,
-    warp_frame=True,
-):
-    """Configure environment for DeepMind-style Atari. The observation is
-    channel-first: (c, h, w) instead of (h, w, c).
-
-    :param str env_id: the atari environment id.
-    :param bool episode_life: wrap the episode life wrapper.
-    :param bool clip_rewards: wrap the reward clipping wrapper.
-    :param int frame_stack: wrap the frame stacking wrapper.
-    :param bool scale: wrap the scaling observation wrapper.
-    :param bool warp_frame: wrap the grayscale + resize observation wrapper.
-    :return: the wrapped atari environment.
-    """
-    env = gym.make(env_id,channel_type=Channels.RGBD)
-    if warp_frame:
-        env = WarpFrame(env)
-    if frame_stack:
-        env = FrameStack(env, frame_stack)
-    return env
-
-def wrap_offworld_real(
     env,
     frame_stack=1,
     warp_frame=True,
 ):
-    """Configure environment for DeepMind-style Atari. The observation is
+    """Configure environment for OffWorld-Gym. The observation is
     channel-first: (c, h, w) instead of (h, w, c).
 
-    :param str env_id: the atari environment id.
-    :param bool episode_life: wrap the episode life wrapper.
-    :param bool clip_rewards: wrap the reward clipping wrapper.
+    :param str env: the offworld-gym environment.
     :param int frame_stack: wrap the frame stacking wrapper.
-    :param bool scale: wrap the scaling observation wrapper.
     :param bool warp_frame: wrap the grayscale + resize observation wrapper.
-    :return: the wrapped atari environment.
+    :return: the wrapped OffWorld-Gym environment.
     """
-
     if warp_frame:
         env = WarpFrame(env)
     if frame_stack:
         env = FrameStack(env, frame_stack)
     return env
+

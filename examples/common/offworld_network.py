@@ -35,6 +35,7 @@ class DQN(nn.Module):
 
         with torch.no_grad():
             self.output_dim = np.prod(self.net(torch.zeros(1, c, h, w)).shape[1:])
+            
         if not features_only:
             self.net = nn.Sequential(
                 self.net, nn.Linear(self.output_dim, 64), nn.ReLU(inplace=True),
