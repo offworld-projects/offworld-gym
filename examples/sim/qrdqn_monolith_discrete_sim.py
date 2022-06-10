@@ -11,7 +11,7 @@ from examples import wrap_offworld
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
-from tianshou.env import SubprocVectorEnv 
+from tianshou.env import SubprocVectorEnv, ShmemVectorEnv, DummyVectorEnv
 from tianshou.policy import QRDQNPolicy
 from tianshou.trainer import offpolicy_trainer
 from tianshou.utils import TensorboardLogger
@@ -22,6 +22,8 @@ from offworld_gym.envs.common.channels import Channels
 from offworld_gym.envs.common.enums import AlgorithmMode, LearningType
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # to surpress the warning when running real env
+
+import copy
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -42,7 +44,7 @@ def get_args():
     parser.add_argument('--update-per-step', type=float, default= 0.1)
     parser.add_argument('--batch-size', type=int, default=256)
     parser.add_argument('--training-num', type=int, default=1)
-    parser.add_argument('--test-num', type=int, default=1)
+    parser.add_argument('--testing-num', type=int, default=1)
     parser.add_argument('--logdir', type=str, default='log')
     parser.add_argument('--render', type=float, default=0.)
     parser.add_argument(
@@ -80,14 +82,13 @@ def train_qrdqn(args=get_args()):
     print("Observations shape:", args.state_shape)
     print("Actions shape:", args.action_shape)
     # make environments
-    env = gym.make(args.task, channel_type=Channels.RGBD)
-    train_envs = SubprocVectorEnv(
-        [lambda: make_offworld_env(env) for _ in range(args.training_num)]
+    train_envs = DummyVectorEnv(
+        [lambda: make_offworld_env(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.training_num)]
     )
-    test_envs = SubprocVectorEnv(
-        [lambda: make_offworld_env_watch(env) for _ in range(args.test_num)]
+    test_envs = DummyVectorEnv(
+        [lambda: make_offworld_env_watch(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.testing_num)]
     )
-    # test_envs = train_envs
+
 
     # seed
     np.random.seed(args.seed)
