@@ -43,7 +43,6 @@ class SecuredBridge(metaclass=Singleton):
         self._server_ip = self.settings_dict["gym_server"]["server_ip"]
         self._secured_port = self.settings_dict["gym_server"]["secured_port"]
         self._action_counter = 0
-        self._certificate = False #os.path.join(os.path.dirname(os.path.realpath(__file__)), "../certs/gym_monolith/certificate.pem") #TODO find out why doesn't the certificate work, unverified certs can cause mitm attack
         
     def _initiate_communication(self):
         """Validate api token, get web token for next request.
@@ -63,7 +62,7 @@ class SecuredBridge(metaclass=Singleton):
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, TokenRequest.URI)
         response = None
         try:
-            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=True)
             if response.status_code != HTTPStatus.BAD_REQUEST and response.status_code != HTTPStatus.INTERNAL_SERVER_ERROR:
                 response_json = json.loads(response.text)
             else:
@@ -107,7 +106,7 @@ class SecuredBridge(metaclass=Singleton):
 
         set_up_response = None
         try:
-            set_up_response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
+            set_up_response = requests.post(url=api_endpoint, json=req.to_dict(), verify=True)
             set_up_response_json = json.loads(set_up_response.text)
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
@@ -145,7 +144,7 @@ class SecuredBridge(metaclass=Singleton):
 
         response = None
         try:
-            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=True)
             response_json = json.loads(response.text)
             reward = int(response_json['reward'])
             state = json.loads(response_json['state'])
@@ -198,7 +197,7 @@ class SecuredBridge(metaclass=Singleton):
 
         response = None
         try:
-            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=True)
             response_json = json.loads(response.text)
             reward = int(response_json['reward'])
             state = json.loads(response_json['state'])
@@ -245,7 +244,7 @@ class SecuredBridge(metaclass=Singleton):
 
         response = None
         try:
-            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=True)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
 
@@ -284,7 +283,7 @@ class SecuredBridge(metaclass=Singleton):
 
         response = None
         try:
-            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=self._certificate)
+            response = requests.post(url=api_endpoint, json=req.to_dict(), verify=True)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
             
@@ -316,7 +315,7 @@ class SecuredBridge(metaclass=Singleton):
         req = DisconnectRequest(self._web_token, channel_type=channel_type)
         api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, uri)
         try:
-            response = requests.post(url = api_endpoint, json = req.to_dict(), verify=self._certificate)
+            response = requests.post(url = api_endpoint, json = req.to_dict(), verify=True)
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:
