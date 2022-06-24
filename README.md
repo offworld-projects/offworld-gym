@@ -51,8 +51,9 @@ Please check the [Installation](https://gym.offworld.ai/docs/installation.html) 
 
 
 ## Examples
-For a short example of how to connect to the real robot and interact with it please have a look at the [Minimal example in the Real environment](https://gym.offworld.ai/docs/examples.html).
+There are minimal examples of how to connect to the real and sim robots and interact with them, please have a look at the [Minimal example in the Real and Sim environment](https://gym.offworld.ai/docs/examples.html).
 
-We also provide examples where and agent achieves learning in both the real and the simulated environment. We use a slightly [modified version](https://github.com/offworld-projects/keras-rl/tree/offworld-gym) of [Keras-RL](https://github.com/keras-rl/keras-rl) library that allows us to make the training process resumable after an interruption. This is something that happens quite often when training in real. A set of `utils` allows you to visualize additional information on a TensorBoard. The `offworld_gym` library itself does not depend on these tools - you can ignore them, build on top of them or use them for inspiration. Keras-RL was our choice but you can use any other framework when developing your RL agents.
+We also provide examples where an agent achieves learning in both the real and the simulated environment. We use ``PyTorch`` as Deep Learning Framework, alongside the Reinforcement Learning libraries such as  ``Tianshou`` and ``Stable-baselines3``. Our training scripts in ``examples/sim`` or ``examples/real`allow you to make the training process resumable after an interruption. This is something that happens quite often when training in real.
+ This is something that happens quite often when training in real.  The `offworld_gym` library itself does not depend on these tools - you can ignore them, build on top of them or use them for inspiration. Keras-RL was our choice but you can use any other framework when developing your RL agents.
 
 See the [Examples](https://gym.offworld.ai/docs/examples.html) section of the Docs for more details.
