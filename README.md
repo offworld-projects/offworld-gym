@@ -53,7 +53,7 @@ Please check the [Installation](https://gym.offworld.ai/docs/installation.html) 
 ## Examples
 There are minimal examples of how to connect to the real and sim robots and interact with them, please have a look at the [Minimal example in the Real and Sim environment](https://gym.offworld.ai/docs/examples.html).
 
-We also provide examples where an agent achieves learning in both the real and the simulated environment. We use ``PyTorch`` as Deep Learning Framework, alongside the Reinforcement Learning libraries such as  ``Tianshou`` and ``Stable-baselines3``. Our training scripts in ``examples/sim`` or ``examples/real`allow you to make the training process resumable after an interruption. This is something that happens quite often when training in real.
+We also provide examples where an agent achieves learning in both the real and the simulated environment. We use ``PyTorch`` as Deep Learning Framework, alongside the Reinforcement Learning libraries such as  ``Tianshou`` and ``Stable-baselines3``. Our training scripts in ``examples/sim`` or ``examples/real`` allow you to make the training process resumable after an interruption. This is something that happens quite often when training in real.
  This is something that happens quite often when training in real.  The `offworld_gym` library itself does not depend on these tools - you can ignore them, build on top of them or use them for inspiration. Keras-RL was our choice but you can use any other framework when developing your RL agents.
 
 See the [Examples](https://gym.offworld.ai/docs/examples.html) section of the Docs for more details.
