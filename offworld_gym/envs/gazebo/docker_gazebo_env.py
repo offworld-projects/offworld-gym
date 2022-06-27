@@ -39,7 +39,7 @@ import traceback
 import numpy as np
 
 logger = logging.getLogger(__name__)
-level = logging.DEBUG
+level = logging.INFO
 logger.setLevel(level)
 
 OFFWORLD_GYM_DOCKER_IMAGE = os.environ.get("OFFWORLD_GYM_DOCKER_IMAGE", "offworldai/offworld-gym")

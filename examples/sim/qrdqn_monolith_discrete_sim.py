@@ -82,10 +82,10 @@ def train_qrdqn(args=get_args()):
     print("Observations shape:", args.state_shape)
     print("Actions shape:", args.action_shape)
     # make environments
-    train_envs = DummyVectorEnv(
+    train_envs = SubprocVectorEnv(
         [lambda: make_offworld_env(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.training_num)]
     )
-    test_envs = DummyVectorEnv(
+    test_envs = SubprocVectorEnv(
         [lambda: make_offworld_env_watch(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.testing_num)]
     )
 
