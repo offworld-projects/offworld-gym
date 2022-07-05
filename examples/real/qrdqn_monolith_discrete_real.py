@@ -5,7 +5,7 @@ import pprint
 import numpy as np
 import torch
 from examples import DQN,QRDQN
-from examples import wrap_offworld_real
+from examples import wrap_offworld
 from torch.utils.tensorboard import SummaryWriter
 
 from tianshou.data import Collector, VectorReplayBuffer
@@ -63,9 +63,6 @@ def get_args():
     return parser.parse_args()
 
 
-def make_offworld_env(env):
-    return wrap_offworld_real(env)
-
 def train_qrdqn(args=get_args()):
     # args.state_shape = env.observation_space.shape or env.observation_space.n
     # args.action_shape = env.action_space.shape or env.action_space.n
@@ -83,7 +80,7 @@ def train_qrdqn(args=get_args()):
 
     # make environments
     train_envs = DummyVectorEnv(
-        [lambda: make_offworld_env(env) for _ in range(args.training_num)]
+        [lambda: wrap_offworld(env) for _ in range(args.training_num)]
     )
     test_envs = train_envs
     # seed

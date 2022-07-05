@@ -67,13 +67,6 @@ def get_args():
     return parser.parse_args()
 
 
-def make_offworld_env(env):
-    return wrap_offworld(env)
-
-
-def make_offworld_env_watch(env):
-    return wrap_offworld(env)
- 
 def train_qrdqn(args=get_args()):
     args.state_shape = (2,100,100)
     args.action_shape = 4
@@ -83,10 +76,10 @@ def train_qrdqn(args=get_args()):
     print("Actions shape:", args.action_shape)
     # make environments
     train_envs = SubprocVectorEnv(
-        [lambda: make_offworld_env(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.training_num)]
+        [lambda: wrap_offworld(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.training_num)]
     )
     test_envs = SubprocVectorEnv(
-        [lambda: make_offworld_env_watch(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.testing_num)]
+        [lambda: wrap_offworld(gym.make(args.task, channel_type=Channels.RGBD)) for _ in range(args.testing_num)]
     )
 
 
