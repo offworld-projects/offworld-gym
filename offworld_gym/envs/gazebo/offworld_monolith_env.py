@@ -45,7 +45,7 @@ import roslibpy
 
 import logging
 logger = logging.getLogger(__name__)
-level = logging.DEBUG
+level = logging.INFO
 logger.setLevel(level)
 
 class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
