@@ -34,5 +34,3 @@ txaio~=22.2.1
 typing_extensions~=4.1.1
 urllib3~=1.26.9
 zope.interface~=5.4.0
-tianshou~=0.4.3
-stable-baselines3~=1.1.0

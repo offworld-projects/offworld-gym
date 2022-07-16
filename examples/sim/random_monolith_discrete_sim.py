@@ -17,7 +17,7 @@ import logging
 
 from offworld_gym.envs.common.channels import Channels
 import time
-# logging.basicConfig(level=logging.INFO)
+
 
 # create the environment
 env = gym.make("OffWorldDockerMonolithDiscreteSim-v0", channel_type=Channels.RGB_ONLY)
