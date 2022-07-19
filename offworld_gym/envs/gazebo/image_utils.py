@@ -40,7 +40,7 @@ class ImageUtils(object):
         np_image = np_image.reshape((img_msg['height'],img_msg['width'],-1))
         img = np_image[:, :, ::-1].copy() # replace cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # img = cv2.resize(img, (resized_width, resized_height)) # could cause img corrupted
-        img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2]))
+        # img = np.reshape(img, (1, img.shape[0], img.shape[1], img.shape[2])) # removing extra first dim 
 
         if max_value_for_clip_and_normalize is not None:
             img = np.clip(img, a_min=0.0, a_max=max_value_for_clip_and_normalize)
@@ -61,7 +61,7 @@ class ImageUtils(object):
         img = np.nan_to_num(np_image)
         # img = cv2.resize(img, (resized_width, resized_height)) # could cause img corrupted
 
-        img = np.reshape(img, (1, img.shape[0], img.shape[1], 1))
+        # img = np.reshape(img, (1, img.shape[0], img.shape[1], 1)) # removing extra first dim 
 
         if max_value_for_clip_and_normalize is not None:
             img = np.clip(img, a_min=0.0, a_max=max_value_for_clip_and_normalize)

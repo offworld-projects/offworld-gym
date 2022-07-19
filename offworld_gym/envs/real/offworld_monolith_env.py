@@ -188,6 +188,8 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
             action = FourDiscreteMotionActions(action)
         
         state, reward, done = self.secured_bridge.monolith_discrete_perform_action(action, self._channel_type, self.algorithm_mode)
+
+        state = state[0] # removing the extra first dim
         
         self._last_state = state
 
@@ -210,6 +212,9 @@ class OffWorldMonolithDiscreteEnv(OffWorldMonolithEnv):
 
         logger.info("Resetting the episode and moving to a random initial position...")
         state = self.secured_bridge.monolith_discrete_perform_reset(self._channel_type)
+
+        state = state[0] # removing the extra first dim
+
         logger.info("Environment reset complete")
         return state
 
@@ -267,6 +272,8 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
             raise GymException("The environment has been closed.")
         
         state, reward, done = self.secured_bridge.monolith_continous_perform_action(action, self._channel_type, self.algorithm_mode)
+
+        state = state[0] # removing the extra first dim
         
         self._last_state = state
 
@@ -289,6 +296,9 @@ class OffWorldMonolithContinuousEnv(OffWorldMonolithEnv):
 
         logger.info("Resetting the episode and moving to a random initial position...")
         state = self.secured_bridge.monolith_continous_perform_reset(self._channel_type)
+
+        state = state[0] # removing the extra first dim
+        
         logger.info("Environment reset complete")
         return state
 

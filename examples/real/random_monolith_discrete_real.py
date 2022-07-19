@@ -42,8 +42,8 @@ while True:
         state, reward, done, _ = env.step(env.action_space.sample())
 
         # display the state
-        ax1.imshow(np.array(state[0, :, :, :3], dtype='int'));
-        ax2.imshow(np.array(state[0, :, :, 3]), cmap='gray');
+        ax1.imshow(np.array(state[:, :, :3], dtype='int'));
+        ax2.imshow(np.array(state[:, :, 3]), cmap='gray');
         plt.draw();
         plt.pause(0.001);
 
