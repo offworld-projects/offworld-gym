@@ -435,13 +435,29 @@ class OffWorldDockerizedMonolithEnv(DockerizedGazeboEnv):
             title: String value which is used as the title.
         """
         if img is not None and isinstance(img, np.ndarray):
-            plt.figure(id)
-            plt.ion()
-            plt.clf()
-            plt.imshow(img.squeeze())
-            plt.title(title)
-            plt.show(block=False)
-            plt.pause(0.05)
+            if self.channel_type == Channels.DEPTH_ONLY or self.channel_type == Channels.RGB_ONLY:
+                plt.figure(id)
+                plt.ion()
+                plt.clf()
+                plt.imshow(img)
+                plt.title(title)
+                plt.show(block=False)
+                plt.pause(0.05)
+            else:
+                fig, (ax1, ax2) = plt.subplots(figsize=(10,5), nrows=1, ncols=2, num=id)
+                plt.ion()
+                rgb_img =img[:,:,:3].astype('uint8')
+                depth_img = img[:,:,3].astype('float32')
+                depth_img = (depth_img / np.max(depth_img) * 255).astype('uint8')
+                ax1.imshow(rgb_img)
+                ax2.imshow(depth_img, cmap='gray')
+                ax1.set_title("RGB")
+                ax2.set_title("Depth")
+                fig.suptitle(title)
+                plt.show(block=False)
+                plt.pause(0.05)
+                plt.clf()
+
 
 class OffWorldDockerMonolithDiscreteEnv(OffWorldDockerizedMonolithEnv):
     """Discrete version of the simulated gym environment that replicates the real OffWorld Monolith environment in Gazebo.

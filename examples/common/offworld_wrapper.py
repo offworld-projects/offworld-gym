@@ -74,16 +74,16 @@ class WarpFrame(gym.ObservationWrapper):
     def observation(self, frame):
         """returns the current observation from a frame"""
         if self.channel == 1: #depth only
-            depth = frame[0, :, :, -1]
+            depth = frame[:, :, -1]
             depth = (np.clip(depth / 5, 0, 1) * 255).astype('uint8')  # convert depth to uint8
             obs = depth
         elif self.channel == 3: #rgb only:
             rgb = cv2.cvtColor(frame[0, :, :, :3].astype('float32'), cv2.COLOR_RGB2GRAY).astype('uint8')
             obs = rgb
         else: # rgbd
-            depth = frame[0, :, :, -1]
+            depth = frame[:, :, -1]
             depth = (np.clip(depth / 5, 0, 1) * 255).astype('uint8')  # convert depth to uint8
-            rgb = cv2.cvtColor(frame[0, :, :, :3].astype('float32'), cv2.COLOR_RGB2GRAY).astype('uint8')
+            rgb = cv2.cvtColor(frame[:, :, :3].astype('float32'), cv2.COLOR_RGB2GRAY).astype('uint8')
             obs = np.stack([rgb, depth], axis=-1) # 2-channel image 
 
         obs_resized = cv2.resize(obs, (self.size, self.size), interpolation=cv2.INTER_AREA)
