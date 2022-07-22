@@ -89,6 +89,12 @@ class DockerizedGazeboEnv(gym.Env, metaclass=ABCMeta):
         """
         container_name = f"offworld-gym-{uuid.uuid4().hex[:10]}"
 
+        # pull the gym docker image if it hasn't been already
+        docker_images = subprocess.check_output(["docker", "image", "ls"])
+        if "offworldai/offworld-gym" not in str(docker_images):
+            subprocess.run(["docker", "pull", "offworldai/offworld-gym"])
+
+
         # retracted to "docker run" for automatic ip and container name assignment
         container_entrypoint = "/offworld-gym/offworld_gym/envs/gazebo/docker_entrypoint.sh"
         container_env_str = " -e DISPLAY"
