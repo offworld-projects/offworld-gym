@@ -17,7 +17,7 @@ Environment 1: OffWorld Monolith
 
 
 
-## Evironments
+## Environments
 | Real | Description |
 | --- | --- |
 | ![OffWorldMonolithDiscreteReal-v0](./docs/images/OffWorldMonolithDiscreteReal.png) `OffWorldMonolithDiscreteReal-v0`  | Wheeled robot on an uneven terrain. Four **discrete actions**: left, right, forward, back. State space is RGB and/or Depth camera image. Sim version is available as `OffWorldMonolithDiscreteSim-v0`. |
