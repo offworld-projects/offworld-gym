@@ -69,7 +69,7 @@ def train_qrdqn(args=get_args()):
     experiment_name = "QRDQN_Real_Example"
     env_mode = {"train":AlgorithmMode.TRAIN,
                 "test":AlgorithmMode.TEST}
-    env = gym.make(args.task, channel_type=Channels.RGBD, resume_experiment=True,
+    env = gym.make(args.task, channel_type=Channels.RGBD, resume_experiment=False,
                         learning_type=LearningType.END_TO_END, algorithm_mode=env_mode["train"], experiment_name=experiment_name)
     args.state_shape = (2,100,100)
     args.action_shape = 4
