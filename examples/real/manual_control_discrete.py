@@ -24,6 +24,7 @@ key_symbols = {'up': '↑', 'down': '↓', 'left': '←', 'right': '→'}
 env = gym.make('OffWorldMonolithDiscreteReal-v0', experiment_name='Manual control discrete',
                resume_experiment=False, channel_type=Channels.DEPTH_ONLY,
                learning_type=LearningType.END_TO_END, algorithm_mode=AlgorithmMode.TRAIN)
+env.reset()
 
 def press(key):
     if key not in key_actions.keys():
