@@ -56,7 +56,7 @@ class OffWorldMonolithEnv(RealEnv):
         #environment
         self.observation_space = spaces.Box(0, 255, shape = (1, 240, 320, channel_type.value))
         self.step_count = 0
-        self.environment_name = None
+        self.environment_name = type(self).__name__
 
         self._channel_type = channel_type
         self._last_state = None
