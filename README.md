@@ -1,4 +1,5 @@
 # OffWorld Gym
+[![Docker Image CI](https://github.com/offworld-projects/offworld-gym/actions/workflows/docker-image.yml/badge.svg?branch=main)](https://github.com/offworld-projects/offworld-gym/actions/workflows/docker-image.yml)
 
 The challenge that the community sets as a benchmark is usually the challenge that the community eventually solves. The ultimate challenge of reinforcement learning research is to train *real* agents to operate in the *real* environment, but until now there has not been a common real-world RL benchmark.  
 
