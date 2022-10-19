@@ -40,12 +40,11 @@ class SecuredBridge(metaclass=Singleton):
     settings_dict = settings.config["application"]["dev"]
     _TELEMETRY_WAIT_TIME = 10
 
-    def __init__(self, environment_name):
+    def __init__(self):
         self._server_ip = self.settings_dict["gym_server"]["server_ip"]
         self._secured_port = self.settings_dict["gym_server"]["secured_port"]
         self._action_counter = 0
         self._session = requests.Session()
-        self._headers = {"Environment-Name": environment_name}
 
     def _initiate_communication(self):
         """Validate api token, get web token for next request.
@@ -62,10 +61,10 @@ class SecuredBridge(metaclass=Singleton):
 
         client_version = __version__
         req = TokenRequest(os.environ[token_var], client_version)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, TokenRequest.URI)
+        api_endpoint = "http://{}:{}/{}".format(self._server_ip, self._secured_port, TokenRequest.URI)
         response = None
         try:
-            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=True)
+            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=False)
             if response.status_code != HTTPStatus.BAD_REQUEST and response.status_code != HTTPStatus.INTERNAL_SERVER_ERROR:
                 response_json = json.loads(response.text)
             else:
@@ -110,11 +109,11 @@ class SecuredBridge(metaclass=Singleton):
         # Share the experiment details with the server
         req = SetUpRequest(self._web_token, experiment_name, resume_experiment, learning_type, algorithm_mode,
                            environment_name)
-        api_endpoint = f"https://{self._server_ip}:{self._secured_port}/{SetUpRequest.URI}"
+        api_endpoint = f"http://{self._server_ip}:{self._secured_port}/{SetUpRequest.URI}"
 
         set_up_response = None
         try:
-            set_up_response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=True)
+            set_up_response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=False)
             set_up_response_json = json.loads(set_up_response.text)
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
@@ -150,11 +149,11 @@ class SecuredBridge(metaclass=Singleton):
 
         req = MonolithDiscreteActionRequest(self._web_token, action_type=action_type, channel_type=channel_type,
                                             algorithm_mode=algorithm_mode)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteActionRequest.URI)
+        api_endpoint = "http://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteActionRequest.URI)
 
         response = None
         try:
-            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=True)
+            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=False)
             response_json = json.loads(response.text)
             reward = int(response_json['reward'])
             state = json.loads(response_json['state'])
@@ -207,12 +206,12 @@ class SecuredBridge(metaclass=Singleton):
 
         req = MonolithContinousActionRequest(self._web_token, action=action.tolist(), channel_type=channel_type,
                                              algorithm_mode=algorithm_mode)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port,
+        api_endpoint = "http://{}:{}/{}".format(self._server_ip, self._secured_port,
                                                  MonolithContinousActionRequest.URI)
 
         response = None
         try:
-            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=True)
+            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=False)
             response_json = json.loads(response.text)
             reward = int(response_json['reward'])
             state = json.loads(response_json['state'])
@@ -257,11 +256,11 @@ class SecuredBridge(metaclass=Singleton):
         logger.debug("Waiting for reset done from the server.")
 
         req = MonolithDiscreteResetRequest(self._web_token, channel_type=channel_type)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
+        api_endpoint = "http://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
 
         response = None
         try:
-            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=True)
+            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=False)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
 
@@ -297,11 +296,11 @@ class SecuredBridge(metaclass=Singleton):
         logger.debug("Waiting for reset done from the server.")
 
         req = MonolithDiscreteResetRequest(self._web_token, channel_type=channel_type)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
+        api_endpoint = "http://{}:{}/{}".format(self._server_ip, self._secured_port, MonolithDiscreteResetRequest.URI)
 
         response = None
         try:
-            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=True)
+            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=False)
             response_json = json.loads(response.text)
             state = json.loads(response_json['state'])
 
@@ -332,9 +331,9 @@ class SecuredBridge(metaclass=Singleton):
 
         uri = DisconnectRequest.URI_DISCRETE if discrete else DisconnectRequest.URI_CONTINOUS
         req = DisconnectRequest(self._web_token, channel_type=channel_type)
-        api_endpoint = "https://{}:{}/{}".format(self._server_ip, self._secured_port, uri)
+        api_endpoint = "http://{}:{}/{}".format(self._server_ip, self._secured_port, uri)
         try:
-            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=True)
+            response = self._session.post(url=api_endpoint, json=req.to_dict(), headers=self._headers, verify=False)
         except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as err:
             raise GymException(f"A request error occurred:\n{err}")
         except Exception as err:
